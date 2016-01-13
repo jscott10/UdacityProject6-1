@@ -4,74 +4,52 @@
 		<title>KO Tests</title>
 		<meta charset="UTF-8" name="viewport" content="width=device-width, initial-scale=1">
 
-		<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css" integrity="sha384-1q8mTJOASx8j1Au+a5WDVnPi2lkFfwwEAa8hDDdjZlpLegxhjVME1fgjWPGmkzs7" crossorigin="anonymous">
-		<link rel="stylesheet" href="http://code.jquery.com/ui/1.11.4/themes/ui-lightness/jquery-ui.css">
-		<link rel="stylesheet" href="css/style.css">
+		<!-- <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css" integrity="sha384-1q8mTJOASx8j1Au+a5WDVnPi2lkFfwwEAa8hDDdjZlpLegxhjVME1fgjWPGmkzs7" crossorigin="anonymous"> -->
+		<!-- <link rel="stylesheet" href="http://code.jquery.com/ui/1.11.4/themes/ui-lightness/jquery-ui.css"> -->
+		<link rel="stylesheet" href="http://code.jquery.com/mobile/1.4.5/jquery.mobile-1.4.5.min.css">
+		<link rel="stylesheet" href="css/src/style.css">
 
 		<!-- jquery 2.1.4 / jquery.ui 1.11.4 -->
 		<script src="http://code.jquery.com/jquery-2.1.4.min.js"></script>
-		<script src="http://code.jquery.com/ui/1.11.4/jquery-ui.min.js"></script>
+		<!-- // <script src="http://code.jquery.com/ui/1.11.4/jquery-ui.min.js"></script> -->
+		<script src="http://code.jquery.com/mobile/1.4.5/jquery.mobile-1.4.5.min.js"></script>
 		<!-- bootstrap 3.3.6 -->
-		<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js" integrity="sha384-0mSbJDEHialfmuBBQP6A4Qrprq5OVfW37PRR3j5ELqxss1yVqOtnepnHVP9aJ7xS" crossorigin="anonymous"></script>
+		<!-- // <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js" integrity="sha384-0mSbJDEHialfmuBBQP6A4Qrprq5OVfW37PRR3j5ELqxss1yVqOtnepnHVP9aJ7xS" crossorigin="anonymous"></script> -->
 		<!-- knockout 3.4.0 -->
 		<!-- // <script src="https://cdnjs.cloudflare.com/ajax/libs/knockout/3.4.0/knockout-min.js"></script> -->
   		<script src="js/knockout-3.4.0.js"></script>
   		<script src="js/knockout-3.4.0.debug.js"></script>
 		<!-- Include Google Maps JS API -->
-		<script async type="text/javascript" src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDMg1kTwjD-mumXsTK9rSBOzccK8haPJCM&callback=initMap&libraries=places"></script>
+		<script async src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDMg1kTwjD-mumXsTK9rSBOzccK8haPJCM&callback=initMap&libraries=places"></script>
+		<script src="js/src/gmap.js"></script>
 
-		<script type="text/javascript" src="js/gmap.js"></script>
-		<script>
-			$(function() {
-				$( "#draggable" ).draggable({ handle: ".handle" });
-			});
-		</script>
 	</head>
 	<body>
-			<!-- <div class="row"> -->
-				<!-- THE MAP -->
-				<div id="mapDiv"></div>
-			<!-- </div> -->
-		<div class="container-fluid">
-			<div class="row">
-				<div class="col-md-12 type-selector">
+		<!-- <div id="mapDiv"></div> -->
 
-				</div>
+		<div data-role="page" id="map-page">
+			<div data-role="header" data-position="fixed">
+				<a href="#mypanel">LIST</a>
+				<h1>This is a header</h1>
 			</div>
-			<div class="row">
-				<div class="col-md-12 type-selector">
-				</div>
-			</div>
-		</div>
+			<div data-role="panel" id="mypanel">
+				<!-- Select Place type -->
+				<!-- <label for="placetype">Select a type of Business:</label> -->
+				<select style="color: black" id="placetype" data-bind="options: placeTypes, optionsCaption: 'Type of Business', optionsValue: 'type', optionsText: 'name', value: placeType, event: {change: setMarkers}"></select>
 
-		<!-- The draggable list of found places -->
-		<div id="draggable" class="ui-widget-content filter-window container-fluid">
-			<div class="row" style="background-color: black; color: white">
-				<div class="col-sm-12">
-					<!-- Select Place type -->
-					<!-- <label for="placetype">Select a type of Business:</label> -->
-					<select style="color: black" id="placetype" data-bind="options: placeTypes, optionsCaption: 'Type of Business', optionsValue: 'type', optionsText: 'name', value: placeType, event: {change: setMarkers}"></select>
+				<!-- Filter results -->
+				<label for="searchfield">Filter:</label>
+				<input id="searchfield" data-bind="value: filter, textInput: filter, event: {keyup: filterMarkers}">
+				<h3 data-bind="text: formattedPlaceName"></h3>
+				<div class="filter-results">
+					<p><strong data-bind="text: statusText"></strong></p>
+					<ol id="filtered-places" data-bind="foreach: filteredPlaces">
+						<li class="filtered-list-item" data-bind="text: name, click: triggerInfoWindow(place_id)"></li>
+					</ol>
+				</div>
+			</div><!-- /panel -->
+			<div role="main" class="ui-content" id="map-div"></div>
 
-					<!-- Filter results -->
-					<label for="searchfield">Filter:</label>
-					<input id="searchfield" data-bind="value: filter, textInput: filter, event: {keyup: filterMarkers}">
-				</div>
-			</div>
-			<div class="row">
-				<div class="col-sm-12">
-					<h3 data-bind="text: formattedPlaceName" class="handle"></h3>
-				</div>
-			</div>
-			<div class="row">
-				<div class="col-sm-12">
-					<div class="filter-results">
-						<p><strong data-bind="text: statusText"></strong></p>
-						<ol id="filtered-places" data-bind="foreach: filteredPlaces">
-							<li class="filtered-list-item" data-bind="text: name, click: triggerInfoWindow(place_id)"></li>
-						</ol>
-					</div>
-				</div>
-			</div>
 		</div>
 
 		<!-- The infoWindow node -->
@@ -84,7 +62,7 @@
 					<p data-bind="text: formatted_phone_number"></p>
 				</div>
 				<div data-bind="if: selectedPlace().photos">
-					<img class="pull-left info-window-image" data-bind="attr: { src: photos[0].getUrl({maxWidth: 100}) }">
+					<img class="info-window-image" data-bind="attr: { src: photos[0].getUrl({maxWidth: 100}) }">
 				</div>
 			</div>
 			<h3>Reviews</h3>
@@ -109,6 +87,6 @@
 		<!-- </div> -->
 		</div>
 
-		<script type="text/javascript" src="js/app.js"></script>
+		<script src="js/src/app.js"></script>
 	</body>
 </html>
