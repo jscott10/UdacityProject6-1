@@ -2,10 +2,9 @@
 
 console.log("just before........");
 var map;
-var infoWindow;
 var placesService;
-var currentSearchType = [];
 var buLatLng;
+var iconLabel = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
 var markerList = [];
 var infoWindow;
 var $contentNode;
@@ -119,7 +118,7 @@ var addMarkers = function() {
 	for (var i = 0; i < filteredPlaces().length; i++) {
 		(function(i) {
 			setTimeout(function() {
-				createMarker(filteredPlaces()[i]); // DOES THIS WORK???
+				createMarker(filteredPlaces()[i]);
 			}, 1000/i);
 		})(i);
 	}
@@ -127,7 +126,7 @@ var addMarkers = function() {
 
 var addMarkers2 = function() {
 	for (var i = 0; i < filteredPlaces().length; i++) {
-		createMarker(filteredPlaces()[i]); // DOES THIS WORK???
+		createMarker(filteredPlaces()[i]);
 	}
 };
 

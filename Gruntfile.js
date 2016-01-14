@@ -24,7 +24,7 @@ grunt.initConfig({
 				expand: true,                  // Enable dynamic expansion
 				cwd: 'img/src/',                   // Src matches are relative to this path
 				src: ['**/*.{png,jpg,gif}'],   // Actual patterns to match
-				dest: 'img/build/'                  // Destination path prefix
+				dest: 'img/dist/'                  // Destination path prefix
 			}]
 		}
 	},
@@ -37,7 +37,7 @@ grunt.initConfig({
 				expand: true,
 				cwd: 'js/src',
 				src: '**/*.js',
-				dest: 'js/build'
+				dest: 'js/dist'
 			}]
 		}
 	},
@@ -47,7 +47,7 @@ grunt.initConfig({
 				expand: true,
 				cwd: 'css/src',
 				src: ['*.css', '!*.min.css'],
-				dest: 'css/build',
+				dest: 'css/dist',
 				ext: '.min.css'
 			}]
 		}
