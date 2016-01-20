@@ -69,7 +69,7 @@ var filterMarkers = function() {
 	}
 
 	replaceDeletedInfoWindowNode(); // Maintain knockout bindings for infoWindow
-	addMarkers2();
+	addMarkers();
 };
 
 // remove all markers in the list from map and delete
@@ -102,10 +102,11 @@ var buildPlaceList = function (results, status) {
 	searchStatus(status); // ko.observable for Status Display
 	if(foundPlaces().length > 0) {
 		foundPlaces.removeAll();
+		console.log("xxxx: "+foundPlaces().length);
 	}
 	if (status == google.maps.places.PlacesServiceStatus.OK) {
 		for (var i = 0; i < results.length; i++) {
-			foundPlaces.push(results[i]); // results[i] IS an object already!
+			foundPlaces.push(results[i]);
 		}
 		addMarkers();
 	}
@@ -114,30 +115,30 @@ var buildPlaceList = function (results, status) {
 // COMBINE THE ADDMARKERS FUNCTIONS!!!
 
 // filteredPlaces is a ko.computed array, equals places if filter=""
+// var addMarkers2 = function() {
+// 	for (var i = 0; i < filteredPlaces().length; i++) {
+// 		(function(i) {
+// 			setTimeout(function() {
+// 				createMarker(filteredPlaces()[i], i);
+// 			}, 1000/i);
+// 		})(i);
+// 	}
+// };
+
 var addMarkers = function() {
 	for (var i = 0; i < filteredPlaces().length; i++) {
-		(function(i) {
-			setTimeout(function() {
-				createMarker(filteredPlaces()[i]);
-			}, 1000/i);
-		})(i);
+		createMarker(filteredPlaces()[i], i);
 	}
 };
 
-var addMarkers2 = function() {
-	for (var i = 0; i < filteredPlaces().length; i++) {
-		createMarker(filteredPlaces()[i]);
-	}
-};
-
-var createMarker = function(place) {
+var createMarker = function(place, index) {
 	var marker = new google.maps.Marker( {
 		place: {
 			location: place.geometry.location,
 			placeId: place.place_id
 		},
 		title: place.name,
-		// icon: place.photos[0].getUrl({'maxWidth': 35, 'maxHeight': 35}),
+		icon: {url: 'img/src/gm-markers/pink_Marker'+iconLabel[index]+'.png'},
 		// animation: google.maps.Animation.DROP,
 		map: map
 	});
@@ -148,7 +149,7 @@ var createMarker = function(place) {
 	marker.addListener('click', function() {
 		openInfoWindow(marker);
 	});
-}
+};
 
 var openInfoWindow = function(marker) {
 	placesService.getDetails({placeId: marker.getPlace().placeId}, function(placeDetails, status) {
@@ -164,23 +165,44 @@ var triggerInfoWindow = function(place_id) {
 	if(markerList.length >= filteredPlaces().length) {
 		infoWindow.close();
 		replaceDeletedInfoWindowNode(); // Maintain knockout bindings for infoWindow
-		var currentMarker = getMarker(place_id, markerList);
-		$("#mypanel").panel("close");
-		currentMarker.setAnimation(google.maps.Animation.BOUNCE);
-		setTimeout(function() {
-			currentMarker.setAnimation(null);
-			openInfoWindow(currentMarker);
-		}, 2000);
+		// for(var zz = 0; zz < foundPlaces().length; zz++) {
+		// 	console.log(foundPlaces()[zz].name);
+		// }
+		// console.log("============================================================");
+		// for(var xx = 0; xx < filteredPlaces().length; xx++) {
+		// 	console.log(filteredPlaces()[xx].name);
+		// }
+		// console.log("============================================================");
+		// for(var yy = 0; yy < markerList.length; yy++) {
+		// 	console.log(markerList[yy].title);
+		// }
+		var currentMarkerIndex = getMarkerIndex(place_id, markerList);
+		// $("#mypanel").panel("close");
+		highlightMarker(currentMarkerIndex, "green");
 	}
-}
+};
 
-var getMarker = function(placeId, markerList) {
-	console.log(placeId);
-	console.log(markerList);
-	for(var i = 0; i < markerList.length; i++) {
-		if(placeId === markerList[i].getPlace().placeId ) {
-			console.log(markerList[i]);
-			return markerList[i];
+var highlightMarker = function(index, color) {
+	console.log(index);
+	var currentMarker = markerList[index];
+	console.log(currentMarker);
+	currentMarker.setZIndex(google.maps.Marker.MAX_ZINDEX+1);
+	currentMarker.setIcon({url: 'img/src/gm-markers/'+color+'_Marker'+iconLabel[index]+'.png'});
+	currentMarker.setAnimation(google.maps.Animation.BOUNCE);
+	setTimeout(function() {
+		currentMarker.setAnimation(null);
+		openInfoWindow(currentMarker);
+	}, 2000);
+};
+
+var getMarkerIndex = function(placeId, markerList) {
+	// console.log(placeId);
+	// console.log(markerList);
+	for(var index = 0; index < markerList.length; index++) {
+		// console.log("i: "+index+"placeId: "+placeId+"markerpid: "+markerList[index].getPlace().placeId);
+		if(placeId === markerList[index].getPlace().placeId ) {
+			// console.log(markerList[i]);
+			return index;
 		}
 	}
 };
