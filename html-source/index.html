@@ -32,7 +32,8 @@
 				<a href="#mypanel">LIST</a>
 				<h1>This is a header</h1>
 			</div>
-			<div data-role="panel" id="mypanel">
+			<!-- panel -->
+			<div data-role="panel" data-display="overlay" id="mypanel">
 				<!-- Select Place type -->
 				<!-- <label for="placetype">Select a type of Business:</label> -->
 				<select id="place-type" data-bind="options: placeTypes, optionsCaption: 'Type of Business', optionsValue: 'type', optionsText: 'name', value: placeType, event: {change: setMarkers}"></select>
@@ -93,6 +94,10 @@
 				</div>
 			</div>
 		</div>
+
+<script>
+$( "#tabs" ).tabs();
+</script>
 
 		<script src="js/dist/app.js"></script>
 	</body>
