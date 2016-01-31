@@ -6,7 +6,25 @@ var mozjpeg = require('imagemin-mozjpeg');
 grunt.initConfig({
 	pkg: grunt.file.readJSON('package.json'),
 
-	imagemin: {                          // Task
+	watch: {
+		html: {
+			files: ['html-source/*.html'],
+			tasks: ['htmlmin']
+		},
+		uglify: {
+			files: ['js/src/*.js'],
+			tasks: ['uglify']
+		},
+		css: {
+			files: ['css/src/*.scss'],
+			tasks: ['sass']
+		},
+		imagemin: {
+			files: ['img/src/*.*'],
+			tasks: ['imagemin']
+		}
+	},
+  	imagemin: {                          // Task
 		// static: {                          // Target
 		// 	options: {                       // Target options
 		// 		optimizationLevel: 3,
@@ -24,7 +42,7 @@ grunt.initConfig({
 				expand: true,                  // Enable dynamic expansion
 				cwd: 'img/src/',                   // Src matches are relative to this path
 				src: ['**/*.{png,jpg,gif}'],   // Actual patterns to match
-				dest: 'img/build/'                  // Destination path prefix
+				dest: 'img/dist/'                  // Destination path prefix
 			}]
 		}
 	},
@@ -37,21 +55,35 @@ grunt.initConfig({
 				expand: true,
 				cwd: 'js/src',
 				src: '**/*.js',
-				dest: 'js/build'
+				dest: 'js/dist'
 			}]
 		}
 	},
-	cssmin: {
-		target: {
+	sass: {
+		dist: {
+			options: {
+				style: 'compressed'
+			},
 			files: [{
 				expand: true,
 				cwd: 'css/src',
-				src: ['*.css', '!*.min.css'],
-				dest: 'css/build',
+				src: ['*.scss'],
+				dest: 'css/dist',
 				ext: '.min.css'
 			}]
 		}
 	},
+	// cssmin: {
+	// 	target: {
+	// 		files: [{
+	// 			expand: true,
+	// 			cwd: 'css/src',
+	// 			src: ['*.css', '!*.min.css'],
+	// 			dest: 'css/dist',
+	// 			ext: '.min.css'
+	// 		}]
+	// 	}
+	// },
 	htmlmin: {                                     // Task
 		dist: {                                      // Target
 			options: {                                 // Target options
@@ -73,11 +105,11 @@ grunt.initConfig({
   	pagespeed: {
 		options: {
 			nokey: true,
-			url: "http://26280c63.ngrok.io"
+			url: "http://59838d9b.ngrok.io"
 		},
 		prod_mob: {
 			options: {
-				url: "http://26280c63.ngrok.io/frontend-nanodegree-mobile-portfolio/",
+				url: "http://59838d9b.ngrok.io/fend-p5-nmp/",
 				locale: "en_GB",
 				strategy: "mobile",
 				threshold: 50
@@ -85,7 +117,7 @@ grunt.initConfig({
 		},
 		prod_desk: {
 			options: {
-				url: "http://26280c63.ngrok.io/frontend-nanodegree-mobile-portfolio/",
+				url: "http://59838d9b.ngrok.io/fend-p5-nmp/",
 				locale: "en_GB",
 				strategy: "desktop",
 				threshold: 50
@@ -103,13 +135,17 @@ grunt.initConfig({
 });
 
 // Load the plugin that provides the "uglify" task.
+grunt.loadNpmTasks('grunt-contrib-watch');
 grunt.loadNpmTasks('grunt-contrib-imagemin');
 grunt.loadNpmTasks('grunt-contrib-uglify');
-grunt.loadNpmTasks('grunt-contrib-cssmin');
+grunt.loadNpmTasks('grunt-contrib-sass');
+// grunt.loadNpmTasks('grunt-contrib-cssmin');
 grunt.loadNpmTasks('grunt-contrib-htmlmin');
 grunt.loadNpmTasks('grunt-pagespeed');
 
 // Default task(s).
-grunt.registerTask('default', ['uglify', 'imagemin', 'cssmin', 'htmlmin', 'pagespeed']);
+// grunt.registerTask('default', ['uglify', 'imagemin', 'sass', 'cssmin', 'htmlmin', 'pagespeed']);
+// grunt.registerTask('default', ['uglify', 'imagemin', 'sass', 'htmlmin', 'pagespeed']);
+grunt.registerTask('default', ['watch', 'uglify', 'imagemin', 'sass', 'htmlmin', 'pagespeed']);
 
 };

@@ -1,6 +1,9 @@
 # Grunt files
 node_modules
 
+# Sass
+**/.sass-cache
+
 # icon folder
 icons/
 

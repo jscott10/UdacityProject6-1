@@ -1,3 +1,50 @@
+.clearfix {
+	clear: both;
+}
+
+#info-window {
+	max-width: 500px;
+	max-height: 400px;
+	padding: 10px;
+}
+
+.banner h1 {
+	margin: 0;
+}
+
+.banner h2 {
+	margin: .3em 0;
+}
+
+.banner h3 {
+	margin: .3em 0 .5em;
+}
+
+#info-window p {
+	margin: 2px;
+}
+
+#info-window .banner {
+	padding: 5px;
+}
+
+#info-window #banner h1 {
+	font-size: 1.5em;
+}
+
+#info-window #address {
+	margin: 0;
+	padding: 0;
+}
+
+#info-window #image {
+	float: left;
+}
+
+#info-window #image img {
+	max-width: 100px;
+}
+
 #ko-list {
 	margin: 40px auto;
 }
@@ -31,26 +78,6 @@ html, body {
 	padding: 10px;
 }
 
-#info-window {
-	max-width: 500px;
-	max-height: 400px;
-	padding: 10px;
-}
-
-#info-window h1 {
-	font-size: 1.5em;
-	margin-top: 10px;
-}
-
-#info-window p {
-	margin: 2px;
-}
-
-.info-window-image {
-	max-width: 100px;
-	margin-right: 10px;
-}
-
 .filter-window {
 	margin: 20px;
 	min-width: 300px;
@@ -62,6 +89,10 @@ html, body {
 .filter-results {
 	display: inline-block;
 	margin: 10px;
+}
+
+#filtered-list {
+	list-style-type: upper-alpha;
 }
 
 .filtered-list-item {
