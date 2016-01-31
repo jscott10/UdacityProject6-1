@@ -21,6 +21,7 @@
   		<script src="js/knockout-3.4.0.debug.js"></script>
 		<!-- Include Google Maps JS API -->
 		<script async src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDMg1kTwjD-mumXsTK9rSBOzccK8haPJCM&callback=initMap&libraries=places"></script>
+		<script src="js/src/app.js"></script>
 		<script src="js/dist/gmap.js"></script>
 
 	</head>
@@ -28,12 +29,16 @@
 		<!-- <div id="mapDiv"></div> -->
 
 		<div data-role="page" id="map-page">
-			<div data-role="header" data-position="fixed">
-				<a href="#mypanel">LIST</a>
-				<h1>This is a header</h1>
+			<div data-role="header" data-position="fixed" data-fullscreen="true">
+					<a href="#mypanel" data-role="button" data-icon="arrow-r" data-iconpos="right">LIST</a>
+					<div class="ui-field-contain" id="location-select">
+						<label for="location">Find Businesses Near...</label>
+						<select id="location" data-bind="options: locations, optionsCaption: 'Select a School', optionsValue: 'name', value: currentLocation, event: {change: initMap}"></select>
+					</div>
 			</div>
+
 			<!-- panel -->
-			<div data-role="panel" data-display="overlay" id="mypanel">
+			<div data-role="panel" data-display="push" id="mypanel">
 				<!-- Select Place type -->
 				<!-- <label for="placetype">Select a type of Business:</label> -->
 				<select id="place-type" data-bind="options: placeTypes, optionsCaption: 'Type of Business', optionsValue: 'type', optionsText: 'name', value: placeType, event: {change: setMarkers}"></select>
@@ -95,10 +100,5 @@
 			</div>
 		</div>
 
-<script>
-$( "#tabs" ).tabs();
-</script>
-
-		<script src="js/dist/app.js"></script>
 	</body>
 </html>

@@ -6,7 +6,25 @@ var mozjpeg = require('imagemin-mozjpeg');
 grunt.initConfig({
 	pkg: grunt.file.readJSON('package.json'),
 
-	imagemin: {                          // Task
+	watch: {
+		html: {
+			files: ['html-source/*.html'],
+			tasks: ['htmlmin']
+		},
+		uglify: {
+			files: ['js/src/*.js'],
+			tasks: ['uglify']
+		},
+		css: {
+			files: ['css/src/*.scss'],
+			tasks: ['sass']
+		},
+		imagemin: {
+			files: ['img/src/*.*'],
+			tasks: ['imagemin']
+		}
+	},
+  	imagemin: {                          // Task
 		// static: {                          // Target
 		// 	options: {                       // Target options
 		// 		optimizationLevel: 3,
@@ -123,11 +141,11 @@ grunt.loadNpmTasks('grunt-contrib-uglify');
 grunt.loadNpmTasks('grunt-contrib-sass');
 // grunt.loadNpmTasks('grunt-contrib-cssmin');
 grunt.loadNpmTasks('grunt-contrib-htmlmin');
-// grunt.loadNpmTasks('grunt-pagespeed');
+grunt.loadNpmTasks('grunt-pagespeed');
 
 // Default task(s).
 // grunt.registerTask('default', ['uglify', 'imagemin', 'sass', 'cssmin', 'htmlmin', 'pagespeed']);
 // grunt.registerTask('default', ['uglify', 'imagemin', 'sass', 'htmlmin', 'pagespeed']);
-grunt.registerTask('default', ['uglify', 'imagemin', 'sass', 'htmlmin']);
+grunt.registerTask('default', ['watch', 'uglify', 'imagemin', 'sass', 'htmlmin', 'pagespeed']);
 
 };

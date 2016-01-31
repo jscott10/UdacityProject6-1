@@ -10,17 +10,18 @@ var currentMarker;
 var infoWindow;
 var $contentNode;
 
-var buLocation = {
-	lat: 42.08824,
-	lng: -75.96920
-}
+// console.log(locations);
+
+// var currentLocation = locations["Binghamton University"];
+// var currentLocation = locations["Stony Brook University"];
 
 function initMap() {
 	$contentNode = $('#info-window');
 	//Enabling new cartography and themes
 	google.maps.visualRefresh = true;
 
-	buLatLng = new google.maps.LatLng(buLocation);
+	console.log(currentLatLng());
+	buLatLng = new google.maps.LatLng(currentLatLng().lat, currentLatLng().lng);
 
 	//Setting starting options of map
 	var mapOptions = {
@@ -205,22 +206,7 @@ var openInfoWindow = function(marker) {
 
 var triggerInfoWindow = function(place_id) {
 	if(markerList.length >= filteredPlaces().length) {
-		// infoWindow.close();
-		// replaceDeletedInfoWindowNode(); // Maintain knockout bindings for infoWindow
-		// for(var zz = 0; zz < foundPlaces().length; zz++) {
-		// 	console.log(foundPlaces()[zz].name);
-		// }
-		// console.log("============================================================");
-		// for(var xx = 0; xx < filteredPlaces().length; xx++) {
-		// 	console.log(filteredPlaces()[xx].name);
-		// }
-		// console.log("============================================================");
-		// for(var yy = 0; yy < markerList.length; yy++) {
-		// 	console.log(markerList[yy].title);
-		// }
 		setCurrentMarker(getCurrentMarker(place_id, markerList));
-		// $("#mypanel").panel("close");
-		// highlightMarker(currentMarker, "green");
 	}
 };
 
@@ -232,17 +218,17 @@ var getCurrentMarker = function(placeId, markerList) {
 	}
 };
 
-var getMarkerIndex = function(placeId, markerList) {
-	// console.log(placeId);
-	// console.log(markerList);
-	for(var index = 0; index < markerList.length; index++) {
-		// console.log("i: "+index+"placeId: "+placeId+"markerpid: "+markerList[index].getPlace().placeId);
-		if(placeId === markerList[index].getPlace().placeId ) {
-			// console.log(markerList[i]);
-			return index;
-		}
-	}
-};
+// var getMarkerIndex = function(placeId, markerList) {
+// 	// console.log(placeId);
+// 	// console.log(markerList);
+// 	for(var index = 0; index < markerList.length; index++) {
+// 		// console.log("i: "+index+"placeId: "+placeId+"markerpid: "+markerList[index].getPlace().placeId);
+// 		if(placeId === markerList[index].getPlace().placeId ) {
+// 			// console.log(markerList[i]);
+// 			return index;
+// 		}
+// 	}
+// };
 
 var getFourSquareVenue = function(location, name) {
 
