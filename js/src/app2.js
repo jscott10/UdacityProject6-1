@@ -99,7 +99,7 @@ $(document).ready(function() {
 		// list of found places
 		self.foundPlaces = ko.observableArray();
 
-		// *** VM ***
+		// *** VIEW ***
 		// found places filter
 		self.filter = ko.observable("");
 
