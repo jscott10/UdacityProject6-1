@@ -33,20 +33,21 @@
 					<a href="#mypanel" data-role="button" data-icon="arrow-r" data-iconpos="right">LIST</a>
 					<div class="ui-field-contain" id="location-select">
 						<label for="location">Find Businesses Near...</label>
-						<select id="location" data-bind="options: locations, optionsCaption: 'Select a School', optionsValue: 'name', value: currentLocation, event: {change: initMap}"></select>
+						<select id="location" data-bind="options: locations, optionsCaption: 'Select a School', optionsValue: 'name', value: currentLocation, event: {change: changeMapLocation}"></select>
 					</div>
 			</div>
 
 			<!-- panel -->
 			<div data-role="panel" data-display="push" id="mypanel">
 				<!-- Select Place type -->
-				<!-- <label for="placetype">Select a type of Business:</label> -->
 				<select id="place-type" data-bind="options: placeTypes, optionsCaption: 'Type of Business', optionsValue: 'type', optionsText: 'name', value: placeType, event: {change: setMarkers}"></select>
 
 				<!-- Filter -->
-				<label for="searchfield">Filter:</label>
-				<input id="searchfield" data-bind="value: filter, textInput: filter, event: {keyup: filterMarkers}">
-				<h3 data-bind="text: formattedPlaceName"></h3>
+				<div class="ui-field-contain">
+					<label for="searchfield">Filter:</label>
+					<input id="searchfield" data-bind="value: filter, textInput: filter, event: {keyup: filterMarkers}">
+				</div>
+				<!-- <h3 data-bind="text: formattedPlaceName"></h3> -->
 
 				<!-- Filter results -->
 				<div class="filter-results">

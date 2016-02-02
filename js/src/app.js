@@ -1,28 +1,11 @@
 // app.js
 
-// Class to represent a place on the map
-
-// var locationNames = [
-// 	"Binghamton University",
-// 	"Stony Brook University",
-// 	"University at Albany",
-// 	"University at Buffalo"
-// ];
-
 var locations = [
 		{name: "Binghamton University", latlng: {lat: 42.088848, lng: -75.969491}},
 		{name: "Stony Brook University", latlng: {lat: 40.912465, lng: -73.123389}},
 		{name: "University at Albany", latlng: {lat: 42.686139, lng: -73.823944}},
 		{name: "University at Buffalo", latlng: {lat: 43.000815, lng: -78.788986}}
 ];
-
-// var locationNames = function(locations) {
-// 	var nameArray = [];
-// 	for(var i = 0; i<locations.length; i++) {
-// 		nameArray.push(locations[i].name);
-// 	}
-// }
-
 
 $(document).ready(function() {
 
@@ -69,7 +52,7 @@ $(document).ready(function() {
 		// the selected place Type
 		self.placeType = ko.observable();
 
-		// ko.utils.arrayFilter - filter the items using the filter text
+		// Return a formatted string to display
 		self.formattedPlaceName = ko.computed(function() {
 			for(var i=0; i<self.placeTypes().length; i++) {
 				if(self.placeTypes()[i].type === self.placeType()) {
@@ -116,6 +99,7 @@ $(document).ready(function() {
 			else return [];
 		});
 
+		// Filter the list of found places and sort by name
 		self.filteredPlaces = ko.computed(function() {
 			var filter = self.filter().toLowerCase();
 			var unsortedPlaces;
@@ -132,6 +116,7 @@ $(document).ready(function() {
 			});
 		});
 
+		// Result messages from Google placesSearch
 		self.statusText = ko.computed(function() {
 			switch(self.searchStatus()) {
 				case "":
