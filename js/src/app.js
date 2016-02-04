@@ -1,11 +1,11 @@
 // app.js
 
-var locations = [
-		{name: "Binghamton University", latlng: {lat: 42.088848, lng: -75.969491}},
-		{name: "Stony Brook University", latlng: {lat: 40.912465, lng: -73.123389}},
-		{name: "University at Albany", latlng: {lat: 42.686139, lng: -73.823944}},
-		{name: "University at Buffalo", latlng: {lat: 43.000815, lng: -78.788986}}
-];
+	var locations = [
+			{name: "Binghamton University", latlng: {lat: 42.088848, lng: -75.969491}},
+			{name: "Stony Brook University", latlng: {lat: 40.912465, lng: -73.123389}},
+			{name: "University at Albany", latlng: {lat: 42.686139, lng: -73.823944}},
+			{name: "University at Buffalo", latlng: {lat: 43.000815, lng: -78.788986}}
+	];
 
 $(document).ready(function() {
 
@@ -15,51 +15,51 @@ $(document).ready(function() {
 		// dropdown list of locations types (Google Maps API support Place Types)
 		// https://developers.google.com/places/supported_types
 		self.placeTypes = ko.observableArray([
-			// {type: "accounting", name: "Accounting"},
 			{type: "airport", name: "Airports"},
-			// {type: "amusement_park", name: "Amusement Parks"},
-			// {type: "aquarium", name: "Aquariums"},
+			{type: "aquarium", name: "Aquariums"},
 			{type: "art_gallery", name: "Art Galleries"},
 			{type: "atm", name: "ATMs"},
 			{type: "bakery", name: "Bakeries"},
 			{type: "bank", name: "Banks"},
 			{type: "bar", name: "Bars"},
 			{type: "beauty_salon", name: "Beauty Salons"},
-			// {type: "bicycle_store", name: "Bicycle Stores"},
 			{type: "book_store", name: "Book Stores"},
-			// {type: "bowling_alley", name: "Bowling Alleys"},
 			{type: "bus_station", name: "Bus Stations"},
+			{type: "cafe", name: "Cafes"},
+			{type: "car_repair", name: "Car Repair"},
+			{type: "convenience_store", name: "Convenience Stores"},
+			{type: "department_store", name: "Department Stores"},
 			{type: "food", name: "Food"},
-			// {type: "roofing_contractor", name: "Roofing Contractors"},
-			// {type: "rv_park", name: "RV Parks"},
-			{type: "school", name: "Schools"},
-			// {type: "shoe_store", name: "Shoe Stores"},
+			{type: "grocery_or_supermarket", name: "Supermarkets/Grocery Stores"},
+			{type: "gym", name: "Gyms"},
+			{type: "laundry", name: "Laundry/Dry Cleaning"},
+			{type: "library", name: "Libraries"},
+			{type: "liquor_store", name: "Liquor Stores"},
+			{type: "lodging", name: "Hotels/Lodging"},
+			{type: "meal_delivery", name: "Food (Delivery)"},
+			{type: "meal_takeaway", name: "Food (Takeout)"},
+			{type: "movie_theater", name: "Movie Theaters"},
+			{type: "museum", name: "Museums"},
+			{type: "night_club", name: "Night Clubs"},
+			{type: "park", name: "Parks"},
+			{type: "restaurant", name: "Restaurants"},
 			{type: "shopping_mall", name: "Shopping Malls"},
-			// {type: "spa", name: "Spas"},
-			// {type: "stadium", name: "Stadiums"},
-			// {type: "storage", name: "Storage"},
-			// {type: "store", name: "Stores"},
-			// {type: "subway_station", name: "Subway Stations"},
-			// {type: "synagogue", name: "Synagogues"},
-			// {type: "taxi_stand", name: "Taxi Stands"},
-			// {type: "train_station", name: "Train Stations"},
-			// {type: "travel_agency", name: "Travel Agencies"},
-			{type: "university", name: "Universities"},
-			{type: "veterinary_care", name: "Veterinarians"},
-			{type: "zoo", name: "Zoo"}
+			{type: "store", name: "Stores"},
+			{type: "train_station", name: "Train Stations"},
+			{type: "zoo", name: "Zoos"}
 		]);
 
 		// the selected place Type
 		self.placeType = ko.observable();
 
 		// Return a formatted string to display
-		self.formattedPlaceName = ko.computed(function() {
-			for(var i=0; i<self.placeTypes().length; i++) {
-				if(self.placeTypes()[i].type === self.placeType()) {
-					return self.placeTypes()[i].name;
-				}
-			}
-		});
+		// self.formattedPlaceName = ko.computed(function() {
+		// 	for(var i=0; i<self.placeTypes().length; i++) {
+		// 		if(self.placeTypes()[i].type === self.placeType()) {
+		// 			return self.placeTypes()[i].name;
+		// 		}
+		// 	}
+		// });
 
 		self.currentLocation = ko.observable();
 

@@ -161,7 +161,7 @@ var openInfoWindow = function(marker) {
 		if (status == google.maps.places.PlacesServiceStatus.OK) {
 			selectedPlace(placeDetails);
 			getFourSquareVenue(placeDetails.geometry.location, placeDetails.name);
-			getYelpData();
+			// getYelpData();
 			infoWindow.open(map, marker);
 		}
 	});

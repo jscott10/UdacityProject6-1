@@ -2,14 +2,7 @@
 
 // Class to represent a place on the map
 
-// var locationNames = [
-// 	"Binghamton University",
-// 	"Stony Brook University",
-// 	"University at Albany",
-// 	"University at Buffalo"
-// ];
-
-// *** MODEL ***
+/// *** MODEL ***
 var locations = [
 		{name: "Binghamton University", latlng: {lat: 42.088848, lng: -75.969491}},
 		{name: "Stony Brook University", latlng: {lat: 40.912465, lng: -73.123389}},
