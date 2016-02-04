@@ -4,7 +4,6 @@
 		<title>KO Tests</title>
 		<meta charset="UTF-8" name="viewport" content="width=device-width, initial-scale=1">
 
-		<!-- <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css" integrity="sha384-1q8mTJOASx8j1Au+a5WDVnPi2lkFfwwEAa8hDDdjZlpLegxhjVME1fgjWPGmkzs7" crossorigin="anonymous"> -->
 		<!-- <link rel="stylesheet" href="http://code.jquery.com/ui/1.11.4/themes/ui-lightness/jquery-ui.css"> -->
 		<link rel="stylesheet" href="http://code.jquery.com/mobile/1.4.5/jquery.mobile-1.4.5.min.css">
 		<link rel="stylesheet" href="css/dist/style.min.css">
@@ -13,8 +12,6 @@
 		<script src="http://code.jquery.com/jquery-2.1.4.min.js"></script>
 		<!-- // <script src="http://code.jquery.com/ui/1.11.4/jquery-ui.min.js"></script> -->
 		<script src="http://code.jquery.com/mobile/1.4.5/jquery.mobile-1.4.5.min.js"></script>
-		<!-- bootstrap 3.3.6 -->
-		<!-- // <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js" integrity="sha384-0mSbJDEHialfmuBBQP6A4Qrprq5OVfW37PRR3j5ELqxss1yVqOtnepnHVP9aJ7xS" crossorigin="anonymous"></script> -->
 		<!-- knockout 3.4.0 -->
 		<!-- // <script src="https://cdnjs.cloudflare.com/ajax/libs/knockout/3.4.0/knockout-min.js"></script> -->
   		<script src="js/knockout-3.4.0.js"></script>
@@ -33,20 +30,21 @@
 					<a href="#mypanel" data-role="button" data-icon="arrow-r" data-iconpos="right">LIST</a>
 					<div class="ui-field-contain" id="location-select">
 						<label for="location">Find Businesses Near...</label>
-						<select id="location" data-bind="options: locations, optionsCaption: 'Select a School', optionsValue: 'name', value: currentLocation, event: {change: initMap}"></select>
+						<select id="location" data-bind="options: locations, optionsCaption: 'Select a School', optionsValue: 'name', value: currentLocation, event: {change: changeMapLocation}"></select>
 					</div>
 			</div>
 
 			<!-- panel -->
-			<div data-role="panel" data-display="push" id="mypanel">
+			<div data-role="panel" data-display="overlay" id="mypanel">
 				<!-- Select Place type -->
-				<!-- <label for="placetype">Select a type of Business:</label> -->
 				<select id="place-type" data-bind="options: placeTypes, optionsCaption: 'Type of Business', optionsValue: 'type', optionsText: 'name', value: placeType, event: {change: setMarkers}"></select>
 
 				<!-- Filter -->
-				<label for="searchfield">Filter:</label>
-				<input id="searchfield" data-bind="value: filter, textInput: filter, event: {keyup: filterMarkers}">
-				<h3 data-bind="text: formattedPlaceName"></h3>
+				<div class="ui-field-contain">
+					<label for="searchfield">Filter:</label>
+					<input id="searchfield" data-bind="value: filter, textInput: filter, event: {keyup: filterMarkers}">
+				</div>
+				<!-- <h3 data-bind="text: formattedPlaceName"></h3> -->
 
 				<!-- Filter results -->
 				<div class="filter-results">

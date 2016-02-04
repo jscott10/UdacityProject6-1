@@ -1,32 +1,26 @@
-//Defining map as a global variable to access from other functions
+// gmap.js
 
-console.log("just before........");
 var map;
 var placesService;
-var buLatLng;
 var iconLabel = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
 var markerList = [];
 var currentMarker;
 var infoWindow;
 var $contentNode;
 
-// console.log(locations);
-
-// var currentLocation = locations["Binghamton University"];
-// var currentLocation = locations["Stony Brook University"];
-
 function initMap() {
 	$contentNode = $('#info-window');
 	//Enabling new cartography and themes
 	google.maps.visualRefresh = true;
 
-	console.log(currentLatLng());
-	buLatLng = new google.maps.LatLng(currentLatLng().lat, currentLatLng().lng);
+	// console.log(currentLatLng());
+	// nyLatLng = new google.maps.LatLng(currentLatLng().lat, currentLatLng().lng);
+	nyLatLng = new google.maps.LatLng(42.900956, -75.664966);
 
 	//Setting starting options of map
 	var mapOptions = {
-		center: buLatLng,
-		zoom: 14,
+		center: nyLatLng,
+		zoom: 7,
 		mapTypeId: google.maps.MapTypeId.ROADMAP
 	};
 
@@ -37,14 +31,15 @@ function initMap() {
 	map = new google.maps.Map(mapElement, mapOptions);
 
 	// Add traffic layer
-	var trafficLayer = new google.maps.TrafficLayer();
-	trafficLayer.setMap(map);
+	// var trafficLayer = new google.maps.TrafficLayer();
+	// trafficLayer.setMap(map);
 
 	// InfoWindow setup
 	infoWindow = new google.maps.InfoWindow({
 		content: $contentNode[0]
 	});
 
+	// Replace the infoWindow node if the user closes the window
 	google.maps.event.addListener(infoWindow, "closeclick", function () {
 		replaceDeletedInfoWindowNode(); // Maintain knockout bindings for infoWindow
 	});
@@ -53,13 +48,21 @@ function initMap() {
 
 };
 
-var setMarkers = function() {
+var changeMapLocation = function() {
+	map.setCenter(currentLatLng());
+	map.setZoom(14);
+};
+
+var resetMapMarkers = function() {
 	// Delete any old Markers
 	if(markerList.length > 0) {
 		clearMarkers();
 	}
-
 	replaceDeletedInfoWindowNode(); // Maintain knockout bindings for infoWindow
+};
+
+var setMarkers = function() {
+	resetMapMarkers();
 	// Reset the filter
 	filter("");
 	// Get the array of places
@@ -67,38 +70,29 @@ var setMarkers = function() {
 };
 
 var filterMarkers = function() {
-	if(markerList.length > 0) {
-		clearMarkers();
-	}
-
-	replaceDeletedInfoWindowNode(); // Maintain knockout bindings for infoWindow
+	resetMapMarkers();
 	addMarkers();
 };
 
 // remove all markers in the list from map and delete
 var clearMarkers = function() {
 	for (var i = 0; i < markerList.length; i++) {
-		clearMarker(markerList[i]);
+		markerList[i].setMap(null);
+		markerList[i] = null;
 	}
 	markerList.length = 0;
 };
-
-// remove and delete a single marker from the map
-var clearMarker = function(marker) {
-	marker.setMap(null);
-	marker = null;
-}
 
 // buildPlaceList is running asynchronously and doesn't finish before the markers are built!
 
 var getPlaces = function() {
 	var request = {
-		location: buLatLng,
+		location: currentLatLng(),
 		radius: '2000',
 		types: [placeType()]
 	};
 	placesService.nearbySearch(request, buildPlaceList);
-}
+};
 
 // build the observable array (foundPlaces) of found places
 var buildPlaceList = function (results, status) {
@@ -111,19 +105,6 @@ var buildPlaceList = function (results, status) {
 		addMarkers();
 	}
 };
-
-// COMBINE THE ADDMARKERS FUNCTIONS!!!
-
-// filteredPlaces is a ko.computed array, equals places if filter=""
-// var addMarkers2 = function() {
-// 	for (var i = 0; i < filteredPlaces().length; i++) {
-// 		(function(i) {
-// 			setTimeout(function() {
-// 				createMarker(filteredPlaces()[i], i);
-// 			}, 1000/i);
-// 		})(i);
-// 	}
-// };
 
 var addMarkers = function() {
 	for (var i = 0; i < filteredPlaces().length; i++) {
@@ -145,7 +126,6 @@ var addMarker = function(place, index) {
 
 	marker.addListener('click', function() {
 		setCurrentMarker(marker);
-		// openInfoWindow(marker);
 	});
 
 	// Need an addressable list of Markers
@@ -161,44 +141,27 @@ var setCurrentMarker = function(marker) {
 	}
 	currentMarker = marker;
 	highlightMarker(currentMarker, "green");
-}
+};
 
 var highlightMarker = function(marker, color) {
-	// var currentMarker = markerList[index];
+	// Bring marker to front
 	marker.setZIndex(google.maps.Marker.MAX_ZINDEX+1);
+	// Use appropriate marker in selected highlight color
 	marker.setIcon({url: 'img/src/gm-markers/'+color+'_Marker'+iconLabel[marker.index]+'.png'});
+	// Bounce the marker for 1.5 seconds
 	marker.setAnimation(google.maps.Animation.BOUNCE);
 	setTimeout(function() {
 		marker.setAnimation(null);
 		openInfoWindow(marker);
-	}, 2000);
+	}, 1500);
 };
-
-// var createMarker = function(place, index) {
-// 	var marker = new google.maps.Marker( {
-// 		place: {
-// 			location: place.geometry.location,
-// 			placeId: place.place_id
-// 		},
-// 		title: place.name,
-// 		icon: {url: 'img/src/gm-markers/pink_Marker'+iconLabel[index]+'.png'},
-// 		// animation: google.maps.Animation.DROP,
-// 		map: map
-// 	});
-
-// 	// Need an addressable list of Markers
-// 	markerList.push(marker);
-
-// 	marker.addListener('click', function() {
-// 		openInfoWindow(marker);
-// 	});
-// };
 
 var openInfoWindow = function(marker) {
 	placesService.getDetails({placeId: marker.getPlace().placeId}, function(placeDetails, status) {
 		if (status == google.maps.places.PlacesServiceStatus.OK) {
 			selectedPlace(placeDetails);
 			getFourSquareVenue(placeDetails.geometry.location, placeDetails.name);
+			// getYelpData();
 			infoWindow.open(map, marker);
 		}
 	});
@@ -218,41 +181,33 @@ var getCurrentMarker = function(placeId, markerList) {
 	}
 };
 
-// var getMarkerIndex = function(placeId, markerList) {
-// 	// console.log(placeId);
-// 	// console.log(markerList);
-// 	for(var index = 0; index < markerList.length; index++) {
-// 		// console.log("i: "+index+"placeId: "+placeId+"markerpid: "+markerList[index].getPlace().placeId);
-// 		if(placeId === markerList[index].getPlace().placeId ) {
-// 			// console.log(markerList[i]);
-// 			return index;
-// 		}
-// 	}
-// };
-
 var getFourSquareVenue = function(location, name) {
 
-	var name = name;
-	var location = location;
+	// var name = name;
+	// var location = location;
 
-	var fsEntrypoint = "https://api.foursquare.com/v2/venues/";
+	var fsEndpoint = "https://api.foursquare.com/v2/venues/";
 	var fsLocation = "search?ll="+location.lat()+", "+location.lng();
 	var fsName = "&query="+encodeURI(name);
 	var fsIntent = "&intent=match";
 	var fsAuth = "client_id=LKOCAAQC2EHG2YHBHPKMX2TAIHXEOXL3U2GQSCHN5542VYJE&client_secret=QLLAGNKK2QOLH054PMAPYU1PUQQ4G3YNCOU52WBCH3HDKOQJ&v=20160108";
 
-	var fsQuery = fsEntrypoint+fsLocation+fsName+fsIntent+"&"+fsAuth;
+	var fsQuery = fsEndpoint+fsLocation+fsName+fsIntent+"&"+fsAuth;
 
 	var r0 = $.getJSON(fsQuery, function(data) {
+		console.log(r0);
+		console.log(data);
 		if(data.response.venues.length > 0) {
 			var venueID = data.response.venues[0].id;
-			var venueQuery = fsEntrypoint+venueID+"?"+fsAuth;
+			var venueQuery = fsEndpoint+venueID+"?"+fsAuth;
 			var r1 = $.getJSON(venueQuery, function(data2) {
+				console.log("Status: "+r0.status+" ("+r0.statusText+")");
 				fsVenue(data2.response.venue);
 				// for(var i = 0; i < venue().tips.count; i++) {
 				// 	$('#tips').append("<li>"+data2.response.venue.tips.groups[0].items[i].text+"</li>");
 				// }
 			}).error(function() {
+				console.log("error1");
 				fsVenue(false);
 			});
 		}
@@ -260,11 +215,67 @@ var getFourSquareVenue = function(location, name) {
 			fsVenue(false);
 		}
 	}).error(function() {
-		console.log("Status: "+t0.status+" ("+t0.statusText+")");
+			console.log("error2");
+		console.log(r0);
+		console.log(data);
+		console.log("Status: "+r0.status+" ("+r0.statusText+")");
+		fsVenue(false);
 	});
+};
 
-	console.log("leavin the function");
+var getYahooWeather = function() {
+// Yahoo!
+// =======================================================================================
 
+// https://query.yahooapis.com/v1/public/yql?q=
+// select%20*%20from%20weather.forecast%20where%20woeid%20in%20(select%20woeid%20from%20geo.places(1)%20where%20text%3D%22nome%2C%20ak%22)&format=json&env=store%3A%2F%2Fdatatables.org%2Falltableswithkeys
+
+
+	var yahooEndpoint = "https://query.yahooapis.com/v1/public/yql?q=";
+
+	// yql = "select * from weather.forecast where woeid=2502265&format=json&diagnostics=true&callback=";
+	var yql = "select * from weather.forecast where woeid in (select woeid from geo.places(1) where text = 'Binghamton NY)&format=json&env=store%3A%2F%2Fdatatables.org%2Falltableswithkeys"
+
+	var yahoo_query = yahoo+encodeURI(yql);
+
+	var yahoo_query2 = "https://query.yahooapis.com/v1/public/yql?q=select%20*%20from%20weather.forecast%20where%20woeid%3D2502265&format=json&diagnostics=true&callback=";
+
+	console.log("good: "+yahoo_query);
+	console.log("bad:  "+yahoo_query2);
+
+	$.getJSON(yahoo_query, function(data) {
+		console.log(data);
+		console.log(yahoo_query2);
+	}).error(function() {
+		console.log(yahoo_query2);
+		console.log(data);
+		console.log("FAIL!");
+		});
+
+};
+
+var getYelpData = function() {
+
+	var yelpEndpoint = "https://api.yelp.com/v2/search/?";
+
+	var yelp_qry = "ll=42.0964782196554,-75.9702992976657,0.00&limit=1&callback=?";
+
+	var y3 = "https://api.yelp.com/v2/search/?term=food&ll=37.788022,-122.399797";
+
+	var yelp_query = yelpEndpoint+encodeURI(yelp_qry);
+	var yelp_query2 = yelpEndpoint+yelp_qry;
+
+	console.log("good: "+yelp_query);
+
+	var r0 = $.getJSON(y3, function(data) {
+		console.log(r0);
+		console.log(data);
+		console.log(yelp_query2);
+	}).error(function() {
+		console.log(r0);
+		console.log(yelp_query);
+		console.log("FAIL!");
+		});
 };
 
 var formattedDateTime = function(UNIX_timestamp) {
@@ -281,7 +292,7 @@ var formattedDateTime = function(UNIX_timestamp) {
 	min = min < 10 ? '0'+min : min;
 	var time = date + ' ' + month + ' ' + year + ' ' + hour + ':' + min + ' ' + ampm;
 	return time;
-}
+};
 
 // Add the infoWindow node back to the body
 // Google maps deletes the infoWindow content node when the window is closed, knockout bindings stop working!
