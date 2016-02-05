@@ -87,10 +87,10 @@
 					</div>
 				</div>
 			</div>
-			<div data-bind="if: fsVenue()">
+			<div data-bind="if: fsTips()">
 				<div class="reviews">
 					<h3>Foursquare:</h3>
-					<ul id="foursquare-tips" data-bind="foreach: sortedTips">
+					<ul id="foursquare-tips" data-bind="foreach: fsTips">
 						<li class="filtered-list-item" data-bind="text: text+' ('+formattedDateTime(createdAt)+')'"></li>
 					</ul>
 					<p style="text-align: right"><img style="max-width: 150px" src="https://ss0.4sqi.net/img/poweredByFoursquare/poweredby-full-color-bf549c16c0ab3e1b04706ab5fcb422f1.png"></p>

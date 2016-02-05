@@ -65,8 +65,8 @@ $(document).ready(function() {
 
 		self.currentLatLng = ko.computed(function() {
 			for(var i = 0; i < locations.length; i++) {
-				console.log(locations[i].name);
-				console.log(self.currentLocation());
+				// console.log(locations[i].name);
+				// console.log(self.currentLocation());
 				if(locations[i].name == self.currentLocation()) {
 					return locations[i].latlng;
 				}
@@ -85,19 +85,67 @@ $(document).ready(function() {
 		// Status returned by Google Maps API
 		self.searchStatus = ko.observable("");
 
-		// fourSquare venue
-		self.fsVenue = ko.observable();
+		self.fsTips = ko.observableArray();
 
-		// Sort the Foursquare tips by date (new -> old)
-		self.sortedTips = ko.computed(function() {
-			if(self.fsVenue()) {
-				var tips = self.fsVenue().tips.groups[0].items;
-				return tips.sort(function(thistip, nexttip) {
-					return thistip.createdAt == nexttip.createdAt ? 0 : (thistip.createdAt > nexttip.createdAt ? -1 : 1);
+		// fourSquare venue
+ 		self.getFSVenues = ko.computed(function() {
+			if(self.selectedPlace()) {
+				var url = "https://api.foursquare.com/v2/venues/search";
+				var auth = {
+					client_id: "LKOCAAQC2EHG2YHBHPKMX2TAIHXEOXL3U2GQSCHN5542VYJE",
+					client_secret: "QLLAGNKK2QOLH054PMAPYU1PUQQ4G3YNCOU52WBCH3HDKOQJ"
+				};
+				var data = {
+					ll: self.selectedPlace().geometry.location.lat()+", "+self.selectedPlace().geometry.location.lng(),
+					query: self.selectedPlace().name,
+					intent: "match",
+					v: "20160101",
+					m: "foursquare"
+				};
+
+				$.extend(data, auth);
+
+				return $.getJSON(url, data, function(result) {
+					// console.log(r0);
+					// console.log(result);
+					if(result.response.venues.length > 0) {
+						var closestVenue = result.response.venues[0];
+						var url = "https://api.foursquare.com/v2/venues/"+closestVenue.id;
+						var venueData = {
+							// id: ,
+							v: "20160101",
+							m: "foursquare"
+						};
+
+						$.extend(venueData, auth);
+
+						return $.getJSON(url, venueData, function(result) {
+							self.fsTips(self.sortedTips(result.response.venue));
+						}).error(function() {
+							console.log("error1");
+							return false;
+						});
+					}
+					else {
+						return false;
+					}
+				}).error(function() {
+					console.log("error2");
+					// console.log(r0);
+					console.log(data);
+					console.log("Status: "+r0.status+" ("+r0.statusText+")");
+					return false;
 				});
 			}
-			else return [];
 		});
+
+		// Sort the Foursquare tips by date (new -> old)
+		self.sortedTips = function(venues) {
+			var tips = venues.tips.groups[0].items;
+			return tips.sort(function(thistip, nexttip) {
+				return thistip.createdAt == nexttip.createdAt ? 0 : (thistip.createdAt > nexttip.createdAt ? -1 : 1);
+			});
+		};
 
 		// Filter the list of found places and sort by name
 		self.filteredPlaces = ko.computed(function() {

@@ -160,7 +160,7 @@ var openInfoWindow = function(marker) {
 	placesService.getDetails({placeId: marker.getPlace().placeId}, function(placeDetails, status) {
 		if (status == google.maps.places.PlacesServiceStatus.OK) {
 			selectedPlace(placeDetails);
-			getFourSquareVenue(placeDetails.geometry.location, placeDetails.name);
+			// getFourSquareVenue(placeDetails.geometry.location, placeDetails.name);
 			// getYelpData();
 			infoWindow.open(map, marker);
 		}
@@ -181,20 +181,35 @@ var getCurrentMarker = function(placeId, markerList) {
 	}
 };
 
+/*
 var getFourSquareVenue = function(location, name) {
 
 	// var name = name;
 	// var location = location;
 
-	var fsEndpoint = "https://api.foursquare.com/v2/venues/";
-	var fsLocation = "search?ll="+location.lat()+", "+location.lng();
-	var fsName = "&query="+encodeURI(name);
-	var fsIntent = "&intent=match";
-	var fsAuth = "client_id=LKOCAAQC2EHG2YHBHPKMX2TAIHXEOXL3U2GQSCHN5542VYJE&client_secret=QLLAGNKK2QOLH054PMAPYU1PUQQ4G3YNCOU52WBCH3HDKOQJ&v=20160108";
 
-	var fsQuery = fsEndpoint+fsLocation+fsName+fsIntent+"&"+fsAuth;
+	var url = "https://api.foursquare.com/v2/venues/search";
+	var data = {
+		client_id: "LKOCAAQC2EHG2YHBHPKMX2TAIHXEOXL3U2GQSCHN5542VYJE",
+		client_secret: "QLLAGNKK2QOLH054PMAPYU1PUQQ4G3YNCOU52WBCH3HDKOQJ",
+	  	ll: location.lat()+", "+location.lng(),
+		query: encodeURI(name),
+		intent: "match",
+	  	v: "20140806",
+	  	m: "foursquare"
+	}
 
-	var r0 = $.getJSON(fsQuery, function(data) {
+
+	// var fsEndpoint = "https://api.foursquare.com/v2/venues/";
+	// var fsLocation = "search?ll="+location.lat()+", "+location.lng();
+	// var fsName = "&query="+encodeURI(name);
+	// var fsIntent = "&intent=match";
+	// var fsAuth = "client_id=LKOCAAQC2EHG2YHBHPKMX2TAIHXEOXL3U2GQSCHN5542VYJE&client_secret=QLLAGNKK2QOLH054PMAPYU1PUQQ4G3YNCOU52WBCH3HDKOQJ&v=20160108";
+
+	// var fsQuery = fsEndpoint+fsLocation+fsName+fsIntent+"&"+fsAuth;
+
+	var r0 = $.getJSON(url, data, function(data) {
+	// var r0 = $.getJSON(fsQuery, function(data) {
 		console.log(r0);
 		console.log(data);
 		if(data.response.venues.length > 0) {
@@ -222,7 +237,7 @@ var getFourSquareVenue = function(location, name) {
 		fsVenue(false);
 	});
 };
-
+*/
 var getYahooWeather = function() {
 // Yahoo!
 // =======================================================================================
