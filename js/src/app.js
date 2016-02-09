@@ -57,43 +57,16 @@ $(document).ready(function() {
 	var viewModel = function() {
 		var self = this;
 
+		self.currentLocation = ko.observable();
+
 		// the selected place Type
 		self.placeType = ko.observable();
-
-		self.currentLocation = ko.observable();
 
 		// list of found places
 		self.foundPlaces = ko.observableArray();
 
 		// found places filter
 		self.filter = ko.observable("");
-
-		// currently selected place (for infoWindow)
-		self.selectedPlace = ko.observable();
-
-		// Sort the Google reviews by date (new -> old)
-		self.sortedGoogleReviews = ko.computed(function() {
-			if(self.selectedPlace()) {
-				return self.selectedPlace().reviews.sort(function(thisreview, nextreview) {
-					return thisreview.time == nextreview.time ? 0 : (thisreview.time > nextreview.time ? -1 : 1);
-				});
-			}
-		});
-
-		// Status returned by Google Maps API
-		self.searchStatus = ko.observable("");
-
-		self.fsVenue = ko.observable();
-
-		// Sort the Foursquare tips by date (new -> old)
-		self.fsSortedTips = ko.computed(function() {
-			if(self.fsVenue()) {
-				var tips = self.fsVenue().tips.groups[0].items;
-				return tips.sort(function(thistip, nexttip) {
-					return thistip.createdAt == nexttip.createdAt ? 0 : (thistip.createdAt > nexttip.createdAt ? -1 : 1);
-				});
-			}
-		});
 
 		// Filter the list of found places and sort by name
 		self.filteredPlaces = ko.computed(function() {
@@ -112,6 +85,33 @@ $(document).ready(function() {
 				return place1.name == place2.name ? 0 : (place1.name < place2.name ? -1 : 1);
 			});
 		});
+
+		// currently selected place (for infoWindow)
+		self.selectedPlace = ko.observable();
+
+		// Sort the Google reviews by date (new -> old)
+		self.sortedGoogleReviews = ko.computed(function() {
+			if(self.selectedPlace()) {
+				return self.selectedPlace().reviews.sort(function(thisreview, nextreview) {
+					return thisreview.time == nextreview.time ? 0 : (thisreview.time > nextreview.time ? -1 : 1);
+				});
+			}
+		});
+
+		self.fsVenue = ko.observable();
+
+		// Sort the Foursquare tips by date (new -> old)
+		self.fsSortedTips = ko.computed(function() {
+			if(self.fsVenue()) {
+				var tips = self.fsVenue().tips.groups[0].items;
+				return tips.sort(function(thistip, nexttip) {
+					return thistip.createdAt == nexttip.createdAt ? 0 : (thistip.createdAt > nexttip.createdAt ? -1 : 1);
+				});
+			}
+		});
+
+		// Status returned by Google Maps API
+		self.searchStatus = ko.observable("");
 
 		// Result messages from Google placesSearch
 		self.statusText = ko.computed(function() {
