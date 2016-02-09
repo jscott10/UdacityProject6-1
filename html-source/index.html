@@ -18,8 +18,9 @@
   		<script src="js/knockout-3.4.0.debug.js"></script>
 		<!-- Include Google Maps JS API -->
 		<script async src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDMg1kTwjD-mumXsTK9rSBOzccK8haPJCM&callback=initMap&libraries=places"></script>
+		<!-- <script async src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDMg1kTwjD-mumXsTK9rSBOzccK8haPJCM&libraries=places"></script> -->
+		<script src="js/src/gmap.js"></script>
 		<script src="js/src/app.js"></script>
-		<script src="js/dist/gmap.js"></script>
 
 	</head>
 	<body>
@@ -30,14 +31,14 @@
 					<a href="#mypanel" data-role="button" data-icon="arrow-r" data-iconpos="right">LIST</a>
 					<div class="ui-field-contain" id="location-select">
 						<label for="location">Find Businesses Near...</label>
-						<select id="location" data-bind="options: locations, optionsCaption: 'Select a School', optionsValue: 'name', value: currentLocation, event: {change: changeMapLocation}"></select>
+						<select id="location" data-role="none" data-bind="options: locations, optionsCaption: 'Select a School', optionsText: 'name', value: currentLocation, event: {change: setNewLocation}"></select>
 					</div>
 			</div>
 
 			<!-- panel -->
 			<div data-role="panel" data-display="overlay" id="mypanel">
 				<!-- Select Place type -->
-				<select id="place-type" data-bind="options: placeTypes, optionsCaption: 'Type of Business', optionsValue: 'type', optionsText: 'name', value: placeType, event: {change: setMarkers}"></select>
+				<select id="place-type" data-role="none" data-bind="options: placeTypes, optionsCaption: 'Type of Business', optionsValue: 'type', optionsText: 'name', value: placeType, event: {change: setMarkers}"></select>
 
 				<!-- Filter -->
 				<div class="ui-field-contain">
@@ -78,19 +79,19 @@
 				<div class="banner clearfix">
 					<h2>Reviews</h2>
 				</div>
-				<div data-bind="if: selectedPlace().reviews">
+				<div data-bind="if: sortedGoogleReviews">
 					<div class="reviews">
 						<h3>Google:</h3>
-						<ul id="review-list" data-bind="foreach: reviews">
+						<ul id="review-list" data-bind="foreach: sortedGoogleReviews">
 							<li class="filtered-list-item" data-bind="text: text+'('+formattedDateTime(time)+')'"></li>
 						</ul>
 					</div>
 				</div>
 			</div>
-			<div data-bind="if: fsTips()">
+			<div data-bind="if: fsSortedTips()">
 				<div class="reviews">
 					<h3>Foursquare:</h3>
-					<ul id="foursquare-tips" data-bind="foreach: fsTips">
+					<ul id="foursquare-tips" data-bind="foreach: fsSortedTips">
 						<li class="filtered-list-item" data-bind="text: text+' ('+formattedDateTime(createdAt)+')'"></li>
 					</ul>
 					<p style="text-align: right"><img style="max-width: 150px" src="https://ss0.4sqi.net/img/poweredByFoursquare/poweredby-full-color-bf549c16c0ab3e1b04706ab5fcb422f1.png"></p>

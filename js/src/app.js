@@ -1,20 +1,23 @@
 // app.js
 
+	// A geographic location ("school");
+	var Location = function(name, lat, lng) {
+		this.name = name;
+		this.latlng = {lat, lng};
+	};
+
+	// Available geographic locations, including default
 	var locations = [
-			{name: "Binghamton University", latlng: {lat: 42.088848, lng: -75.969491}},
-			{name: "Stony Brook University", latlng: {lat: 40.912465, lng: -73.123389}},
-			{name: "University at Albany", latlng: {lat: 42.686139, lng: -73.823944}},
-			{name: "University at Buffalo", latlng: {lat: 43.000815, lng: -78.788986}}
+			new Location("New York", 42.900956, -75.664966),
+			new Location("Binghamton University", 42.088848, -75.969491),
+			new Location("Stony Brook University", 40.912465, -73.123389),
+			new Location("University at Albany", 42.686139, -73.823944),
+			new Location("University at Buffalo", 43.000815, -78.788986)
 	];
-
-$(document).ready(function() {
-
-	var viewModel = function() {
-		var self = this;
 
 		// dropdown list of locations types (Google Maps API support Place Types)
 		// https://developers.google.com/places/supported_types
-		self.placeTypes = ko.observableArray([
+	var placeTypes = [
 			{type: "airport", name: "Airports"},
 			{type: "aquarium", name: "Aquariums"},
 			{type: "art_gallery", name: "Art Galleries"},
@@ -47,31 +50,17 @@ $(document).ready(function() {
 			{type: "store", name: "Stores"},
 			{type: "train_station", name: "Train Stations"},
 			{type: "zoo", name: "Zoos"}
-		]);
+		];
+
+$(document).ready(function() {
+
+	var viewModel = function() {
+		var self = this;
 
 		// the selected place Type
 		self.placeType = ko.observable();
 
-		// Return a formatted string to display
-		// self.formattedPlaceName = ko.computed(function() {
-		// 	for(var i=0; i<self.placeTypes().length; i++) {
-		// 		if(self.placeTypes()[i].type === self.placeType()) {
-		// 			return self.placeTypes()[i].name;
-		// 		}
-		// 	}
-		// });
-
 		self.currentLocation = ko.observable();
-
-		self.currentLatLng = ko.computed(function() {
-			for(var i = 0; i < locations.length; i++) {
-				// console.log(locations[i].name);
-				// console.log(self.currentLocation());
-				if(locations[i].name == self.currentLocation()) {
-					return locations[i].latlng;
-				}
-			}
-		});
 
 		// list of found places
 		self.foundPlaces = ko.observableArray();
@@ -82,70 +71,29 @@ $(document).ready(function() {
 		// currently selected place (for infoWindow)
 		self.selectedPlace = ko.observable();
 
-		// Status returned by Google Maps API
-		self.searchStatus = ko.observable("");
-
-		self.fsTips = ko.observableArray();
-
-		// fourSquare venue
- 		self.getFSVenues = ko.computed(function() {
+		// Sort the Google reviews by date (new -> old)
+		self.sortedGoogleReviews = ko.computed(function() {
 			if(self.selectedPlace()) {
-				var url = "https://api.foursquare.com/v2/venues/search";
-				var auth = {
-					client_id: "LKOCAAQC2EHG2YHBHPKMX2TAIHXEOXL3U2GQSCHN5542VYJE",
-					client_secret: "QLLAGNKK2QOLH054PMAPYU1PUQQ4G3YNCOU52WBCH3HDKOQJ"
-				};
-				var data = {
-					ll: self.selectedPlace().geometry.location.lat()+", "+self.selectedPlace().geometry.location.lng(),
-					query: self.selectedPlace().name,
-					intent: "match",
-					v: "20160101",
-					m: "foursquare"
-				};
-
-				$.extend(data, auth);
-
-				return $.getJSON(url, data, function(result) {
-					// console.log(r0);
-					// console.log(result);
-					if(result.response.venues.length > 0) {
-						var closestVenue = result.response.venues[0];
-						var url = "https://api.foursquare.com/v2/venues/"+closestVenue.id;
-						var venueData = {
-							// id: ,
-							v: "20160101",
-							m: "foursquare"
-						};
-
-						$.extend(venueData, auth);
-
-						return $.getJSON(url, venueData, function(result) {
-							self.fsTips(self.sortedTips(result.response.venue));
-						}).error(function() {
-							console.log("error1");
-							return false;
-						});
-					}
-					else {
-						return false;
-					}
-				}).error(function() {
-					console.log("error2");
-					// console.log(r0);
-					console.log(data);
-					console.log("Status: "+r0.status+" ("+r0.statusText+")");
-					return false;
+				return self.selectedPlace().reviews.sort(function(thisreview, nextreview) {
+					return thisreview.time == nextreview.time ? 0 : (thisreview.time > nextreview.time ? -1 : 1);
 				});
 			}
 		});
 
+		// Status returned by Google Maps API
+		self.searchStatus = ko.observable("");
+
+		self.fsVenue = ko.observable();
+
 		// Sort the Foursquare tips by date (new -> old)
-		self.sortedTips = function(venues) {
-			var tips = venues.tips.groups[0].items;
-			return tips.sort(function(thistip, nexttip) {
-				return thistip.createdAt == nexttip.createdAt ? 0 : (thistip.createdAt > nexttip.createdAt ? -1 : 1);
-			});
-		};
+		self.fsSortedTips = ko.computed(function() {
+			if(self.fsVenue()) {
+				var tips = self.fsVenue().tips.groups[0].items;
+				return tips.sort(function(thistip, nexttip) {
+					return thistip.createdAt == nexttip.createdAt ? 0 : (thistip.createdAt > nexttip.createdAt ? -1 : 1);
+				});
+			}
+		});
 
 		// Filter the list of found places and sort by name
 		self.filteredPlaces = ko.computed(function() {
@@ -156,7 +104,8 @@ $(document).ready(function() {
 			}
 			else {
 				unsortedPlaces = ko.utils.arrayFilter(self.foundPlaces(), function(place) {
-					return ko.utils.stringStartsWith(place.name.toLowerCase(), filter);
+				// 	return ko.utils.stringStartsWith(place.name.toLowerCase(), filter);
+					return place.name.toLowerCase().indexOf(filter) !== -1;
 				});
 			}
 			return unsortedPlaces.sort(function(place1, place2) {

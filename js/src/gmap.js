@@ -6,20 +6,19 @@ var iconLabel = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
 var markerList = [];
 var currentMarker;
 var infoWindow;
-var $contentNode;
+var	$contentNode;
 
 function initMap() {
-	$contentNode = $('#info-window');
 	//Enabling new cartography and themes
 	google.maps.visualRefresh = true;
 
-	// console.log(currentLatLng());
-	// nyLatLng = new google.maps.LatLng(currentLatLng().lat, currentLatLng().lng);
-	nyLatLng = new google.maps.LatLng(42.900956, -75.664966);
+	$contentNode = $('#info-window');
+
+	initLatLng = locations[0].latlng;
 
 	//Setting starting options of map
 	var mapOptions = {
-		center: nyLatLng,
+		center: initLatLng,
 		zoom: 7,
 		mapTypeId: google.maps.MapTypeId.ROADMAP
 	};
@@ -48,17 +47,21 @@ function initMap() {
 
 };
 
-var changeMapLocation = function() {
-	map.setCenter(currentLatLng());
-	map.setZoom(14);
-};
-
-var resetMapMarkers = function() {
-	// Delete any old Markers
-	if(markerList.length > 0) {
-		clearMarkers();
+var setNewLocation = function() {
+	infoWindow.close();
+	resetMapMarkers();
+	resetMap();
+	selectedPlace(undefined);
+	placeType(undefined);
+	searchStatus("");
+	if(foundPlaces().length > 0) {
+		foundPlaces.removeAll();
 	}
-	replaceDeletedInfoWindowNode(); // Maintain knockout bindings for infoWindow
+}
+
+var resetMap = function() {
+	map.setCenter(currentLocation().latlng);
+	map.setZoom(14);
 };
 
 var setMarkers = function() {
@@ -74,7 +77,12 @@ var filterMarkers = function() {
 	addMarkers();
 };
 
-// remove all markers in the list from map and delete
+var resetMapMarkers = function() {
+	clearMarkers();
+	replaceDeletedInfoWindowNode(); // Maintain knockout bindings for infoWindow
+};
+
+// remove all markers and reset markerList
 var clearMarkers = function() {
 	for (var i = 0; i < markerList.length; i++) {
 		markerList[i].setMap(null);
@@ -87,7 +95,7 @@ var clearMarkers = function() {
 
 var getPlaces = function() {
 	var request = {
-		location: currentLatLng(),
+		location: currentLocation().latlng,
 		radius: '2000',
 		types: [placeType()]
 	};
@@ -160,7 +168,7 @@ var openInfoWindow = function(marker) {
 	placesService.getDetails({placeId: marker.getPlace().placeId}, function(placeDetails, status) {
 		if (status == google.maps.places.PlacesServiceStatus.OK) {
 			selectedPlace(placeDetails);
-			// getFourSquareVenue(placeDetails.geometry.location, placeDetails.name);
+			getFoursquareVenue();
 			// getYelpData();
 			infoWindow.open(map, marker);
 		}
@@ -169,11 +177,11 @@ var openInfoWindow = function(marker) {
 
 var triggerInfoWindow = function(place_id) {
 	if(markerList.length >= filteredPlaces().length) {
-		setCurrentMarker(getCurrentMarker(place_id, markerList));
+		setCurrentMarker(getCurrentMarker(place_id));
 	}
 };
 
-var getCurrentMarker = function(placeId, markerList) {
+var getCurrentMarker = function(placeId) {
 	for(var index = 0; index < markerList.length; index++) {
 		if(placeId === markerList[index].getPlace().placeId ) {
 			return markerList[index];
@@ -181,63 +189,56 @@ var getCurrentMarker = function(placeId, markerList) {
 	}
 };
 
-/*
-var getFourSquareVenue = function(location, name) {
+// fourSquare venue
+var getFoursquareVenue = function() {
+	// if(selectedPlace() !== undefined) {
+		var url = "https://api.foursquare.com/v2/venues/search";
+		var auth = {
+			client_id: "LKOCAAQC2EHG2YHBHPKMX2TAIHXEOXL3U2GQSCHN5542VYJE",
+			client_secret: "QLLAGNKK2QOLH054PMAPYU1PUQQ4G3YNCOU52WBCH3HDKOQJ"
+		};
+		var data = {
+			ll: selectedPlace().geometry.location.lat()+", "+selectedPlace().geometry.location.lng(),
+			query: selectedPlace().name,
+			intent: "match",
+			v: "20160101",
+			m: "foursquare"
+		};
 
-	// var name = name;
-	// var location = location;
+		$.extend(data, auth);
 
+		$.getJSON(url, data, function(result) {
+			if(result.response.venues.length > 0) {
+				var closestVenue = result.response.venues[0];
+				var url = "https://api.foursquare.com/v2/venues/"+closestVenue.id;
+				var venueData = {
+					v: "20160101",
+					m: "foursquare"
+				};
 
-	var url = "https://api.foursquare.com/v2/venues/search";
-	var data = {
-		client_id: "LKOCAAQC2EHG2YHBHPKMX2TAIHXEOXL3U2GQSCHN5542VYJE",
-		client_secret: "QLLAGNKK2QOLH054PMAPYU1PUQQ4G3YNCOU52WBCH3HDKOQJ",
-	  	ll: location.lat()+", "+location.lng(),
-		query: encodeURI(name),
-		intent: "match",
-	  	v: "20140806",
-	  	m: "foursquare"
-	}
+				$.extend(venueData, auth);
 
-
-	// var fsEndpoint = "https://api.foursquare.com/v2/venues/";
-	// var fsLocation = "search?ll="+location.lat()+", "+location.lng();
-	// var fsName = "&query="+encodeURI(name);
-	// var fsIntent = "&intent=match";
-	// var fsAuth = "client_id=LKOCAAQC2EHG2YHBHPKMX2TAIHXEOXL3U2GQSCHN5542VYJE&client_secret=QLLAGNKK2QOLH054PMAPYU1PUQQ4G3YNCOU52WBCH3HDKOQJ&v=20160108";
-
-	// var fsQuery = fsEndpoint+fsLocation+fsName+fsIntent+"&"+fsAuth;
-
-	var r0 = $.getJSON(url, data, function(data) {
-	// var r0 = $.getJSON(fsQuery, function(data) {
-		console.log(r0);
-		console.log(data);
-		if(data.response.venues.length > 0) {
-			var venueID = data.response.venues[0].id;
-			var venueQuery = fsEndpoint+venueID+"?"+fsAuth;
-			var r1 = $.getJSON(venueQuery, function(data2) {
-				console.log("Status: "+r0.status+" ("+r0.statusText+")");
-				fsVenue(data2.response.venue);
-				// for(var i = 0; i < venue().tips.count; i++) {
-				// 	$('#tips').append("<li>"+data2.response.venue.tips.groups[0].items[i].text+"</li>");
-				// }
-			}).error(function() {
-				console.log("error1");
-				fsVenue(false);
-			});
-		}
-		else {
-			fsVenue(false);
-		}
-	}).error(function() {
+				$.getJSON(url, venueData, function(result) {
+					console.log(result);
+					fsVenue(result.response.venue);
+				}).error(function() {
+					console.log("error1");
+				fsVenue(undefined);
+				});
+			}
+			else {
+				fsVenue(undefined);
+			}
+		}).error(function() {
 			console.log("error2");
-		console.log(r0);
-		console.log(data);
-		console.log("Status: "+r0.status+" ("+r0.statusText+")");
-		fsVenue(false);
-	});
+			// console.log(r0);
+			console.log(data);
+			console.log("Status: "+r0.status+" ("+r0.statusText+")");
+			return false;
+		});
+	// }
 };
-*/
+
 var getYahooWeather = function() {
 // Yahoo!
 // =======================================================================================
@@ -309,10 +310,12 @@ var formattedDateTime = function(UNIX_timestamp) {
 	return time;
 };
 
-// Add the infoWindow node back to the body
+// Add the infoWindow node back to the body if it's been removed.
 // Google maps deletes the infoWindow content node when the window is closed, knockout bindings stop working!
 // http://stackoverflow.com/questions/15317796/knockout-loses-bindings-when-google-maps-api-v3-info-window-is-closed
 var replaceDeletedInfoWindowNode = function() {
-	$("body").append($contentNode);
+	// if( !$contentNode.length ) {
+		$("body").append($contentNode);
+	// }
 };
 
