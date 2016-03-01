@@ -1,22 +1,7 @@
 // app.js
 
-	// A geographic location ("school");
-	var Location = function(name, lat, lng) {
-		this.name = name;
-		this.latlng = {lat, lng};
-	};
-
-	// Available geographic locations, including default
-	var locations = [
-			new Location("New York", 42.900956, -75.664966),
-			new Location("Binghamton University", 42.088848, -75.969491),
-			new Location("Stony Brook University", 40.912465, -73.123389),
-			new Location("University at Albany", 42.686139, -73.823944),
-			new Location("University at Buffalo", 43.000815, -78.788986)
-	];
-
-		// dropdown list of locations types (Google Maps API support Place Types)
-		// https://developers.google.com/places/supported_types
+	// dropdown list of locations types (Google Maps API support Place Types)
+	// https://developers.google.com/places/supported_types
 	var placeTypes = [
 			{type: "airport", name: "Airports"},
 			{type: "aquarium", name: "Aquariums"},
@@ -57,7 +42,7 @@ $(document).ready(function() {
 	var viewModel = function() {
 		var self = this;
 
-		self.currentLocation = ko.observable();
+		// self.currentLocation = ko.observable();
 
 		// the selected place Type
 		self.placeType = ko.observable();
@@ -91,7 +76,7 @@ $(document).ready(function() {
 
 		// Sort the Google reviews by date (new -> old)
 		self.sortedGoogleReviews = ko.computed(function() {
-			if(self.selectedPlace()) {
+			if(self.selectedPlace() && self.selectedPlace().reviews) {
 				return self.selectedPlace().reviews.sort(function(thisreview, nextreview) {
 					return thisreview.time == nextreview.time ? 0 : (thisreview.time > nextreview.time ? -1 : 1);
 				});
@@ -102,7 +87,7 @@ $(document).ready(function() {
 
 		// Sort the Foursquare tips by date (new -> old)
 		self.fsSortedTips = ko.computed(function() {
-			if(self.fsVenue()) {
+			if(self.fsVenue() && self.fsVenue().tips.count) {
 				var tips = self.fsVenue().tips.groups[0].items;
 				return tips.sort(function(thistip, nexttip) {
 					return thistip.createdAt == nexttip.createdAt ? 0 : (thistip.createdAt > nexttip.createdAt ? -1 : 1);

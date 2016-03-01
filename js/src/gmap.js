@@ -8,18 +8,18 @@ var currentMarker;
 var infoWindow;
 var	$contentNode;
 
+var binghamton = {lat: 42.088848, lng: -75.969491};
+
 function initMap() {
 	//Enabling new cartography and themes
 	google.maps.visualRefresh = true;
 
 	$contentNode = $('#info-window');
 
-	initLatLng = locations[0].latlng;
-
 	//Setting starting options of map
 	var mapOptions = {
-		center: initLatLng,
-		zoom: 7,
+		center: binghamton,
+		zoom: 14,
 		mapTypeId: google.maps.MapTypeId.ROADMAP
 	};
 
@@ -47,22 +47,16 @@ function initMap() {
 
 };
 
-var setNewLocation = function() {
-	infoWindow.close();
-	resetMapMarkers();
-	resetMap();
-	selectedPlace(undefined);
-	placeType(undefined);
-	searchStatus("");
-	if(foundPlaces().length > 0) {
-		foundPlaces.removeAll();
-	}
-}
-
-var resetMap = function() {
-	map.setCenter(currentLocation().latlng);
-	map.setZoom(14);
-};
+// var setNewLocation = function() {
+// 	infoWindow.close();
+// 	resetMapMarkers();
+// 	selectedPlace(undefined);
+// 	placeType(undefined);
+// 	searchStatus("");
+// 	if(foundPlaces().length > 0) {
+// 		foundPlaces.removeAll();
+// 	}
+// }
 
 var setMarkers = function() {
 	resetMapMarkers();
@@ -95,7 +89,7 @@ var clearMarkers = function() {
 
 var getPlaces = function() {
 	var request = {
-		location: currentLocation().latlng,
+		location: binghamton,
 		radius: '2000',
 		types: [placeType()]
 	};
