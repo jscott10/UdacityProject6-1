@@ -66,11 +66,6 @@ var setMarkers = function() {
 	getPlaces();
 };
 
-var filterMarkers = function() {
-	resetMapMarkers();
-	addMarkers();
-};
-
 var resetMapMarkers = function() {
 	clearMarkers();
 	replaceDeletedInfoWindowNode(); // Maintain knockout bindings for infoWindow
@@ -83,6 +78,11 @@ var clearMarkers = function() {
 		markerList[i] = null;
 	}
 	markerList.length = 0;
+};
+
+var filterMarkers = function() {
+	resetMapMarkers();
+	addMarkers();
 };
 
 // buildPlaceList is running asynchronously and doesn't finish before the markers are built!

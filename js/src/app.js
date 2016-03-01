@@ -42,13 +42,13 @@ $(document).ready(function() {
 	var viewModel = function() {
 		var self = this;
 
+		// list of found places
+		self.foundPlaces = ko.observableArray();
+
 		// self.currentLocation = ko.observable();
 
 		// the selected place Type
 		self.placeType = ko.observable();
-
-		// list of found places
-		self.foundPlaces = ko.observableArray();
 
 		// found places filter
 		self.filter = ko.observable("");
@@ -83,6 +83,11 @@ $(document).ready(function() {
 			}
 		});
 
+//
+//
+// THIS SHOULD BE COMPUTED WHEN selectedPlace() CHANGES!!!
+//
+//
 		self.fsVenue = ko.observable();
 
 		// Sort the Foursquare tips by date (new -> old)
