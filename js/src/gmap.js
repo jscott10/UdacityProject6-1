@@ -185,52 +185,50 @@ var getCurrentMarker = function(placeId) {
 
 // fourSquare venue
 var getFoursquareVenue = function() {
-	// if(selectedPlace() !== undefined) {
-		var url = "https://api.foursquare.com/v2/venues/search";
-		var auth = {
-			client_id: "LKOCAAQC2EHG2YHBHPKMX2TAIHXEOXL3U2GQSCHN5542VYJE",
-			client_secret: "QLLAGNKK2QOLH054PMAPYU1PUQQ4G3YNCOU52WBCH3HDKOQJ"
-		};
-		var data = {
-			ll: selectedPlace().geometry.location.lat()+", "+selectedPlace().geometry.location.lng(),
-			query: selectedPlace().name,
-			intent: "match",
-			v: "20160101",
-			m: "foursquare"
-		};
+	var url = "https://api.foursquare.com/v2/venues/search";
+	var auth = {
+		client_id: "LKOCAAQC2EHG2YHBHPKMX2TAIHXEOXL3U2GQSCHN5542VYJE",
+		client_secret: "QLLAGNKK2QOLH054PMAPYU1PUQQ4G3YNCOU52WBCH3HDKOQJ"
+	};
+	var data = {
+		ll: selectedPlace().geometry.location.lat()+", "+selectedPlace().geometry.location.lng(),
+		query: selectedPlace().name,
+		intent: "match",
+		v: "20160101",
+		m: "foursquare"
+	};
 
-		$.extend(data, auth);
+	$.extend(data, auth);
 
-		$.getJSON(url, data, function(result) {
-			if(result.response.venues.length > 0) {
-				var closestVenue = result.response.venues[0];
-				var url = "https://api.foursquare.com/v2/venues/"+closestVenue.id;
-				var venueData = {
-					v: "20160101",
-					m: "foursquare"
-				};
+	$.getJSON(url, data, function(result) {
+		if(result.response.venues.length > 0) {
+			var closestVenue = result.response.venues[0];
+			var url = "https://api.foursquare.com/v2/venues/"+closestVenue.id;
+			var venueData = {
+				v: "20160101",
+				m: "foursquare"
+			};
 
-				$.extend(venueData, auth);
+			$.extend(venueData, auth);
 
-				$.getJSON(url, venueData, function(result) {
-					console.log(result);
-					fsVenue(result.response.venue);
-				}).error(function() {
-					console.log("error1");
-				fsVenue(undefined);
-				});
-			}
-			else {
-				fsVenue(undefined);
-			}
-		}).error(function() {
-			console.log("error2");
-			// console.log(r0);
-			console.log(data);
-			console.log("Status: "+r0.status+" ("+r0.statusText+")");
-			return false;
-		});
-	// }
+			$.getJSON(url, venueData, function(result) {
+				console.log(result);
+				fsVenue(result.response.venue);
+			}).error(function() {
+				console.log(r0);
+			fsVenue(undefined);
+			});
+		}
+		else {
+			fsVenue(undefined);
+		}
+	}).error(function() {
+		console.log("error2");
+		// console.log(r0);
+		console.log(r0);
+		console.log("Status: "+r0.status+" ("+r0.statusText+")");
+		return false;
+	});
 };
 
 var getYahooWeather = function() {

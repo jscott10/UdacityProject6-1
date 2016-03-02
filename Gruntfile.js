@@ -105,11 +105,13 @@ grunt.initConfig({
   	pagespeed: {
 		options: {
 			nokey: true,
-			url: "http://59838d9b.ngrok.io"
+			// url: "http://59838d9b.ngrok.io"
+			url: "http://jscott10.github.io"
 		},
 		prod_mob: {
 			options: {
-				url: "http://59838d9b.ngrok.io/fend-p5-nmp/",
+				// url: "http://59838d9b.ngrok.io/fend-p5-nmp/",
+				url: "http://jscott10.github.io/fend-p5-nmp/",
 				locale: "en_GB",
 				strategy: "mobile",
 				threshold: 50
@@ -117,7 +119,8 @@ grunt.initConfig({
 		},
 		prod_desk: {
 			options: {
-				url: "http://59838d9b.ngrok.io/fend-p5-nmp/",
+				// url: "http://59838d9b.ngrok.io/fend-p5-nmp/",
+				url: "http://jscott10.github.io/fend-p5-nmp/",
 				locale: "en_GB",
 				strategy: "desktop",
 				threshold: 50
