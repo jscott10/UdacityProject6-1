@@ -10,6 +10,9 @@ var	$contentNode;
 
 var binghamton = {lat: 42.088848, lng: -75.969491};
 
+var error1;
+var error2;
+
 function initMap() {
 	//Enabling new cartography and themes
 	google.maps.visualRefresh = true;
@@ -40,7 +43,7 @@ function initMap() {
 
 	// Replace the infoWindow node if the user closes the window
 	google.maps.event.addListener(infoWindow, "closeclick", function () {
-		replaceDeletedInfoWindowNode(); // Maintain knockout bindings for infoWindow
+		// replaceDeletedInfoWindowNode(); // Maintain knockout bindings for infoWindow
 	});
 
 	placesService = new google.maps.places.PlacesService(map);
@@ -68,7 +71,7 @@ var setMarkers = function() {
 
 var resetMapMarkers = function() {
 	clearMarkers();
-	replaceDeletedInfoWindowNode(); // Maintain knockout bindings for infoWindow
+	// replaceDeletedInfoWindowNode(); // Maintain knockout bindings for infoWindow
 };
 
 // remove all markers and reset markerList
@@ -137,7 +140,7 @@ var addMarker = function(place, index) {
 var setCurrentMarker = function(marker) {
 	if(currentMarker) {
 		infoWindow.close();
-		replaceDeletedInfoWindowNode(); // Maintain knockout bindings for infoWindow
+		// replaceDeletedInfoWindowNode(); // Maintain knockout bindings for infoWindow
 		currentMarker.setIcon({url: 'img/src/gm-markers/pink_Marker'+iconLabel[currentMarker.index]+'.png'});
 		currentMarker.setAnimation(null);
 	}
@@ -161,9 +164,11 @@ var highlightMarker = function(marker, color) {
 var openInfoWindow = function(marker) {
 	placesService.getDetails({placeId: marker.getPlace().placeId}, function(placeDetails, status) {
 		if (status == google.maps.places.PlacesServiceStatus.OK) {
-			selectedPlace(placeDetails);
-			getFoursquareVenue();
+			// selectedPlace(placeDetails);
+			// getFoursquareVenue();
 			// getYelpData();
+			var imageUrl = placeDetails.photos[0].getUrl({maxWidth: 100});
+			$(".image").html("<img src='"+imageUrl+"'>");
 			infoWindow.open(map, marker);
 		}
 	});
@@ -200,7 +205,7 @@ var getFoursquareVenue = function() {
 
 	$.extend(data, auth);
 
-	$.getJSON(url, data, function(result) {
+	var jqXHR = $.getJSON(url, data, function(result) {
 		if(result.response.venues.length > 0) {
 			var closestVenue = result.response.venues[0];
 			var url = "https://api.foursquare.com/v2/venues/"+closestVenue.id;
@@ -211,22 +216,28 @@ var getFoursquareVenue = function() {
 
 			$.extend(venueData, auth);
 
-			$.getJSON(url, venueData, function(result) {
+			var jqXHR = $.getJSON(url, venueData, function(result) {
+				error2 = jqXHR;
 				console.log(result);
 				fsVenue(result.response.venue);
-			}).error(function() {
-				console.log(r0);
-			fsVenue(undefined);
+			}).error(function(textStatus, errorThrown) {
+				// errorDump.jqXHR = jqXHR;
+				console.log("Status2: "+jqXHR.status+" ("+jqXHR.statusText+")");
+				console.log(jqXHR);
+				errorDump.textStatus = statusText;
+				console.log(textStatus);
+				errorDump.errorThrown = errorThrown;
+				console.log(errorThrown);
+				fsVenue();
 			});
 		}
 		else {
 			fsVenue(undefined);
 		}
 	}).error(function() {
-		console.log("error2");
-		// console.log(r0);
-		console.log(r0);
-		console.log("Status: "+r0.status+" ("+r0.statusText+")");
+		error1 = jqXHR;
+		console.log(jqXHR);
+		console.log("Status1: "+jqXHR.status+" ("+jqXHR.statusText+")");
 		return false;
 	});
 };
@@ -305,9 +316,10 @@ var formattedDateTime = function(UNIX_timestamp) {
 // Add the infoWindow node back to the body if it's been removed.
 // Google maps deletes the infoWindow content node when the window is closed, knockout bindings stop working!
 // http://stackoverflow.com/questions/15317796/knockout-loses-bindings-when-google-maps-api-v3-info-window-is-closed
+/*
 var replaceDeletedInfoWindowNode = function() {
 	// if( !$contentNode.length ) {
 		$("body").append($contentNode);
 	// }
 };
-
+*/

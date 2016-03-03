@@ -134,8 +134,22 @@ grunt.initConfig({
 		// 		threshold: 80
 		// 	}
 		// }
+	},
+	ftpush: {
+	  build: {
+	    auth: {
+	      host: 'server.com',
+	      port: 21,
+	      authKey: 'key1'
+	    },
+	    src: 'path/to/source/folder',
+	    dest: '/path/to/destination/folder',
+	    exclusions: ['path/to/source/folder/**/.DS_Store', 'path/to/source/folder/**/Thumbs.db', 'dist/tmp'],
+	    keep: ['/important/images/at/server/*.jpg']
+	  }
 	}
 });
+
 
 // Load the plugin that provides the "uglify" task.
 grunt.loadNpmTasks('grunt-contrib-watch');
@@ -145,6 +159,7 @@ grunt.loadNpmTasks('grunt-contrib-sass');
 // grunt.loadNpmTasks('grunt-contrib-cssmin');
 grunt.loadNpmTasks('grunt-contrib-htmlmin');
 grunt.loadNpmTasks('grunt-pagespeed');
+grunt.loadNpmTasks('grunt-ftpush');
 
 // Default task(s).
 // grunt.registerTask('default', ['uglify', 'imagemin', 'sass', 'cssmin', 'htmlmin', 'pagespeed']);

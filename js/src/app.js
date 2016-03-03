@@ -17,7 +17,6 @@
 			{type: "car_repair", name: "Car Repair"},
 			{type: "convenience_store", name: "Convenience Stores"},
 			{type: "department_store", name: "Department Stores"},
-			{type: "food", name: "Food"},
 			{type: "grocery_or_supermarket", name: "Supermarkets/Grocery Stores"},
 			{type: "gym", name: "Gyms"},
 			{type: "laundry", name: "Laundry/Dry Cleaning"},
@@ -72,33 +71,33 @@ $(document).ready(function() {
 		});
 
 		// currently selected place (for infoWindow)
-		self.selectedPlace = ko.observable();
+		// self.selectedPlace = ko.observable();
 
 		// Sort the Google reviews by date (new -> old)
-		self.sortedGoogleReviews = ko.computed(function() {
-			if(self.selectedPlace() && self.selectedPlace().reviews) {
-				return self.selectedPlace().reviews.sort(function(thisreview, nextreview) {
-					return thisreview.time == nextreview.time ? 0 : (thisreview.time > nextreview.time ? -1 : 1);
-				});
-			}
-		});
+		// self.sortedGoogleReviews = ko.computed(function() {
+		// 	if(self.selectedPlace() && self.selectedPlace().reviews) {
+		// 		return self.selectedPlace().reviews.sort(function(thisreview, nextreview) {
+		// 			return thisreview.time == nextreview.time ? 0 : (thisreview.time > nextreview.time ? -1 : 1);
+		// 		});
+		// 	}
+		// });
 
 //
 //
 // THIS SHOULD BE COMPUTED WHEN selectedPlace() CHANGES!!!
 //
 //
-		self.fsVenue = ko.observable();
+		// self.fsVenue = ko.observable();
 
 		// Sort the Foursquare tips by date (new -> old)
-		self.fsSortedTips = ko.computed(function() {
-			if(self.fsVenue() && self.fsVenue().tips.count) {
-				var tips = self.fsVenue().tips.groups[0].items;
-				return tips.sort(function(thistip, nexttip) {
-					return thistip.createdAt == nexttip.createdAt ? 0 : (thistip.createdAt > nexttip.createdAt ? -1 : 1);
-				});
-			}
-		});
+		// self.fsSortedTips = ko.computed(function() {
+		// 	if(self.fsVenue() && self.fsVenue().tips.count) {
+		// 		var tips = self.fsVenue().tips.groups[0].items;
+		// 		return tips.sort(function(thistip, nexttip) {
+		// 			return thistip.createdAt == nexttip.createdAt ? 0 : (thistip.createdAt > nexttip.createdAt ? -1 : 1);
+		// 		});
+		// 	}
+		// });
 
 		// Status returned by Google Maps API
 		self.searchStatus = ko.observable("");
