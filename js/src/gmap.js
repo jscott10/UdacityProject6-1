@@ -12,6 +12,7 @@ var binghamton = {lat: 42.088848, lng: -75.969491};
 
 var error1;
 var error2;
+var pd;
 
 function initMap() {
 	//Enabling new cartography and themes
@@ -164,14 +165,28 @@ var highlightMarker = function(marker, color) {
 var openInfoWindow = function(marker) {
 	placesService.getDetails({placeId: marker.getPlace().placeId}, function(placeDetails, status) {
 		if (status == google.maps.places.PlacesServiceStatus.OK) {
+			pd = placeDetails;
 			// selectedPlace(placeDetails);
 			// getFoursquareVenue();
 			// getYelpData();
-			var imageUrl = placeDetails.photos[0].getUrl({maxWidth: 100});
-			$(".image").html("<img src='"+imageUrl+"'>");
+			displayPlaceBanner(placeDetails);
 			infoWindow.open(map, marker);
 		}
 	});
+};
+
+var displayPlaceBanner = function(placeDetails) {
+	var imageUrl = placeDetails.photos[0].getUrl({maxWidth: 100});
+	var name = placeDetails.name;
+	var address = placeDetails.formatted_address;
+	if (placeDetails.formatted_phone_number) {
+		var phone = placeDetails.formatted_phone_number;
+	}
+	$("#info-window > .image").html("<img src='"+imageUrl+"'>");
+	$("#info-window > .banner").html("<h1>"+name+"</h1>");
+	$("#info-window > .address").html("<p>"+address+"</p>");
+	$("#info-window > .phone-number").html("<p>"+phone+"</p>");
+
 };
 
 var triggerInfoWindow = function(place_id) {
