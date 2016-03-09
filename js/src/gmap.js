@@ -140,7 +140,7 @@ var addMarker = function(place, index) {
 
 var setCurrentMarker = function(marker) {
 	if(currentMarker) {
-		infoWindow.close();
+		// infoWindow.close();
 		// replaceDeletedInfoWindowNode(); // Maintain knockout bindings for infoWindow
 		currentMarker.setIcon({url: 'img/src/gm-markers/pink_Marker'+iconLabel[currentMarker.index]+'.png'});
 		currentMarker.setAnimation(null);
@@ -175,18 +175,41 @@ var openInfoWindow = function(marker) {
 	});
 };
 
-var displayPlaceBanner = function(placeDetails) {
-	var imageUrl = placeDetails.photos[0].getUrl({maxWidth: 100});
-	var name = placeDetails.name;
-	var address = placeDetails.formatted_address;
-	if (placeDetails.formatted_phone_number) {
-		var phone = placeDetails.formatted_phone_number;
-	}
-	$("#info-window > .image").html("<img src='"+imageUrl+"'>");
-	$("#info-window > .banner").html("<h1>"+name+"</h1>");
-	$("#info-window > .address").html("<p>"+address+"</p>");
-	$("#info-window > .phone-number").html("<p>"+phone+"</p>");
+// todo: items aren't resetting consistently!!! .html and .append!!!
 
+var displayPlaceBanner = function(placeDetails) {
+	if(typeof placeDetails.photos != 'undefined') {
+		console.log(placeDetails.photos);
+		var imageUrl = placeDetails.photos[0].getUrl({maxWidth: 100});
+		$("#info-window > .image").html("<img src='"+imageUrl+"'>");
+	}
+	if(typeof placeDetails.name !== 'undefined') {
+		$("#info-window > .banner").html("<h1>"+placeDetails.name+"</h1>");
+	}
+	if(typeof placeDetails.formatted_address !== 'undefined') {
+		$("#info-window > .address").html("<p>"+placeDetails.formatted_address+"</p>");
+	}
+	if (typeof placeDetails.formatted_phone_number !== 'undefined') {
+		$("#info-window > .phone-number").html("<p>"+placeDetails.formatted_phone_number+"</p>");
+	}
+	if(typeof placeDetails.reviews !== 'undefined' && placeDetails.reviews.length > 0) {
+		// Sort the Google reviews by date (new -> old)
+		var sortedReviews = function() {
+			return placeDetails.reviews.sort(function(thisreview, nextreview) {
+				return thisreview.time == nextreview.time ? 0 : (thisreview.time > nextreview.time ? -1 : 1);
+			});
+		}
+		$(".google-reviews > ul").html(""); // reset review list
+		sortedReviews().forEach(function(currentValue, index, arr) {
+			if(currentValue.text) {
+				var text = currentValue.text;
+				if(currentValue.time) {
+					var time = currentValue.time;
+				}
+				$(".google-reviews > ul").append("<li>"+text+" ("+formattedDateTime(time)+")</li>");
+			}
+		});
+	}
 };
 
 var triggerInfoWindow = function(place_id) {
