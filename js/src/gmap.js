@@ -42,25 +42,9 @@ function initMap() {
 		content: $contentNode[0]
 	});
 
-	// Replace the infoWindow node if the user closes the window
-	google.maps.event.addListener(infoWindow, "closeclick", function () {
-		// replaceDeletedInfoWindowNode(); // Maintain knockout bindings for infoWindow
-	});
-
 	placesService = new google.maps.places.PlacesService(map);
 
 };
-
-// var setNewLocation = function() {
-// 	infoWindow.close();
-// 	resetMapMarkers();
-// 	selectedPlace(undefined);
-// 	placeType(undefined);
-// 	searchStatus("");
-// 	if(foundPlaces().length > 0) {
-// 		foundPlaces.removeAll();
-// 	}
-// }
 
 var setMarkers = function() {
 	resetMapMarkers();
@@ -72,7 +56,6 @@ var setMarkers = function() {
 
 var resetMapMarkers = function() {
 	clearMarkers();
-	// replaceDeletedInfoWindowNode(); // Maintain knockout bindings for infoWindow
 };
 
 // remove all markers and reset markerList
@@ -141,7 +124,6 @@ var addMarker = function(place, index) {
 var setCurrentMarker = function(marker) {
 	if(currentMarker) {
 		// infoWindow.close();
-		// replaceDeletedInfoWindowNode(); // Maintain knockout bindings for infoWindow
 		currentMarker.setIcon({url: 'img/src/gm-markers/pink_Marker'+iconLabel[currentMarker.index]+'.png'});
 		currentMarker.setAnimation(null);
 	}
@@ -184,24 +166,14 @@ var openInfoWindow = function(marker) {
 		if (status == google.maps.places.PlacesServiceStatus.OK) {
 			$(".load-message").remove();
 			pd = placeDetails;
-			// selectedPlace(placeDetails);
-			// getFoursquareVenue();
-			// getYelpData();
-			displayPlaceData(placeDetails);
+			displayPlaceBanner(placeDetails);
+			displayReviews(placeDetails);
 		}
 		else {
 			$("#info-window").append("<h3 class='no-review-message'>Could not load location info.</h3>");
 		}
 	});
 };
-
-var displayPlaceData = function(placeDetails) {
-	$("#info-window").empty();
-	displayPlaceBanner(placeDetails);
-	displayReviews(placeDetails);
-};
-
-// todo: items aren't resetting consistently!!! .html and .append!!!
 
 var displayPlaceBanner = function(placeDetails) {
 	$("#info-window").append("<div id='info-banner' class='clearfix'></div>");
@@ -248,15 +220,6 @@ var displayGoogleReviews = function(placeDetails) {
 				$(".google-reviews > ul").append("<li>"+text+" ("+formattedDateTime(time)+")</li>");
 			}
 		}
-		// sortedReviews().forEach(function(currentValue, index, arr) {
-		// 	if(currentValue.text) {
-		// 		var text = currentValue.text;
-		// 		if(currentValue.time) {
-		// 			var time = currentValue.time;
-		// 		}
-		// 		$(".reviews > ul").append("<li>"+text+" ("+formattedDateTime(time)+")</li>");
-		// 	}
-		// });
 	}
 	else {
 		$("#info-window").append("<h3 class='no-review-message'>No reviews found.</h3>");
@@ -297,8 +260,18 @@ var getAndDisplayFoursquareReviews = function(placeDetails) {
 
 			var jqXHR = $.getJSON(url, venueData, function(result) {
 				error2 = jqXHR;
+				console.log("xxx");
 				console.log(result);
-				displayFoursquareReviews(result.response.venue.tips.groups[0].items);
+				console.log("yyy");
+				console.log(result.response.venue.tips); // GROUPS CAN BE AN EMPTY ARRAY, SO [0] DOESN'T EXIST!!!
+				if(result.response.venue.tips.groups.length > 0) {
+					var reviews = result.response.venue.tips.groups[0].items;
+					displayFoursquareReviews(reviews);
+				}
+				else {
+					$("#foursquare-reviews").empty();
+					$("#foursquare-reviews").append("<h3 class='no-review-message'>No reviews found.</h3>");
+				}
 			}).error(function(textStatus, errorThrown) {
 				// errorDump.jqXHR = jqXHR;
 				console.log("Status2: "+jqXHR.status+" ("+jqXHR.statusText+")");
@@ -417,17 +390,7 @@ var formattedDateTime = function(UNIX_timestamp) {
 	hour = hour % 12;
 	hour = hour ? hour : 12; // the hour '0' should be '12'
 	min = min < 10 ? '0'+min : min;
-	var time = date + ' ' + month + ' ' + year + ' ' + hour + ':' + min + ' ' + ampm;
+	// var time = date + ' ' + month + ' ' + year + ' ' + hour + ':' + min + ' ' + ampm;
+	var time = date + ' ' + month + ' ' + year;
 	return time;
 };
-
-// Add the infoWindow node back to the body if it's been removed.
-// Google maps deletes the infoWindow content node when the window is closed, knockout bindings stop working!
-// http://stackoverflow.com/questions/15317796/knockout-loses-bindings-when-google-maps-api-v3-info-window-is-closed
-/*
-var replaceDeletedInfoWindowNode = function() {
-	// if( !$contentNode.length ) {
-		$("body").append($contentNode);
-	// }
-};
-*/
