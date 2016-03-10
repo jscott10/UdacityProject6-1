@@ -162,7 +162,22 @@ var highlightMarker = function(marker, color) {
 	}, 1500);
 };
 
+var triggerInfoWindow = function(place_id) {
+	if(markerList.length >= filteredPlaces().length) {
+		setCurrentMarker(getCurrentMarker(place_id));
+	}
+};
+
+var getCurrentMarker = function(placeId) {
+	for(var index = 0; index < markerList.length; index++) {
+		if(placeId === markerList[index].getPlace().placeId ) {
+			return markerList[index];
+		}
+	}
+};
+
 var openInfoWindow = function(marker) {
+	$("#info-window").empty();
 	$("#info-window").append("<h3 class='load-message'>Loading...</h3>");
 	infoWindow.open(map, marker);
 	placesService.getDetails({placeId: marker.getPlace().placeId}, function(placeDetails, status) {
@@ -183,79 +198,85 @@ var openInfoWindow = function(marker) {
 var displayPlaceData = function(placeDetails) {
 	$("#info-window").empty();
 	displayPlaceBanner(placeDetails);
-	$("#info-window").append("<h2>Reviews</h2>");
-	$("#info-window").append("<h3>Google</h3>");
-	displayGoogleReviews(placeDetails.reviews);
+	displayReviews(placeDetails);
 };
 
 // todo: items aren't resetting consistently!!! .html and .append!!!
 
 var displayPlaceBanner = function(placeDetails) {
-	$("#info-window").append("<div class='info-banner clearfix'></div>");
+	$("#info-window").append("<div id='info-banner' class='clearfix'></div>");
 	if(typeof placeDetails.photos != 'undefined') {
 		console.log(placeDetails.photos);
 		var imageUrl = placeDetails.photos[0].getUrl({maxWidth: 100});
-		$(".info-banner").append("<img src='"+imageUrl+" class='image'>");
+		$("#info-banner").append("<img src='"+imageUrl+"' class='image'>");
 	}
 	if(typeof placeDetails.name !== 'undefined') {
-		$(".info-banner").append("<h1>"+placeDetails.name+"</h1>");
+		$("#info-banner").append("<h1>"+placeDetails.name+"</h1>");
 	}
 	if(typeof placeDetails.formatted_address !== 'undefined') {
-		$(".info-banner").append("<p>"+placeDetails.formatted_address+"</p>");
+		$("#info-banner").append("<p>"+placeDetails.formatted_address+"</p>");
 	}
 	if (typeof placeDetails.formatted_phone_number !== 'undefined') {
-		$(".info-banner").append("<p>"+placeDetails.formatted_phone_number+"</p>");
+		$("#info-banner").append("<p>"+placeDetails.formatted_phone_number+"</p>");
 	}
 };
 
-var displayGoogleReviews = function(reviews) {
+var displayReviews = function(placeDetails) {
+	$("#info-window").append("<h2>Reviews</h2>");
+	displayGoogleReviews(placeDetails);
+	getAndDisplayFoursquareReviews(placeDetails);
+}
+
+var displayGoogleReviews = function(placeDetails) {
+	var reviews = placeDetails.reviews;
+	$("#info-window").append("<h3>Google</h3>");
 	if(typeof reviews !== 'undefined' && reviews.length > 0) {
-		$("#info-window").append("<div class='reviews'><ul></ul></div>");
+		$("#info-window").append("<div class='google-reviews'><ul></ul></div>");
 		// Sort the Google reviews by date (new -> old)
 		var sortedReviews = function() {
 			return reviews.sort(function(thisreview, nextreview) {
 				return thisreview.time == nextreview.time ? 0 : (thisreview.time > nextreview.time ? -1 : 1);
 			});
 		}
-		sortedReviews().forEach(function(currentValue, index, arr) {
-			if(currentValue.text) {
-				var text = currentValue.text;
-				if(currentValue.time) {
-					var time = currentValue.time;
+		var maxReviews = reviews.length < 4 ? reviews.length : 4;
+		for(var i = 0; i < maxReviews; i++) {
+			if(reviews[i].text) {
+				var text = reviews[i].text;
+				if(reviews[i].time) {
+					var time = reviews[i].time;
 				}
-				$(".reviews > ul").append("<li>"+text+" ("+formattedDateTime(time)+")</li>");
+				$(".google-reviews > ul").append("<li>"+text+" ("+formattedDateTime(time)+")</li>");
 			}
-		});
+		}
+		// sortedReviews().forEach(function(currentValue, index, arr) {
+		// 	if(currentValue.text) {
+		// 		var text = currentValue.text;
+		// 		if(currentValue.time) {
+		// 			var time = currentValue.time;
+		// 		}
+		// 		$(".reviews > ul").append("<li>"+text+" ("+formattedDateTime(time)+")</li>");
+		// 	}
+		// });
 	}
 	else {
 		$("#info-window").append("<h3 class='no-review-message'>No reviews found.</h3>");
 	}
 };
 
-var triggerInfoWindow = function(place_id) {
-	if(markerList.length >= filteredPlaces().length) {
-		setCurrentMarker(getCurrentMarker(place_id));
-	}
-};
-
-var getCurrentMarker = function(placeId) {
-	for(var index = 0; index < markerList.length; index++) {
-		if(placeId === markerList[index].getPlace().placeId ) {
-			return markerList[index];
-		}
-	}
-};
-
 // fourSquare venue
-var getFoursquareVenue = function() {
+var getAndDisplayFoursquareReviews = function(placeDetails) {
+	$("#info-window").append("<h3>FourSquare</h3>");
+	$("#info-window").append("<div id='foursquare-reviews'></div>");
+	$("#foursquare-reviews").append("<h3 class='load-message'>Loading...</h3>");
+
 	var url = "https://api.foursquare.com/v2/venues/search";
 	var auth = {
 		client_id: "LKOCAAQC2EHG2YHBHPKMX2TAIHXEOXL3U2GQSCHN5542VYJE",
 		client_secret: "QLLAGNKK2QOLH054PMAPYU1PUQQ4G3YNCOU52WBCH3HDKOQJ"
 	};
 	var data = {
-		ll: selectedPlace().geometry.location.lat()+", "+selectedPlace().geometry.location.lng(),
-		query: selectedPlace().name,
+		ll: placeDetails.geometry.location.lat()+", "+placeDetails.geometry.location.lng(),
+		query: placeDetails.name,
 		intent: "match",
 		v: "20160101",
 		m: "foursquare"
@@ -277,7 +298,7 @@ var getFoursquareVenue = function() {
 			var jqXHR = $.getJSON(url, venueData, function(result) {
 				error2 = jqXHR;
 				console.log(result);
-				fsVenue(result.response.venue);
+				displayFoursquareReviews(result.response.venue.tips.groups[0].items);
 			}).error(function(textStatus, errorThrown) {
 				// errorDump.jqXHR = jqXHR;
 				console.log("Status2: "+jqXHR.status+" ("+jqXHR.statusText+")");
@@ -286,11 +307,12 @@ var getFoursquareVenue = function() {
 				console.log(textStatus);
 				errorDump.errorThrown = errorThrown;
 				console.log(errorThrown);
-				fsVenue();
+				// fsVenue();
 			});
 		}
 		else {
-			fsVenue(undefined);
+			$("#foursquare-reviews").empty();
+			$("#foursquare-reviews").append("<h3 class='no-review-message'>No reviews found.</h3>");
 		}
 	}).error(function() {
 		error1 = jqXHR;
@@ -298,6 +320,34 @@ var getFoursquareVenue = function() {
 		console.log("Status1: "+jqXHR.status+" ("+jqXHR.statusText+")");
 		return false;
 	});
+};
+
+var displayFoursquareReviews = function(reviews) {
+	console.log(reviews);
+	$("#foursquare-reviews").empty();
+	if(typeof reviews !== 'undefined' && reviews.length > 0) {
+		$("#foursquare-reviews").append("<ul></ul>");
+		// Sort the Google reviews by date (new -> old)
+		var sortedReviews = function() {
+			return reviews.sort(function(thisreview, nextreview) {
+				return thisreview.createdAt == nextreview.createdAt ? 0 : (thisreview.createdAt > nextreview.createdAt ? -1 : 1);
+			});
+		}
+		console.log(sortedReviews());
+		var maxReviews = sortedReviews().length < 4 ? sortedReviews().length : 4;
+		for(var i = 0; i < maxReviews; i++) {
+			if(sortedReviews()[i].text) {
+				var text = sortedReviews()[i].text;
+				if(sortedReviews()[i].createdAt) {
+					var time = sortedReviews()[i].createdAt;
+				}
+				$("#foursquare-reviews > ul").append("<li>"+text+" ("+formattedDateTime(time)+")</li>");
+			}
+		}
+	}
+	else {
+		$("#foursquare-reviews").append("<h3 class='no-review-message'>No reviews found.</h3>");
+	}
 };
 
 var getYahooWeather = function() {
