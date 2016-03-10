@@ -163,52 +163,72 @@ var highlightMarker = function(marker, color) {
 };
 
 var openInfoWindow = function(marker) {
+	$("#info-window").append("<h3 class='load-message'>Loading...</h3>");
+	infoWindow.open(map, marker);
 	placesService.getDetails({placeId: marker.getPlace().placeId}, function(placeDetails, status) {
 		if (status == google.maps.places.PlacesServiceStatus.OK) {
+			$(".load-message").remove();
 			pd = placeDetails;
 			// selectedPlace(placeDetails);
 			// getFoursquareVenue();
 			// getYelpData();
-			displayPlaceBanner(placeDetails);
-			infoWindow.open(map, marker);
+			displayPlaceData(placeDetails);
+		}
+		else {
+			$("#info-window").append("<h3 class='no-review-message'>Could not load location info.</h3>");
 		}
 	});
+};
+
+var displayPlaceData = function(placeDetails) {
+	$("#info-window").empty();
+	displayPlaceBanner(placeDetails);
+	$("#info-window").append("<h2>Reviews</h2>");
+	$("#info-window").append("<h3>Google</h3>");
+	displayGoogleReviews(placeDetails.reviews);
 };
 
 // todo: items aren't resetting consistently!!! .html and .append!!!
 
 var displayPlaceBanner = function(placeDetails) {
+	$("#info-window").append("<div class='info-banner clearfix'></div>");
 	if(typeof placeDetails.photos != 'undefined') {
 		console.log(placeDetails.photos);
 		var imageUrl = placeDetails.photos[0].getUrl({maxWidth: 100});
-		$("#info-window > .image").html("<img src='"+imageUrl+"'>");
+		$(".info-banner").append("<img src='"+imageUrl+" class='image'>");
 	}
 	if(typeof placeDetails.name !== 'undefined') {
-		$("#info-window > .banner").html("<h1>"+placeDetails.name+"</h1>");
+		$(".info-banner").append("<h1>"+placeDetails.name+"</h1>");
 	}
 	if(typeof placeDetails.formatted_address !== 'undefined') {
-		$("#info-window > .address").html("<p>"+placeDetails.formatted_address+"</p>");
+		$(".info-banner").append("<p>"+placeDetails.formatted_address+"</p>");
 	}
 	if (typeof placeDetails.formatted_phone_number !== 'undefined') {
-		$("#info-window > .phone-number").html("<p>"+placeDetails.formatted_phone_number+"</p>");
+		$(".info-banner").append("<p>"+placeDetails.formatted_phone_number+"</p>");
 	}
-	if(typeof placeDetails.reviews !== 'undefined' && placeDetails.reviews.length > 0) {
+};
+
+var displayGoogleReviews = function(reviews) {
+	if(typeof reviews !== 'undefined' && reviews.length > 0) {
+		$("#info-window").append("<div class='reviews'><ul></ul></div>");
 		// Sort the Google reviews by date (new -> old)
 		var sortedReviews = function() {
-			return placeDetails.reviews.sort(function(thisreview, nextreview) {
+			return reviews.sort(function(thisreview, nextreview) {
 				return thisreview.time == nextreview.time ? 0 : (thisreview.time > nextreview.time ? -1 : 1);
 			});
 		}
-		$(".google-reviews > ul").html(""); // reset review list
 		sortedReviews().forEach(function(currentValue, index, arr) {
 			if(currentValue.text) {
 				var text = currentValue.text;
 				if(currentValue.time) {
 					var time = currentValue.time;
 				}
-				$(".google-reviews > ul").append("<li>"+text+" ("+formattedDateTime(time)+")</li>");
+				$(".reviews > ul").append("<li>"+text+" ("+formattedDateTime(time)+")</li>");
 			}
 		});
+	}
+	else {
+		$("#info-window").append("<h3 class='no-review-message'>No reviews found.</h3>");
 	}
 };
 
