@@ -178,6 +178,10 @@ var openInfoWindow = function(marker) {
 	});
 };
 
+
+
+// INFOWINDOW
+
 var displayPlaceInfo = {
 
 	googleDetails: null,
@@ -202,8 +206,8 @@ var displayPlaceInfo = {
 
 	reviews: function() {
 		$("#info-window").append("<h2>Reviews</h2>");
-		this.googleReviews(this.googleDetails);
-		getAndDisplayFoursquareReviews(this.googleDetails);
+		this.googleReviews();
+		this.foursquareReviews();
 	},
 
 	googleReviews: function() {
@@ -231,104 +235,93 @@ var displayPlaceInfo = {
 		else {
 			$("#info-window").append("<h3 class='no-review-message'>No reviews found.</h3>");
 		}
-	}
-
-};
+	},
 
 // fourSquare venue
-var getAndDisplayFoursquareReviews = function(placeDetails) {
-	$("#info-window").append("<h3>FourSquare</h3>");
-	$("#info-window").append("<div id='foursquare-reviews'></div>");
-	$("#foursquare-reviews").append("<h3 class='load-message'>Loading...</h3>");
+	foursquareReviews: function() {
+		$("#info-window").append("<h3>FourSquare</h3>");
+		$("#info-window").append("<div id='foursquare-reviews'></div>");
+		$("#foursquare-reviews").append("<h3 class='load-message'>Loading...</h3>");
 
-	var url = "https://api.foursquare.com/v2/venues/search";
-	var auth = {
-		client_id: "LKOCAAQC2EHG2YHBHPKMX2TAIHXEOXL3U2GQSCHN5542VYJE",
-		client_secret: "QLLAGNKK2QOLH054PMAPYU1PUQQ4G3YNCOU52WBCH3HDKOQJ"
-	};
-	var data = {
-		ll: placeDetails.geometry.location.lat()+", "+placeDetails.geometry.location.lng(),
-		query: placeDetails.name,
-		intent: "match",
-		v: "20160101",
-		m: "foursquare"
-	};
+		var url = "https://api.foursquare.com/v2/venues/search";
+		var auth = {
+			client_id: "LKOCAAQC2EHG2YHBHPKMX2TAIHXEOXL3U2GQSCHN5542VYJE",
+			client_secret: "QLLAGNKK2QOLH054PMAPYU1PUQQ4G3YNCOU52WBCH3HDKOQJ"
+		};
+		var data = {
+			ll: this.googleDetails.geometry.location.lat()+", "+this.googleDetails.geometry.location.lng(),
+			query: this.googleDetails.name,
+			intent: "match",
+			v: "20160101",
+			m: "foursquare"
+		};
 
-	$.extend(data, auth);
+		$.extend(data, auth);
 
-	var jqXHR = $.getJSON(url, data, function(result) {
-		if(result.response.venues.length > 0) {
-			var closestVenue = result.response.venues[0];
-			var url = "https://api.foursquare.com/v2/venues/"+closestVenue.id;
-			var venueData = {
-				v: "20160101",
-				m: "foursquare"
-			};
+		var jqXHR = $.getJSON(url, data, function(result) {
+			if(result.response.venues.length > 0) {
+				var closestVenue = result.response.venues[0];
+				var url = "https://api.foursquare.com/v2/venues/"+closestVenue.id;
+				var venueData = {
+					v: "20160101",
+					m: "foursquare"
+				};
 
-			$.extend(venueData, auth);
+				$.extend(venueData, auth);
 
-			var jqXHR = $.getJSON(url, venueData, function(result) {
-				error2 = jqXHR;
-				console.log("xxx");
-				console.log(result);
-				console.log("yyy");
-				console.log(result.response.venue.tips); // GROUPS CAN BE AN EMPTY ARRAY, SO [0] DOESN'T EXIST!!!
-				if(result.response.venue.tips.groups.length > 0) {
-					var reviews = result.response.venue.tips.groups[0].items;
-					displayFoursquareReviews(reviews);
+				var jqXHR = $.getJSON(url, venueData, function(result) {
+					error2 = jqXHR;
+					if(result.response.venue.tips.groups.length > 0) {
+						var reviews = result.response.venue.tips.groups[0].items;
+						self.displayPlaceInfo.displayFoursquareReviews(reviews);
+					}
+					else {
+						$("#foursquare-reviews").empty();
+						$("#foursquare-reviews").append("<h3 class='no-review-message'>No reviews found.</h3>");
+					}
+				}).error(function(textStatus, errorThrown) {
+					console.log(textStatus);
+					console.log(errorThrown);
+					// fsVenue();
+				});
+			}
+			else {
+				$("#foursquare-reviews").empty();
+				$("#foursquare-reviews").append("<h3 class='no-review-message'>No reviews found.</h3>");
+			}
+		}).error(function() {
+			error1 = jqXHR;
+			console.log("Status1: "+jqXHR.status+" ("+jqXHR.statusText+")");
+			return false;
+		});
+	},
+
+	displayFoursquareReviews: function(reviews) {
+		console.log(reviews);
+		$("#foursquare-reviews").empty();
+		if(typeof reviews !== 'undefined' && reviews.length > 0) {
+			$("#foursquare-reviews").append("<ul></ul>");
+			// Sort the Google reviews by date (new -> old)
+			var sortedReviews = function() {
+				return reviews.sort(function(thisreview, nextreview) {
+					return thisreview.createdAt == nextreview.createdAt ? 0 : (thisreview.createdAt > nextreview.createdAt ? -1 : 1);
+				});
+			}
+			console.log(sortedReviews());
+			var maxReviews = sortedReviews().length < 4 ? sortedReviews().length : 4;
+			for(var i = 0; i < maxReviews; i++) {
+				if(sortedReviews()[i].text) {
+					var text = sortedReviews()[i].text;
+					if(sortedReviews()[i].createdAt) {
+						var time = sortedReviews()[i].createdAt;
+					}
+					$("#foursquare-reviews > ul").append("<li>"+text+" ("+formattedDateTime(time)+")</li>");
 				}
-				else {
-					$("#foursquare-reviews").empty();
-					$("#foursquare-reviews").append("<h3 class='no-review-message'>No reviews found.</h3>");
-				}
-			}).error(function(textStatus, errorThrown) {
-				// errorDump.jqXHR = jqXHR;
-				console.log("Status2: "+jqXHR.status+" ("+jqXHR.statusText+")");
-				console.log(jqXHR);
-				errorDump.textStatus = statusText;
-				console.log(textStatus);
-				errorDump.errorThrown = errorThrown;
-				console.log(errorThrown);
-				// fsVenue();
-			});
-		}
-		else {
-			$("#foursquare-reviews").empty();
-			$("#foursquare-reviews").append("<h3 class='no-review-message'>No reviews found.</h3>");
-		}
-	}).error(function() {
-		error1 = jqXHR;
-		console.log(jqXHR);
-		console.log("Status1: "+jqXHR.status+" ("+jqXHR.statusText+")");
-		return false;
-	});
-};
-
-var displayFoursquareReviews = function(reviews) {
-	console.log(reviews);
-	$("#foursquare-reviews").empty();
-	if(typeof reviews !== 'undefined' && reviews.length > 0) {
-		$("#foursquare-reviews").append("<ul></ul>");
-		// Sort the Google reviews by date (new -> old)
-		var sortedReviews = function() {
-			return reviews.sort(function(thisreview, nextreview) {
-				return thisreview.createdAt == nextreview.createdAt ? 0 : (thisreview.createdAt > nextreview.createdAt ? -1 : 1);
-			});
-		}
-		console.log(sortedReviews());
-		var maxReviews = sortedReviews().length < 4 ? sortedReviews().length : 4;
-		for(var i = 0; i < maxReviews; i++) {
-			if(sortedReviews()[i].text) {
-				var text = sortedReviews()[i].text;
-				if(sortedReviews()[i].createdAt) {
-					var time = sortedReviews()[i].createdAt;
-				}
-				$("#foursquare-reviews > ul").append("<li>"+text+" ("+formattedDateTime(time)+")</li>");
 			}
 		}
-	}
-	else {
-		$("#foursquare-reviews").append("<h3 class='no-review-message'>No reviews found.</h3>");
+		else {
+			$("#foursquare-reviews").append("<h3 class='no-review-message'>No reviews found.</h3>");
+		}
 	}
 };
 
@@ -376,7 +369,7 @@ var getYelpData = function() {
 
 	console.log("good: "+yelp_query);
 
-	var r0 = $.getJSON(y3, function(data) {
+	var r0 = $.getJSON(yelp_query2, function(data) {
 		console.log(r0);
 		console.log(data);
 		console.log(yelp_query2);
@@ -386,6 +379,10 @@ var getYelpData = function() {
 		console.log("FAIL!");
 		});
 };
+
+var goodYelp = function() {
+	console.log("IT WORKED!!!!!!!");
+}
 
 var getMarkerIcon = function(status, index) {
 	var iconLabel = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
