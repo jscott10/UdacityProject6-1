@@ -5,19 +5,17 @@ var placesService;
 var markerList = [];
 var currentMarker;
 var infoWindow;
-var	$contentNode;
 
 var binghamton = {lat: 42.088848, lng: -75.969491};
 
 var error1;
 var error2;
 var pd;
+var fd;
 
 function initMap() {
 	//Enabling new cartography and themes
 	google.maps.visualRefresh = true;
-
-	$contentNode = $('#info-window');
 
 	//Setting starting options of map
 	var mapOptions = {
@@ -38,11 +36,32 @@ function initMap() {
 
 	// InfoWindow setup
 	infoWindow = new google.maps.InfoWindow({
-		content: $contentNode[0]
+		content: $('#info-window')
 	});
 
 	placesService = new google.maps.places.PlacesService(map);
 
+};
+
+var getPlaces = function() {
+	var request = {
+		location: binghamton,
+		radius: '2000',
+		types: [placeType()]
+	};
+	placesService.nearbySearch(request, setNewPlaces);
+};
+
+// build the observable array (foundPlaces) of found places
+var setNewPlaces = function (results, status) {
+	searchStatus(status); // ko.observable for Status Display
+	if(foundPlaces().length > 0) {
+		foundPlaces.removeAll();
+	}
+	if (status == google.maps.places.PlacesServiceStatus.OK) {
+		foundPlaces(results);
+		addMarkers();
+	}
 };
 
 var setMarkers = function() {
@@ -50,7 +69,8 @@ var setMarkers = function() {
 	// Reset the filter
 	filter("");
 	// Get the array of places
-	getPlaces();
+	// getPlaces();
+	addMarkers();
 };
 
 // remove all markers and reset markerList
@@ -68,27 +88,6 @@ var filterMarkers = function() {
 };
 
 // buildPlaceList is running asynchronously and doesn't finish before the markers are built!
-
-var getPlaces = function() {
-	var request = {
-		location: binghamton,
-		radius: '2000',
-		types: [placeType()]
-	};
-	placesService.nearbySearch(request, buildPlaceList);
-};
-
-// build the observable array (foundPlaces) of found places
-var buildPlaceList = function (results, status) {
-	searchStatus(status); // ko.observable for Status Display
-	if(foundPlaces().length > 0) {
-		foundPlaces.removeAll();
-	}
-	if (status == google.maps.places.PlacesServiceStatus.OK) {
-		foundPlaces(results);
-		addMarkers();
-	}
-};
 
 /*
  * Add a map marker for each FILTERED place
@@ -161,9 +160,9 @@ var highlightMarker = function(marker) {
 };
 
 var openInfoWindow = function(marker) {
+	infoWindow.open(map, marker);
 	$("#info-window").empty();
 	$("#info-window").append("<h3 class='load-message'>Loading...</h3>");
-	infoWindow.open(map, marker);
 	placesService.getDetails({placeId: marker.getPlace().placeId}, function(placeDetails, status) {
 		if (status == google.maps.places.PlacesServiceStatus.OK) {
 			$(".load-message").remove();
@@ -220,13 +219,13 @@ var displayPlaceInfo = {
 				return reviews.sort(function(thisreview, nextreview) {
 					return thisreview.time == nextreview.time ? 0 : (thisreview.time > nextreview.time ? -1 : 1);
 				});
-			}
-			var maxReviews = reviews.length < 4 ? reviews.length : 4;
+			};
+			var maxReviews = sortedReviews().length < 4 ? sortedReviews().length : 4;
 			for(var i = 0; i < maxReviews; i++) {
-				if(reviews[i].text) {
-					var text = reviews[i].text;
-					if(reviews[i].time) {
-						var time = reviews[i].time;
+				if(sortedReviews()[i].text) {
+					var text = sortedReviews()[i].text;
+					if(sortedReviews()[i].time) {
+						var time = sortedReviews()[i].time;
 					}
 					$(".google-reviews > ul").append("<li>"+text+" ("+formattedDateTime(time)+")</li>");
 				}
@@ -271,6 +270,7 @@ var displayPlaceInfo = {
 
 				var jqXHR = $.getJSON(url, venueData, function(result) {
 					error2 = jqXHR;
+					fd = result;
 					if(result.response.venue.tips.groups.length > 0) {
 						var reviews = result.response.venue.tips.groups[0].items;
 						self.displayPlaceInfo.displayFoursquareReviews(reviews);
@@ -318,6 +318,8 @@ var displayPlaceInfo = {
 					$("#foursquare-reviews > ul").append("<li>"+text+" ("+formattedDateTime(time)+")</li>");
 				}
 			}
+			var foursquareLogoURL = "https://ss0.4sqi.net/img/poweredByFoursquare/poweredby-full-color-bf549c16c0ab3e1b04706ab5fcb422f1.png";
+			$("#foursquare-reviews").append("<p style='text-align: right'><img style='max-width: 150px' src='"+foursquareLogoURL+"'></p>");
 		}
 		else {
 			$("#foursquare-reviews").append("<h3 class='no-review-message'>No reviews found.</h3>");
