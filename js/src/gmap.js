@@ -2,6 +2,7 @@
 
 var map;
 var placesService;
+var iconLabel = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
 var markerList = [];
 var currentMarker;
 var infoWindow;
@@ -73,8 +74,12 @@ var setMarkers = function() {
 	addMarkers();
 };
 
-// remove all markers and reset markerList
 var resetMapMarkers = function() {
+	clearMarkers();
+};
+
+// remove all markers and reset markerList
+var clearMarkers = function() {
 	for (var i = 0; i < markerList.length; i++) {
 		markerList[i].setMap(null);
 		markerList[i] = null;
@@ -89,10 +94,34 @@ var filterMarkers = function() {
 
 // buildPlaceList is running asynchronously and doesn't finish before the markers are built!
 
+<<<<<<< HEAD
 /*
  * Add a map marker for each FILTERED place
  * filteredPlaces is a computed observable dependent upon foundPlaces
  */
+=======
+var getPlaces = function() {
+	var request = {
+		location: binghamton,
+		radius: '2000',
+		types: [placeType()]
+	};
+	placesService.nearbySearch(request, buildPlaceList);
+};
+
+// build the observable array (foundPlaces) of found places
+var buildPlaceList = function (results, status) {
+	searchStatus(status); // ko.observable for Status Display
+	if(foundPlaces().length > 0) {
+		foundPlaces.removeAll();
+	}
+	if (status == google.maps.places.PlacesServiceStatus.OK) {
+		foundPlaces(results);
+		addMarkers();
+	}
+};
+
+>>>>>>> parent of ab8f01e... consolidate display routines in an object
 var addMarkers = function() {
 	for (var i = 0; i < filteredPlaces().length; i++) {
 		addMarker(filteredPlaces()[i], i);
@@ -106,20 +135,40 @@ var addMarker = function(place, index) {
 			placeId: place.place_id
 		},
 		title: place.name,
-		icon: {url: getMarkerIcon("inactive", index)},
-		animation: google.maps.Animation.DROP,
+		icon: {url: 'img/src/gm-markers/pink_Marker'+iconLabel[index]+'.png'},
+		// animation: google.maps.Animation.DROP,
 		map: map
 	});
-
-	/*
-	 * Need an addressable list of Markers (markerList) for resetMapMarkers()
-	 * marker.index is used to reference the correct marker icon
-	*/
-	marker.index = markerList.push(marker) - 1;
 
 	marker.addListener('click', function() {
 		setCurrentMarker(marker);
 	});
+
+	// Need an addressable list of Markers
+	marker.index = markerList.push(marker) - 1;
+};
+
+var setCurrentMarker = function(marker) {
+	if(currentMarker) {
+		// infoWindow.close();
+		currentMarker.setIcon({url: 'img/src/gm-markers/pink_Marker'+iconLabel[currentMarker.index]+'.png'});
+		currentMarker.setAnimation(null);
+	}
+	currentMarker = marker;
+	highlightMarker(currentMarker, "green");
+};
+
+var highlightMarker = function(marker, color) {
+	// Bring marker to front
+	marker.setZIndex(google.maps.Marker.MAX_ZINDEX+1);
+	// Use appropriate marker in selected highlight color
+	marker.setIcon({url: 'img/src/gm-markers/'+color+'_Marker'+iconLabel[marker.index]+'.png'});
+	// Bounce the marker for 1.5 seconds
+	marker.setAnimation(google.maps.Animation.BOUNCE);
+	setTimeout(function() {
+		marker.setAnimation(null);
+		openInfoWindow(marker);
+	}, 1500);
 };
 
 var triggerInfoWindow = function(place_id) {
@@ -136,29 +185,6 @@ var getCurrentMarker = function(placeId) {
 	}
 };
 
-var setCurrentMarker = function(marker) {
-	// reset the color of any current marker and stop any animations
-	if(currentMarker) {
-		currentMarker.setIcon({url: getMarkerIcon("inactive", currentMarker.index)});
-		currentMarker.setAnimation(null);
-	}
-	currentMarker = marker;
-	highlightMarker(currentMarker);
-};
-
-var highlightMarker = function(marker) {
-	// Bring marker to front
-	marker.setZIndex(google.maps.Marker.MAX_ZINDEX+1);
-	// Use appropriate marker in selected highlight color
-	marker.setIcon({url: getMarkerIcon("active", marker.index)});
-	// Bounce the marker for 1.5 seconds
-	marker.setAnimation(google.maps.Animation.BOUNCE);
-	setTimeout(function() {
-		marker.setAnimation(null);
-		openInfoWindow(marker);
-	}, 1500);
-};
-
 var openInfoWindow = function(marker) {
 	infoWindow.open(map, marker);
 	$("#info-window").empty();
@@ -167,9 +193,8 @@ var openInfoWindow = function(marker) {
 		if (status == google.maps.places.PlacesServiceStatus.OK) {
 			$(".load-message").remove();
 			pd = placeDetails;
-			displayPlaceInfo.googleDetails = placeDetails;
-			displayPlaceInfo.banner();
-			displayPlaceInfo.reviews();
+			displayPlaceBanner(placeDetails);
+			displayReviews(placeDetails);
 		}
 		else {
 			$("#info-window").append("<h3 class='no-review-message'>Could not load location info.</h3>");
@@ -177,30 +202,50 @@ var openInfoWindow = function(marker) {
 	});
 };
 
+<<<<<<< HEAD
 
 
 // INFOWINDOW
 
 var displayPlaceInfo = {
+=======
+var displayPlaceBanner = function(placeDetails) {
+	$("#info-window").append("<div id='info-banner' class='clearfix'></div>");
+	if(typeof placeDetails.photos != 'undefined') {
+		console.log(placeDetails.photos);
+		var imageUrl = placeDetails.photos[0].getUrl({maxWidth: 100});
+		$("#info-banner").append("<img src='"+imageUrl+"' class='image'>");
+	}
+	if(typeof placeDetails.name !== 'undefined') {
+		$("#info-banner").append("<h1>"+placeDetails.name+"</h1>");
+	}
+	if(typeof placeDetails.formatted_address !== 'undefined') {
+		$("#info-banner").append("<p>"+placeDetails.formatted_address+"</p>");
+	}
+	if (typeof placeDetails.formatted_phone_number !== 'undefined') {
+		$("#info-banner").append("<p>"+placeDetails.formatted_phone_number+"</p>");
+	}
+};
+>>>>>>> parent of ab8f01e... consolidate display routines in an object
 
-	googleDetails: null,
+var displayReviews = function(placeDetails) {
+	$("#info-window").append("<h2>Reviews</h2>");
+	displayGoogleReviews(placeDetails);
+	getAndDisplayFoursquareReviews(placeDetails);
+}
 
-	banner: function() {
-		$("#info-window").append("<div id='info-banner' class='clearfix'></div>");
-		if(typeof this.googleDetails.photos != 'undefined') {
-			console.log(this.googleDetails.photos);
-			var imageUrl = this.googleDetails.photos[0].getUrl({maxWidth: 100});
-			$("#info-banner").append("<img src='"+imageUrl+"' class='image'>");
+var displayGoogleReviews = function(placeDetails) {
+	var reviews = placeDetails.reviews;
+	$("#info-window").append("<h3>Google</h3>");
+	if(typeof reviews !== 'undefined' && reviews.length > 0) {
+		$("#info-window").append("<div class='google-reviews'><ul></ul></div>");
+		// Sort the Google reviews by date (new -> old)
+		var sortedReviews = function() {
+			return reviews.sort(function(thisreview, nextreview) {
+				return thisreview.time == nextreview.time ? 0 : (thisreview.time > nextreview.time ? -1 : 1);
+			});
 		}
-		if(typeof this.googleDetails.name !== 'undefined') {
-			$("#info-banner").append("<h1>"+this.googleDetails.name+"</h1>");
-		}
-		if(typeof this.googleDetails.formatted_address !== 'undefined') {
-			$("#info-banner").append("<p>"+this.googleDetails.formatted_address+"</p>");
-		}
-		if (typeof this.googleDetails.formatted_phone_number !== 'undefined') {
-			$("#info-banner").append("<p>"+this.googleDetails.formatted_phone_number+"</p>");
-		}
+<<<<<<< HEAD
 	},
 
 	reviews: function() {
@@ -228,13 +273,30 @@ var displayPlaceInfo = {
 						var time = sortedReviews()[i].time;
 					}
 					$(".google-reviews > ul").append("<li>"+text+" ("+formattedDateTime(time)+")</li>");
+=======
+		var maxReviews = reviews.length < 4 ? reviews.length : 4;
+		for(var i = 0; i < maxReviews; i++) {
+			if(reviews[i].text) {
+				var text = reviews[i].text;
+				if(reviews[i].time) {
+					var time = reviews[i].time;
+>>>>>>> parent of ab8f01e... consolidate display routines in an object
 				}
+				$(".google-reviews > ul").append("<li>"+text+" ("+formattedDateTime(time)+")</li>");
 			}
 		}
+<<<<<<< HEAD
 		else {
 			$("#info-window").append("<h3 class='no-review-message'>No reviews found.</h3>");
 		}
 	},
+=======
+	}
+	else {
+		$("#info-window").append("<h3 class='no-review-message'>No reviews found.</h3>");
+	}
+};
+>>>>>>> parent of ab8f01e... consolidate display routines in an object
 
 // fourSquare venue
 	foursquareReviews: function() {
@@ -382,6 +444,7 @@ var getYelpData = function() {
 		});
 };
 
+<<<<<<< HEAD
 var goodYelp = function() {
 	console.log("IT WORKED!!!!!!!");
 }
@@ -401,6 +464,8 @@ var getMarkerIcon = function(status, index) {
 	return "img/src/gm-markers/" + color + "_Marker" + iconLabel[index]+".png";
 }
 
+=======
+>>>>>>> parent of ab8f01e... consolidate display routines in an object
 var formattedDateTime = function(UNIX_timestamp) {
 	var a = new Date(UNIX_timestamp * 1000);
 	var months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
