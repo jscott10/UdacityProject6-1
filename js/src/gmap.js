@@ -70,16 +70,20 @@ var filterMarkers = function() {
 // buildPlaceList is running asynchronously and doesn't finish before the markers are built!
 
 var getPlaces = function() {
+	resetMapMarkers();
+	// Reset the filter
+	filter("");
+	// Get the array of places
 	var request = {
 		location: binghamton,
 		radius: '2000',
 		types: [placeType()]
 	};
-	placesService.nearbySearch(request, buildPlaceList);
+	placesService.nearbySearch(request, setPlacesList);
 };
 
 // build the observable array (foundPlaces) of found places
-var buildPlaceList = function (results, status) {
+var setPlacesList = function (results, status) {
 	searchStatus(status); // ko.observable for Status Display
 	if(foundPlaces().length > 0) {
 		foundPlaces.removeAll();
