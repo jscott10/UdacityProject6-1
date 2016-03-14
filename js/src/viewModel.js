@@ -1,43 +1,44 @@
-// app.js
-
-	var placeTypes = [
-		{type: "airport", name: "Airports"},
-		{type: "aquarium", name: "Aquariums"},
-		{type: "art_gallery", name: "Art Galleries"},
-		{type: "atm", name: "ATMs"},
-		{type: "bakery", name: "Bakeries"},
-		{type: "bank", name: "Banks"},
-		{type: "bar", name: "Bars"},
-		{type: "beauty_salon", name: "Beauty Salons"},
-		{type: "book_store", name: "Book Stores"},
-		{type: "bus_station", name: "Bus Stations"},
-		{type: "cafe", name: "Cafes"},
-		{type: "car_repair", name: "Car Repair"},
-		{type: "convenience_store", name: "Convenience Stores"},
-		{type: "department_store", name: "Department Stores"},
-		{type: "meal_delivery", name: "Food (Delivery)"},
-		{type: "meal_takeaway", name: "Food (Takeout)"},
-		{type: "gym", name: "Gyms"},
-		{type: "lodging", name: "Hotels/Lodging"},
-		{type: "laundry", name: "Laundry/Dry Cleaning"},
-		{type: "library", name: "Libraries"},
-		{type: "liquor_store", name: "Liquor Stores"},
-		{type: "movie_theater", name: "Movie Theaters"},
-		{type: "museum", name: "Museums"},
-		{type: "night_club", name: "Night Clubs"},
-		{type: "park", name: "Parks"},
-		{type: "restaurant", name: "Restaurants"},
-		{type: "shopping_mall", name: "Shopping Malls"},
-		{type: "store", name: "Stores"},
-		{type: "grocery_or_supermarket", name: "Supermarkets/Grocery Stores"},
-		{type: "train_station", name: "Train Stations"},
-		{type: "zoo", name: "Zoos"}
-	];
+// viewModel.js
 
 $(document).ready(function() {
 
 	var viewModel = function() {
+
 		var self = this;
+
+		self.placeTypes = [
+			{type: "airport", name: "Airports"},
+			{type: "aquarium", name: "Aquariums"},
+			{type: "art_gallery", name: "Art Galleries"},
+			{type: "atm", name: "ATMs"},
+			{type: "bakery", name: "Bakeries"},
+			{type: "bank", name: "Banks"},
+			{type: "bar", name: "Bars"},
+			{type: "beauty_salon", name: "Beauty Salons"},
+			{type: "book_store", name: "Book Stores"},
+			{type: "bus_station", name: "Bus Stations"},
+			{type: "cafe", name: "Cafes"},
+			{type: "car_repair", name: "Car Repair"},
+			{type: "convenience_store", name: "Convenience Stores"},
+			{type: "department_store", name: "Department Stores"},
+			{type: "meal_delivery", name: "Food (Delivery)"},
+			{type: "meal_takeaway", name: "Food (Takeout)"},
+			{type: "gym", name: "Gyms"},
+			{type: "lodging", name: "Hotels/Lodging"},
+			{type: "laundry", name: "Laundry/Dry Cleaning"},
+			{type: "library", name: "Libraries"},
+			{type: "liquor_store", name: "Liquor Stores"},
+			{type: "movie_theater", name: "Movie Theaters"},
+			{type: "museum", name: "Museums"},
+			{type: "night_club", name: "Night Clubs"},
+			{type: "park", name: "Parks"},
+			{type: "restaurant", name: "Restaurants"},
+			{type: "shopping_mall", name: "Shopping Malls"},
+			{type: "store", name: "Stores"},
+			{type: "grocery_or_supermarket", name: "Supermarkets/Grocery Stores"},
+			{type: "train_station", name: "Train Stations"},
+			{type: "zoo", name: "Zoos"}
+		];
 
 		// list of found places
 		self.foundPlaces = ko.observableArray();
