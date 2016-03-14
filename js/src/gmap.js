@@ -43,6 +43,11 @@ function initMap() {
 
 	placesService = new google.maps.places.PlacesService(map);
 
+	if(localStorage.getItem('placeType') !== null) {
+		placeType(localStorage.getItem('placeType'));
+		getPlaces();
+	}
+
 };
 
 // Remove visible markers and add markers based on filtered list
@@ -70,6 +75,7 @@ var getPlaces = function() {
 		radius: '2000',
 		types: [placeType()]
 	};
+	localStorage.setItem("placeType", placeType());
 	placesService.nearbySearch(request, setPlacesList);
 };
 
