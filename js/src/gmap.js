@@ -175,6 +175,7 @@ var openInfoWindow = function(marker) {
 			displayPlaceInfo.googleDetails = placeDetails;
 			displayPlaceInfo.banner();
 			displayPlaceInfo.reviews();
+			getYahooWeather();
 		}
 		else {
 			$("#info-window").append("<h3 class='no-review-message'>Could not load location info.</h3>");
@@ -337,23 +338,32 @@ var getYahooWeather = function() {
 // select%20*%20from%20weather.forecast%20where%20woeid%20in%20(select%20woeid%20from%20geo.places(1)%20where%20text%3D%22nome%2C%20ak%22)&format=json&env=store%3A%2F%2Fdatatables.org%2Falltableswithkeys
 
 
-	var yahooEndpoint = "https://query.yahooapis.com/v1/public/yql?q=";
+	var url = "https://query.yahooapis.com/v1/public/yql";
 
 	// yql = "select * from weather.forecast where woeid=2502265&format=json&diagnostics=true&callback=";
-	var yql = "select * from weather.forecast where woeid in (select woeid from geo.places(1) where text = 'Binghamton NY)&format=json&env=store%3A%2F%2Fdatatables.org%2Falltableswithkeys"
+	// var yql = "select * from weather.forecast where woeid in (select woeid from geo.places(1) where text = 'Binghamton NY)&format=json&env=store%3A%2F%2Fdatatables.org%2Falltableswithkeys"
 
-	var yahoo_query = yahoo+encodeURI(yql);
+	var data = {
+		q: "select * from weather.forecast where woeid in (select woeid from geo.places(1) where text = 'Binghamton NY')",
+		format: "json",
+		env: "store://datatables.org:alltableswithkeys"
+	}
 
-	var yahoo_query2 = "https://query.yahooapis.com/v1/public/yql?q=select%20*%20from%20weather.forecast%20where%20woeid%3D2502265&format=json&diagnostics=true&callback=";
+	var data2 = {
 
-	console.log("good: "+yahoo_query);
-	console.log("bad:  "+yahoo_query2);
+	}
+	// var yahoo_query = yahooEndpoint+yql;
 
-	$.getJSON(yahoo_query, function(data) {
-		console.log(data);
-		console.log(yahoo_query2);
+	// var yahoo_query2 = "https://query.yahooapis.com/v1/public/yql?q=select%20*%20from%20weather.forecast%20where%20woeid%3D2502265&format=json&diagnostics=true&callback=";
+
+	// console.log("good: "+yahoo_query);
+	// console.log("bad:  "+yahoo_query2);
+
+	$.getJSON(url, data, function(result) {
+		console.log(result);
+		// console.log(yahoo_query2);
 	}).error(function() {
-		console.log(yahoo_query2);
+		// console.log(yahoo_query2);
 		console.log(data);
 		console.log("FAIL!");
 		});
