@@ -45,12 +45,10 @@ function initMap() {
 
 };
 
-var setMarkers = function() {
+// Remove visible markers and add markers based on filtered list
+var filterMarkers = function() {
 	resetMapMarkers();
-	// Reset the filter
-	filter("");
-	// Get the array of places
-	getPlaces();
+	addMarkers();
 };
 
 // remove all markers and reset markerList
@@ -62,17 +60,10 @@ var resetMapMarkers = function() {
 	markerList.length = 0;
 };
 
-var filterMarkers = function() {
-	resetMapMarkers();
-	addMarkers();
-};
-
-// buildPlaceList is running asynchronously and doesn't finish before the markers are built!
-
+// Remove visible markers, reset filter and get new list of Places
 var getPlaces = function() {
 	resetMapMarkers();
-	// Reset the filter
-	filter("");
+	resetFilter();
 	// Get the array of places
 	var request = {
 		location: binghamton,
@@ -80,6 +71,10 @@ var getPlaces = function() {
 		types: [placeType()]
 	};
 	placesService.nearbySearch(request, setPlacesList);
+};
+
+var resetFilter = function() {
+	filter("");
 };
 
 // build the observable array (foundPlaces) of found places
@@ -127,12 +122,14 @@ var addMarker = function(place, index) {
 	});
 };
 
+// Set the current marker when an item on the filtered list is clicked
 var triggerInfoWindow = function(place_id) {
 	if(markerList.length >= filteredPlaces().length) {
 		setCurrentMarker(getCurrentMarker(place_id));
 	}
 };
 
+// Return the corresponding Marker for a placeID
 var getCurrentMarker = function(placeId) {
 	for(var index = 0; index < markerList.length; index++) {
 		if(placeId === markerList[index].getPlace().placeId ) {
@@ -141,6 +138,7 @@ var getCurrentMarker = function(placeId) {
 	}
 };
 
+// Make a Marker the currentMarker and highlight
 var setCurrentMarker = function(marker) {
 	// reset the color of any current marker and stop any animations
 	if(currentMarker) {
@@ -151,6 +149,9 @@ var setCurrentMarker = function(marker) {
 	highlightMarker(currentMarker);
 };
 
+// Change the Marker color to the active color
+// Animate it (BOUNCE for 1.5 seconds)
+// Open the infoWindow after animation completes
 var highlightMarker = function(marker) {
 	// Bring marker to front
 	marker.setZIndex(google.maps.Marker.MAX_ZINDEX+1);
@@ -164,6 +165,7 @@ var highlightMarker = function(marker) {
 	}, 1500);
 };
 
+// Open an infoWindow and set and display the contents based on the current marker
 var openInfoWindow = function(marker) {
 	$("#info-window").empty();
 	$("#info-window").append("<h3 class='load-message'>Loading...</h3>");
@@ -182,7 +184,6 @@ var openInfoWindow = function(marker) {
 		}
 	});
 };
-
 
 
 // INFOWINDOW
@@ -331,73 +332,23 @@ var displayPlaceInfo = {
 };
 
 var getYahooWeather = function() {
-// Yahoo!
-// =======================================================================================
-
-// https://query.yahooapis.com/v1/public/yql?q=
-// select%20*%20from%20weather.forecast%20where%20woeid%20in%20(select%20woeid%20from%20geo.places(1)%20where%20text%3D%22nome%2C%20ak%22)&format=json&env=store%3A%2F%2Fdatatables.org%2Falltableswithkeys
-
-
 	var url = "https://query.yahooapis.com/v1/public/yql";
-
-	// yql = "select * from weather.forecast where woeid=2502265&format=json&diagnostics=true&callback=";
-	// var yql = "select * from weather.forecast where woeid in (select woeid from geo.places(1) where text = 'Binghamton NY)&format=json&env=store%3A%2F%2Fdatatables.org%2Falltableswithkeys"
-
 	var data = {
 		q: "select * from weather.forecast where woeid in (select woeid from geo.places(1) where text = 'Binghamton NY')",
 		format: "json",
 		env: "store://datatables.org:alltableswithkeys"
 	}
 
-	var data2 = {
-
-	}
-	// var yahoo_query = yahooEndpoint+yql;
-
-	// var yahoo_query2 = "https://query.yahooapis.com/v1/public/yql?q=select%20*%20from%20weather.forecast%20where%20woeid%3D2502265&format=json&diagnostics=true&callback=";
-
-	// console.log("good: "+yahoo_query);
-	// console.log("bad:  "+yahoo_query2);
-
 	$.getJSON(url, data, function(result) {
 		console.log(result);
-		// console.log(yahoo_query2);
 	}).error(function() {
-		// console.log(yahoo_query2);
 		console.log(data);
-		console.log("FAIL!");
-		});
-
-};
-
-var getYelpData = function() {
-
-	var yelpEndpoint = "https://api.yelp.com/v2/search/?";
-
-	var yelp_qry = "ll=42.0964782196554,-75.9702992976657,0.00&limit=1&callback=?";
-
-	var y3 = "https://api.yelp.com/v2/search/?term=food&ll=37.788022,-122.399797";
-
-	var yelp_query = yelpEndpoint+encodeURI(yelp_qry);
-	var yelp_query2 = yelpEndpoint+yelp_qry;
-
-	console.log("good: "+yelp_query);
-
-	var r0 = $.getJSON(yelp_query2, function(data) {
-		console.log(r0);
-		console.log(data);
-		console.log(yelp_query2);
-	}).error(function() {
-		console.log(r0);
-		console.log(yelp_query);
 		console.log("FAIL!");
 		});
 };
 
-var goodYelp = function() {
-	console.log("IT WORKED!!!!!!!");
-}
-
+// Return the appropriate Marker icon based on status ("active"/"inactive") and index
+// Marker source: http://www.benjaminkeen.com/google-maps-coloured-markers/
 var getMarkerIcon = function(status, index) {
 	var iconLabel = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
 	var color;
@@ -419,13 +370,6 @@ var formattedDateTime = function(UNIX_timestamp) {
 	var year = a.getFullYear();
 	var month = months[a.getMonth()];
 	var date = a.getDate();
-	var hour = a.getHours();
-	var min = a.getMinutes();
-	var ampm = hour < 12 ? "am" : "pm";
-	hour = hour % 12;
-	hour = hour ? hour : 12; // the hour '0' should be '12'
-	min = min < 10 ? '0'+min : min;
-	// var time = date + ' ' + month + ' ' + year + ' ' + hour + ':' + min + ' ' + ampm;
 	var time = date + ' ' + month + ' ' + year;
 	return time;
 };

@@ -24,8 +24,8 @@
 
 	</head>
 	<body>
-		<!-- <div id="mapDiv"></div> -->
 
+		<!-- Banner -->
 		<div data-role="page" id="map-page">
 			<div data-role="header" data-position="fixed" data-fullscreen="true">
 				<a href="#mypanel" data-role="button" data-icon="arrow-r" data-iconpos="right">LIST</a>
@@ -42,13 +42,11 @@
 					<label for="searchfield">Filter:</label>
 					<input id="searchfield" data-bind="value: filter, textInput: filter, event: {keyup: filterMarkers}">
 				</div>
-				<!-- <h3 data-bind="text: formattedPlaceName"></h3> -->
 
-				<!-- Filter results -->
+				<!-- Filtered results -->
 				<div class="filter-results">
 					<p><strong data-bind="text: statusText"></strong></p>
 					<ol id="filtered-list" data-bind="foreach: filteredPlaces">
-						<!-- <li data-bind="text: $index"></li> -->
 						<li data-bind="text: name, click: triggerInfoWindow(place_id)"></li>
 					</ol>
 				</div>
