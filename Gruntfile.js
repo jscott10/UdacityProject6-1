@@ -105,11 +105,13 @@ grunt.initConfig({
   	pagespeed: {
 		options: {
 			nokey: true,
-			url: "http://59838d9b.ngrok.io"
+			// url: "http://59838d9b.ngrok.io"
+			url: "http://jscott10.github.io"
 		},
 		prod_mob: {
 			options: {
-				url: "http://59838d9b.ngrok.io/fend-p5-nmp/",
+				// url: "http://59838d9b.ngrok.io/fend-p5-nmp/",
+				url: "http://jscott10.github.io/fend-p5-nmp/",
 				locale: "en_GB",
 				strategy: "mobile",
 				threshold: 50
@@ -117,7 +119,8 @@ grunt.initConfig({
 		},
 		prod_desk: {
 			options: {
-				url: "http://59838d9b.ngrok.io/fend-p5-nmp/",
+				// url: "http://59838d9b.ngrok.io/fend-p5-nmp/",
+				url: "http://jscott10.github.io/fend-p5-nmp/",
 				locale: "en_GB",
 				strategy: "desktop",
 				threshold: 50
@@ -131,8 +134,22 @@ grunt.initConfig({
 		// 		threshold: 80
 		// 	}
 		// }
+	},
+	ftpush: {
+	  build: {
+	    auth: {
+	      host: 'server.com',
+	      port: 21,
+	      authKey: 'key1'
+	    },
+	    src: 'path/to/source/folder',
+	    dest: '/path/to/destination/folder',
+	    exclusions: ['path/to/source/folder/**/.DS_Store', 'path/to/source/folder/**/Thumbs.db', 'dist/tmp'],
+	    keep: ['/important/images/at/server/*.jpg']
+	  }
 	}
 });
+
 
 // Load the plugin that provides the "uglify" task.
 grunt.loadNpmTasks('grunt-contrib-watch');
@@ -142,6 +159,7 @@ grunt.loadNpmTasks('grunt-contrib-sass');
 // grunt.loadNpmTasks('grunt-contrib-cssmin');
 grunt.loadNpmTasks('grunt-contrib-htmlmin');
 grunt.loadNpmTasks('grunt-pagespeed');
+grunt.loadNpmTasks('grunt-ftpush');
 
 // Default task(s).
 // grunt.registerTask('default', ['uglify', 'imagemin', 'sass', 'cssmin', 'htmlmin', 'pagespeed']);

@@ -2,25 +2,27 @@
 
 var map;
 var placesService;
-var iconLabel = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
 var markerList = [];
 var currentMarker;
 var infoWindow;
-var $contentNode;
+var	$contentNode;
+
+var binghamton = {lat: 42.088848, lng: -75.969491};
+
+var error1;
+var error2;
+var pd;
 
 function initMap() {
-	$contentNode = $('#info-window');
 	//Enabling new cartography and themes
 	google.maps.visualRefresh = true;
 
-	// console.log(currentLatLng());
-	// nyLatLng = new google.maps.LatLng(currentLatLng().lat, currentLatLng().lng);
-	nyLatLng = new google.maps.LatLng(42.900956, -75.664966);
+	$contentNode = $('#info-window');
 
 	//Setting starting options of map
 	var mapOptions = {
-		center: nyLatLng,
-		zoom: 7,
+		center: binghamton,
+		zoom: 14,
 		mapTypeId: google.maps.MapTypeId.ROADMAP
 	};
 
@@ -39,26 +41,8 @@ function initMap() {
 		content: $contentNode[0]
 	});
 
-	// Replace the infoWindow node if the user closes the window
-	google.maps.event.addListener(infoWindow, "closeclick", function () {
-		replaceDeletedInfoWindowNode(); // Maintain knockout bindings for infoWindow
-	});
-
 	placesService = new google.maps.places.PlacesService(map);
 
-};
-
-var changeMapLocation = function() {
-	map.setCenter(currentLatLng());
-	map.setZoom(14);
-};
-
-var resetMapMarkers = function() {
-	// Delete any old Markers
-	if(markerList.length > 0) {
-		clearMarkers();
-	}
-	replaceDeletedInfoWindowNode(); // Maintain knockout bindings for infoWindow
 };
 
 var setMarkers = function() {
@@ -69,13 +53,8 @@ var setMarkers = function() {
 	getPlaces();
 };
 
-var filterMarkers = function() {
-	resetMapMarkers();
-	addMarkers();
-};
-
-// remove all markers in the list from map and delete
-var clearMarkers = function() {
+// remove all markers and reset markerList
+var resetMapMarkers = function() {
 	for (var i = 0; i < markerList.length; i++) {
 		markerList[i].setMap(null);
 		markerList[i] = null;
@@ -83,19 +62,28 @@ var clearMarkers = function() {
 	markerList.length = 0;
 };
 
+var filterMarkers = function() {
+	resetMapMarkers();
+	addMarkers();
+};
+
 // buildPlaceList is running asynchronously and doesn't finish before the markers are built!
 
 var getPlaces = function() {
+	resetMapMarkers();
+	// Reset the filter
+	filter("");
+	// Get the array of places
 	var request = {
-		location: currentLatLng(),
+		location: binghamton,
 		radius: '2000',
 		types: [placeType()]
 	};
-	placesService.nearbySearch(request, buildPlaceList);
+	placesService.nearbySearch(request, setPlacesList);
 };
 
 // build the observable array (foundPlaces) of found places
-var buildPlaceList = function (results, status) {
+var setPlacesList = function (results, status) {
 	searchStatus(status); // ko.observable for Status Display
 	if(foundPlaces().length > 0) {
 		foundPlaces.removeAll();
@@ -106,6 +94,10 @@ var buildPlaceList = function (results, status) {
 	}
 };
 
+/*
+ * Add a map marker for each FILTERED place
+ * filteredPlaces is a computed observable dependent upon foundPlaces
+ */
 var addMarkers = function() {
 	for (var i = 0; i < filteredPlaces().length; i++) {
 		addMarker(filteredPlaces()[i], i);
@@ -119,35 +111,51 @@ var addMarker = function(place, index) {
 			placeId: place.place_id
 		},
 		title: place.name,
-		icon: {url: 'img/src/gm-markers/pink_Marker'+iconLabel[index]+'.png'},
-		// animation: google.maps.Animation.DROP,
+		icon: {url: getMarkerIcon("inactive", index)},
+		animation: google.maps.Animation.DROP,
 		map: map
 	});
+
+	/*
+	 * Need an addressable list of Markers (markerList) for resetMapMarkers()
+	 * marker.index is used to reference the correct marker icon
+	*/
+	marker.index = markerList.push(marker) - 1;
 
 	marker.addListener('click', function() {
 		setCurrentMarker(marker);
 	});
+};
 
-	// Need an addressable list of Markers
-	marker.index = markerList.push(marker) - 1;
+var triggerInfoWindow = function(place_id) {
+	if(markerList.length >= filteredPlaces().length) {
+		setCurrentMarker(getCurrentMarker(place_id));
+	}
+};
+
+var getCurrentMarker = function(placeId) {
+	for(var index = 0; index < markerList.length; index++) {
+		if(placeId === markerList[index].getPlace().placeId ) {
+			return markerList[index];
+		}
+	}
 };
 
 var setCurrentMarker = function(marker) {
+	// reset the color of any current marker and stop any animations
 	if(currentMarker) {
-		infoWindow.close();
-		replaceDeletedInfoWindowNode(); // Maintain knockout bindings for infoWindow
-		currentMarker.setIcon({url: 'img/src/gm-markers/pink_Marker'+iconLabel[currentMarker.index]+'.png'});
+		currentMarker.setIcon({url: getMarkerIcon("inactive", currentMarker.index)});
 		currentMarker.setAnimation(null);
 	}
 	currentMarker = marker;
-	highlightMarker(currentMarker, "green");
+	highlightMarker(currentMarker);
 };
 
-var highlightMarker = function(marker, color) {
+var highlightMarker = function(marker) {
 	// Bring marker to front
 	marker.setZIndex(google.maps.Marker.MAX_ZINDEX+1);
 	// Use appropriate marker in selected highlight color
-	marker.setIcon({url: 'img/src/gm-markers/'+color+'_Marker'+iconLabel[marker.index]+'.png'});
+	marker.setIcon({url: getMarkerIcon("active", marker.index)});
 	// Bounce the marker for 1.5 seconds
 	marker.setAnimation(google.maps.Animation.BOUNCE);
 	setTimeout(function() {
@@ -157,70 +165,168 @@ var highlightMarker = function(marker, color) {
 };
 
 var openInfoWindow = function(marker) {
+	$("#info-window").empty();
+	$("#info-window").append("<h3 class='load-message'>Loading...</h3>");
+	infoWindow.open(map, marker);
 	placesService.getDetails({placeId: marker.getPlace().placeId}, function(placeDetails, status) {
 		if (status == google.maps.places.PlacesServiceStatus.OK) {
-			selectedPlace(placeDetails);
-			getFourSquareVenue(placeDetails.geometry.location, placeDetails.name);
-			// getYelpData();
-			infoWindow.open(map, marker);
-		}
-	});
-};
-
-var triggerInfoWindow = function(place_id) {
-	if(markerList.length >= filteredPlaces().length) {
-		setCurrentMarker(getCurrentMarker(place_id, markerList));
-	}
-};
-
-var getCurrentMarker = function(placeId, markerList) {
-	for(var index = 0; index < markerList.length; index++) {
-		if(placeId === markerList[index].getPlace().placeId ) {
-			return markerList[index];
-		}
-	}
-};
-
-var getFourSquareVenue = function(location, name) {
-
-	// var name = name;
-	// var location = location;
-
-	var fsEndpoint = "https://api.foursquare.com/v2/venues/";
-	var fsLocation = "search?ll="+location.lat()+", "+location.lng();
-	var fsName = "&query="+encodeURI(name);
-	var fsIntent = "&intent=match";
-	var fsAuth = "client_id=LKOCAAQC2EHG2YHBHPKMX2TAIHXEOXL3U2GQSCHN5542VYJE&client_secret=QLLAGNKK2QOLH054PMAPYU1PUQQ4G3YNCOU52WBCH3HDKOQJ&v=20160108";
-
-	var fsQuery = fsEndpoint+fsLocation+fsName+fsIntent+"&"+fsAuth;
-
-	var r0 = $.getJSON(fsQuery, function(data) {
-		console.log(r0);
-		console.log(data);
-		if(data.response.venues.length > 0) {
-			var venueID = data.response.venues[0].id;
-			var venueQuery = fsEndpoint+venueID+"?"+fsAuth;
-			var r1 = $.getJSON(venueQuery, function(data2) {
-				console.log("Status: "+r0.status+" ("+r0.statusText+")");
-				fsVenue(data2.response.venue);
-				// for(var i = 0; i < venue().tips.count; i++) {
-				// 	$('#tips').append("<li>"+data2.response.venue.tips.groups[0].items[i].text+"</li>");
-				// }
-			}).error(function() {
-				console.log("error1");
-				fsVenue(false);
-			});
+			$(".load-message").remove();
+			pd = placeDetails;
+			displayPlaceInfo.googleDetails = placeDetails;
+			displayPlaceInfo.banner();
+			displayPlaceInfo.reviews();
 		}
 		else {
-			fsVenue(false);
+			$("#info-window").append("<h3 class='no-review-message'>Could not load location info.</h3>");
 		}
-	}).error(function() {
-			console.log("error2");
-		console.log(r0);
-		console.log(data);
-		console.log("Status: "+r0.status+" ("+r0.statusText+")");
-		fsVenue(false);
 	});
+};
+
+
+
+// INFOWINDOW
+
+var displayPlaceInfo = {
+
+	googleDetails: null,
+
+	banner: function() {
+		$("#info-window").append("<div id='info-banner' class='clearfix'></div>");
+		if(typeof this.googleDetails.photos != 'undefined') {
+			console.log(this.googleDetails.photos);
+			var imageUrl = this.googleDetails.photos[0].getUrl({maxWidth: 100});
+			$("#info-banner").append("<img src='"+imageUrl+"' class='image'>");
+		}
+		if(typeof this.googleDetails.name !== 'undefined') {
+			$("#info-banner").append("<h1>"+this.googleDetails.name+"</h1>");
+		}
+		if(typeof this.googleDetails.formatted_address !== 'undefined') {
+			$("#info-banner").append("<p>"+this.googleDetails.formatted_address+"</p>");
+		}
+		if (typeof this.googleDetails.formatted_phone_number !== 'undefined') {
+			$("#info-banner").append("<p>"+this.googleDetails.formatted_phone_number+"</p>");
+		}
+	},
+
+	reviews: function() {
+		$("#info-window").append("<h2>Reviews</h2>");
+		this.googleReviews();
+		this.foursquareReviews();
+	},
+
+	googleReviews: function() {
+		var reviews = this.googleDetails.reviews;
+		$("#info-window").append("<h3>Google</h3>");
+		if(typeof reviews !== 'undefined' && reviews.length > 0) {
+			$("#info-window").append("<div class='google-reviews'><ul></ul></div>");
+			// Sort the Google reviews by date (new -> old)
+			var sortedReviews = function() {
+				return reviews.sort(function(thisreview, nextreview) {
+					return thisreview.time == nextreview.time ? 0 : (thisreview.time > nextreview.time ? -1 : 1);
+				});
+			}
+			var maxReviews = reviews.length < 4 ? reviews.length : 4;
+			for(var i = 0; i < maxReviews; i++) {
+				if(reviews[i].text) {
+					var text = reviews[i].text;
+					if(reviews[i].time) {
+						var time = reviews[i].time;
+					}
+					$(".google-reviews > ul").append("<li>"+text+" ("+formattedDateTime(time)+")</li>");
+				}
+			}
+		}
+		else {
+			$("#info-window").append("<h3 class='no-review-message'>No reviews found.</h3>");
+		}
+	},
+
+// fourSquare venue
+	foursquareReviews: function() {
+		$("#info-window").append("<h3>FourSquare</h3>");
+		$("#info-window").append("<div id='foursquare-reviews'></div>");
+		$("#foursquare-reviews").append("<h3 class='load-message'>Loading...</h3>");
+
+		var url = "https://api.foursquare.com/v2/venues/search";
+		var auth = {
+			client_id: "LKOCAAQC2EHG2YHBHPKMX2TAIHXEOXL3U2GQSCHN5542VYJE",
+			client_secret: "QLLAGNKK2QOLH054PMAPYU1PUQQ4G3YNCOU52WBCH3HDKOQJ"
+		};
+		var data = {
+			ll: this.googleDetails.geometry.location.lat()+", "+this.googleDetails.geometry.location.lng(),
+			query: this.googleDetails.name,
+			intent: "match",
+			v: "20160101",
+			m: "foursquare"
+		};
+
+		$.extend(data, auth);
+
+		var jqXHR = $.getJSON(url, data, function(result) {
+			if(result.response.venues.length > 0) {
+				var closestVenue = result.response.venues[0];
+				var url = "https://api.foursquare.com/v2/venues/"+closestVenue.id;
+				var venueData = {
+					v: "20160101",
+					m: "foursquare"
+				};
+
+				$.extend(venueData, auth);
+
+				var jqXHR = $.getJSON(url, venueData, function(result) {
+					error2 = jqXHR;
+					if(result.response.venue.tips.groups.length > 0) {
+						var reviews = result.response.venue.tips.groups[0].items;
+						self.displayPlaceInfo.displayFoursquareReviews(reviews);
+					}
+					else {
+						$("#foursquare-reviews").empty();
+						$("#foursquare-reviews").append("<h3 class='no-review-message'>No reviews found.</h3>");
+					}
+				}).error(function(textStatus, errorThrown) {
+					console.log(textStatus);
+					console.log(errorThrown);
+					// fsVenue();
+				});
+			}
+			else {
+				$("#foursquare-reviews").empty();
+				$("#foursquare-reviews").append("<h3 class='no-review-message'>No reviews found.</h3>");
+			}
+		}).error(function() {
+			error1 = jqXHR;
+			console.log("Status1: "+jqXHR.status+" ("+jqXHR.statusText+")");
+			return false;
+		});
+	},
+
+	displayFoursquareReviews: function(reviews) {
+		console.log(reviews);
+		$("#foursquare-reviews").empty();
+		if(typeof reviews !== 'undefined' && reviews.length > 0) {
+			$("#foursquare-reviews").append("<ul></ul>");
+			// Sort the Google reviews by date (new -> old)
+			var sortedReviews = function() {
+				return reviews.sort(function(thisreview, nextreview) {
+					return thisreview.createdAt == nextreview.createdAt ? 0 : (thisreview.createdAt > nextreview.createdAt ? -1 : 1);
+				});
+			}
+			console.log(sortedReviews());
+			var maxReviews = sortedReviews().length < 4 ? sortedReviews().length : 4;
+			for(var i = 0; i < maxReviews; i++) {
+				if(sortedReviews()[i].text) {
+					var text = sortedReviews()[i].text;
+					if(sortedReviews()[i].createdAt) {
+						var time = sortedReviews()[i].createdAt;
+					}
+					$("#foursquare-reviews > ul").append("<li>"+text+" ("+formattedDateTime(time)+")</li>");
+				}
+			}
+		}
+		else {
+			$("#foursquare-reviews").append("<h3 class='no-review-message'>No reviews found.</h3>");
+		}
+	}
 };
 
 var getYahooWeather = function() {
@@ -267,7 +373,7 @@ var getYelpData = function() {
 
 	console.log("good: "+yelp_query);
 
-	var r0 = $.getJSON(y3, function(data) {
+	var r0 = $.getJSON(yelp_query2, function(data) {
 		console.log(r0);
 		console.log(data);
 		console.log(yelp_query2);
@@ -277,6 +383,25 @@ var getYelpData = function() {
 		console.log("FAIL!");
 		});
 };
+
+var goodYelp = function() {
+	console.log("IT WORKED!!!!!!!");
+}
+
+var getMarkerIcon = function(status, index) {
+	var iconLabel = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+	var color;
+	switch(status) {
+		case "active":
+			color = "green";
+			break;
+		case "inactive":
+		default:
+			color = "pink";
+			break;
+	}
+	return "img/src/gm-markers/" + color + "_Marker" + iconLabel[index]+".png";
+}
 
 var formattedDateTime = function(UNIX_timestamp) {
 	var a = new Date(UNIX_timestamp * 1000);
@@ -290,14 +415,7 @@ var formattedDateTime = function(UNIX_timestamp) {
 	hour = hour % 12;
 	hour = hour ? hour : 12; // the hour '0' should be '12'
 	min = min < 10 ? '0'+min : min;
-	var time = date + ' ' + month + ' ' + year + ' ' + hour + ':' + min + ' ' + ampm;
+	// var time = date + ' ' + month + ' ' + year + ' ' + hour + ':' + min + ' ' + ampm;
+	var time = date + ' ' + month + ' ' + year;
 	return time;
 };
-
-// Add the infoWindow node back to the body
-// Google maps deletes the infoWindow content node when the window is closed, knockout bindings stop working!
-// http://stackoverflow.com/questions/15317796/knockout-loses-bindings-when-google-maps-api-v3-info-window-is-closed
-var replaceDeletedInfoWindowNode = function() {
-	$("body").append($contentNode);
-};
-
