@@ -43,6 +43,8 @@ function initMap() {
 
 	placesService = new google.maps.places.PlacesService(map);
 
+	getYahooWeather();
+
 	if(localStorage.getItem('placeType') !== null) {
 		placeType(localStorage.getItem('placeType'));
 		getPlaces();
@@ -183,7 +185,6 @@ var openInfoWindow = function(marker) {
 			displayPlaceInfo.googleDetails = placeDetails;
 			displayPlaceInfo.banner();
 			displayPlaceInfo.reviews();
-			getYahooWeather();
 		}
 		else {
 			$("#info-window").append("<h3 class='no-review-message'>Could not load location info.</h3>");
@@ -347,6 +348,7 @@ var getYahooWeather = function() {
 
 	$.getJSON(url, data, function(result) {
 		console.log(result);
+		$("#yahoo-weather").append(result.query.results.channel.item.description);
 	}).error(function() {
 		console.log(data);
 		console.log("FAIL!");

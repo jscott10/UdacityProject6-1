@@ -28,12 +28,13 @@
 		<!-- Banner -->
 		<div data-role="page" id="map-page">
 			<div data-role="header" data-position="fixed" data-fullscreen="true">
-				<a href="#mypanel" data-role="button" data-icon="arrow-r" data-iconpos="right">Location Types</a>
+				<p style="display: inline"><a href="#mypanel" data-role="button" data-icon="arrow-r" data-iconpos="right">Location Types</a></p>
 				<h1>What you can find near Binghamton University...</h1>
 			</div>
 
 			<!-- panel -->
 			<div data-role="panel" data-display="overlay" id="mypanel">
+				<p id="yahoo-weather" style="font-size: 11px;"></p>
 				<!-- Select Place type -->
 				<select id="place-type" data-role="none" data-bind="options: placeTypes, optionsCaption: 'Type of Business', optionsValue: 'type', optionsText: 'name', value: placeType, event: {change: getPlaces}"></select>
 
