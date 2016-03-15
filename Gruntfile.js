@@ -73,17 +73,6 @@ grunt.initConfig({
 			}]
 		}
 	},
-	// cssmin: {
-	// 	target: {
-	// 		files: [{
-	// 			expand: true,
-	// 			cwd: 'css/src',
-	// 			src: ['*.css', '!*.min.css'],
-	// 			dest: 'css/dist',
-	// 			ext: '.min.css'
-	// 		}]
-	// 	}
-	// },
 	htmlmin: {                                     // Task
 		dist: {                                      // Target
 			options: {                                 // Target options
@@ -126,27 +115,6 @@ grunt.initConfig({
 				threshold: 50
 			}
 		}
-		// paths: {
-		// 	options: {
-		// 		paths: ["/frontend-nanodegree-mobile-portfolio"],
-		// 		locale: "en_GB",
-		// 		strategy: "desktop",
-		// 		threshold: 80
-		// 	}
-		// }
-	},
-	ftpush: {
-	  build: {
-	    auth: {
-	      host: 'server.com',
-	      port: 21,
-	      authKey: 'key1'
-	    },
-	    src: 'path/to/source/folder',
-	    dest: '/path/to/destination/folder',
-	    exclusions: ['path/to/source/folder/**/.DS_Store', 'path/to/source/folder/**/Thumbs.db', 'dist/tmp'],
-	    keep: ['/important/images/at/server/*.jpg']
-	  }
 	}
 });
 
