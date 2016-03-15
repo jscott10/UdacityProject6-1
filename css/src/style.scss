@@ -41,6 +41,28 @@ html, body {
 	clear: both;
 }
 
+#yahoo-weather {
+
+	font-size: 12px;
+	border: 1px solid gray;
+	padding: .5em;
+	overflow: hidden;
+
+	.weather-banner {
+		width: 100%;
+	}
+	.current-conditions {
+		width: 100%;
+		overflow: hidden;
+		img {
+			float: left;
+		}
+		.conditions {
+			vertical-align: middle;
+		}
+	}
+}
+
 #info-window {
 	max-width: 500px;
 	max-height: 400px;
