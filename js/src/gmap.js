@@ -5,7 +5,7 @@ var placesService;
 var markerList = [];
 var currentMarker;
 var infoWindow;
-var	$contentNode;
+var placeDetails;
 
 var binghamton = {lat: 42.088848, lng: -75.969491};
 
@@ -17,7 +17,7 @@ function initMap() {
 	//Enabling new cartography and themes
 	google.maps.visualRefresh = true;
 
-	$contentNode = $('#info-window');
+	contentNode = document.getElementById("info-window");
 
 	//Setting starting options of map
 	var mapOptions = {
@@ -38,10 +38,11 @@ function initMap() {
 
 	// InfoWindow setup
 	infoWindow = new google.maps.InfoWindow({
-		content: $contentNode[0]
+		content: contentNode
 	});
 
 	placesService = new google.maps.places.PlacesService(map);
+
 
 	getYahooWeather();
 
@@ -176,17 +177,15 @@ var highlightMarker = function(marker) {
 
 // Open an infoWindow and set and display the contents based on the current marker
 var openInfoWindow = function(marker) {
-	$("#info-window").empty();
-	$("#info-window").append("<h3 class='load-message'>Loading...</h3>");
 	infoWindow.open(map, marker);
+	$("#info-window").empty();
+	$("#info-window").append("<p class='load-message'>Loading...</p>");
 	placesService.getDetails({placeId: marker.getPlace().placeId}, function(placeDetails, status) {
+		$("#info-window > p.load-message").remove();
 		if (status == google.maps.places.PlacesServiceStatus.OK) {
-			$(".load-message").remove();
 			pd = placeDetails;
-
-			displayPlaceInfo(placeDetails);
-			displayPlaceInfo.placeBanner();
-			displayPlaceInfo.allReviews();
+			self.placeDetails = placeDetails;
+			displayPlaceInfo();
 		}
 		else {
 			$("#info-window").append("<h3 class='no-review-message'>Could not load location info.</h3>");
@@ -198,137 +197,140 @@ var openInfoWindow = function(marker) {
 // INFOWINDOW
 // broken because I broke it thank you very much!
 
-var displayPlaceInfo = function(googleDetails) {
+var displayPlaceInfo = function() {
+	displayPlaceBanner();
+	$("#info-window").append("<h2>Reviews</h2>");
+	displayGoogleReviews();
+	getAndDisplayFoursquareReviews();
+};
 
-	var placeBanner = function() {
-		$("#info-window").append("<div class='info-banner' class='clearfix'></div>");
-		if(typeof googleDetails.photos !== 'undefined') {
-			var imageUrl = googleDetails.photos[0].getUrl({maxWidth: 100});
-			$(".info-banner").append("<img src='"+imageUrl+"' class='place-image'>");
+var displayPlaceBanner = function() {
+	$("#info-window").append("<div class='info-banner' class='clearfix'></div>");
+	if(typeof placeDetails.photos !== 'undefined') {
+		var imageUrl = placeDetails.photos[0].getUrl({maxWidth: 100});
+		$(".info-banner").append("<img src='"+imageUrl+"' class='place-image'>");
+	}
+	if(typeof placeDetails.name !== 'undefined') {
+		$(".info-banner").append("<h1>"+placeDetails.name+"</h1>");
+	}
+	if(typeof placeDetails.formatted_address !== 'undefined') {
+		$(".info-banner").append("<p>"+placeDetails.formatted_address+"</p>");
+	}
+	if (typeof placeDetails.formatted_phone_number !== 'undefined') {
+		$(".info-banner").append("<p>"+placeDetails.formatted_phone_number+"</p>");
+	}
+};
+
+var displayGoogleReviews = function() {
+
+	var reviews = placeDetails.reviews;
+
+	$("#info-window").append("<div class='google-reviews'></div>");
+	$(".google-reviews").append("<h3>Google</h3>");
+	if(typeof reviews !== 'undefined' && reviews.length > 0) {
+		// Sort the Google reviews by date (new -> old)
+		var sortedReviews = function() {
+			return reviews.sort(function(thisreview, nextreview) {
+				return thisreview.time == nextreview.time ? 0 : (thisreview.time > nextreview.time ? -1 : 1);
+			});
 		}
-		if(typeof googleDetails.name !== 'undefined') {
-			$(".info-banner").append("<h1>"+googleDetails.name+"</h1>");
-		}
-		if(typeof googleDetails.formatted_address !== 'undefined') {
-			$(".info-banner").append("<p>"+googleDetails.formatted_address+"</p>");
-		}
-		if (typeof googleDetails.formatted_phone_number !== 'undefined') {
-			$(".info-banner").append("<p>"+googleDetails.formatted_phone_number+"</p>");
-		}
-	};
-
-	var allReviews = function() {
-		$("#info-window").append("<h2>Reviews</h2>");
-		googleReviews();
-		foursquareReviews();
-	};
-
-	var googleReviews = function() {
-
-		var reviews = googleDetails.reviews;
-
-		$("#info-window").append("<div class='google-reviews'></div>");
-		$(".google-reviews").append("<h3>Google</h3>");
-		if(typeof reviews !== 'undefined' && reviews.length > 0) {
-			// Sort the Google reviews by date (new -> old)
-			var sortedReviews = function() {
-				return reviews.sort(function(thisreview, nextreview) {
-					return thisreview.time == nextreview.time ? 0 : (thisreview.time > nextreview.time ? -1 : 1);
-				});
+		$(".google-reviews").append("<ul></ul>");
+		var maxReviews = sortedReviews().length < 4 ? sortedReviews().length : 4;
+		for(var i = 0; i < maxReviews; i++) {
+			if(sortedReviews()[i].text) {
+				var text = sortedReviews()[i].text;
+				var time = sortedReviews()[i].time;
+				$(".google-reviews > ul").append("<li>"+text+" ("+formattedDateTime(time)+")</li>");
 			}
-			$(".google-reviews").append("<ul></ul>");
-			var maxReviews = sortedReviews().length < 4 ? sortedReviews().length : 4;
-			for(var i = 0; i < maxReviews; i++) {
-				if(sortedReviews()[i].text) {
-					var text = sortedReviews()[i].text;
-					var time = sortedReviews()[i].time;
-					$(".google-reviews > ul").append("<li>"+text+" ("+formattedDateTime(time)+")</li>");
+		}
+	}
+	else {
+		$(".google-reviews").append("<p class='no-review-message'>No reviews found.</p>");
+	}
+};
+
+// fourSquare venue
+var getAndDisplayFoursquareReviews = function() {
+	$("#info-window").append("<div class='foursquare-reviews'></div>");
+	$(".foursquare-reviews").append("<h3>FourSquare</h3>");
+	$(".foursquare-reviews").append("<p class='load-message'>Loading...</p>");
+
+	// API call to get the venue ID
+	var url = "https://api.foursquare.com/v2/venues/search";
+	var auth = {
+		client_id: "LKOCAAQC2EHG2YHBHPKMX2TAIHXEOXL3U2GQSCHN5542VYJE",
+		client_secret: "QLLAGNKK2QOLH054PMAPYU1PUQQ4G3YNCOU52WBCH3HDKOQJ"
+	};
+	var data = {
+		ll: this.placeDetails.geometry.location.lat()+", "+this.placeDetails.geometry.location.lng(),
+		query: this.placeDetails.name,
+		intent: "match",
+		v: "20160101",
+		m: "foursquare"
+	};
+
+	$.extend(data, auth);
+
+	var jqXHR = $.getJSON(url, data, function(result) {
+		if(result.response.venues.length > 0) {
+			var closestVenue = result.response.venues[0];
+
+			// API call to get venue details
+			var url = "https://api.foursquare.com/v2/venues/"+closestVenue.id;
+			var venueData = {
+				v: "20160101",
+				m: "foursquare"
+			};
+
+			$.extend(venueData, auth);
+
+			var jqXHR = $.getJSON(url, venueData, function(result) {
+				error2 = jqXHR;
+				if(result.response.venue.tips.groups.length > 0) {
+					var reviews = result.response.venue.tips.groups[0].items;
+					displayFoursquareReviews(reviews);
 				}
-			}
+				else {
+					$(".foursquare-reviews > p.load-message").remove();
+					$(".foursquare-reviews").append("<p class='no-review-message'>No reviews found.</p>");
+				}
+			}).error(function(textStatus, errorThrown) {
+				$(".foursquare-reviews > p.load-message").remove();
+				$(".foursquare-reviews").append("<p class='no-review-message'>Unable to retrieve fourSquare reviews.</p>");
+			});
 		}
 		else {
-			$(".google-reviews").append("<p class='no-review-message'>No reviews found.</p>");
+			$(".foursquare-reviews > p.load-message").remove();
+			$(".foursquare-reviews").append("<p class='no-review-message'>fourSquare venue not found.</p>");
 		}
-	};
+	}).error(function() {
+		$(".foursquare-reviews > p.load-message").remove();
+		$(".foursquare-reviews").append("<p class='no-review-message'>Unable to retrieve fourSquare venue data.</p>");
+	});
+};
 
-	// fourSquare venue
-	var foursquareReviews = function() {
-		$("#info-window").append("<div class='foursquare-reviews'></div>");
-		$(".foursquare-reviews").append("<h3>FourSquare</h3>");
-		$(".foursquare-reviews").append("<h3 class='load-message'>Loading...</h3>");
-
-		// API call to get the venue ID
-		var url = "https://api.foursquare.com/v2/venues/search";
-		var auth = {
-			client_id: "LKOCAAQC2EHG2YHBHPKMX2TAIHXEOXL3U2GQSCHN5542VYJE",
-			client_secret: "QLLAGNKK2QOLH054PMAPYU1PUQQ4G3YNCOU52WBCH3HDKOQJ"
-		};
-		var data = {
-			ll: this.googleDetails.geometry.location.lat()+", "+this.googleDetails.geometry.location.lng(),
-			query: this.googleDetails.name,
-			intent: "match",
-			v: "20160101",
-			m: "foursquare"
-		};
-
-		$.extend(data, auth);
-
-		var jqXHR = $.getJSON(url, data, function(result) {
-			if(result.response.venues.length > 0) {
-				var closestVenue = result.response.venues[0];
-
-				// API call to get venue details
-				var url = "https://api.foursquare.com/v2/venues/"+closestVenue.id;
-				var venueData = {
-					v: "20160101",
-					m: "foursquare"
-				};
-
-				$.extend(venueData, auth);
-
-				var jqXHR = $.getJSON(url, venueData, function(result) {
-					error2 = jqXHR;
-					if(result.response.venue.tips.groups.length > 0) {
-						var reviews = result.response.venue.tips.groups[0].items;
-						displayPlaceInfo.displayFoursquareReviews(reviews);
-					}
-					else {
-						$(".foursquare-reviews").append("<p class='no-review-message'>No reviews found.</p>");
-					}
-				}).error(function(textStatus, errorThrown) {
-					$(".foursquare-reviews").append("<p class='no-review-message'>Unable to retrieve fourSquare reviews.</p>");
-				});
-			}
-			else {
-				$(".foursquare-reviews").append("<p class='no-review-message'>fourSquare venue not found.</p>");
-			}
-		}).error(function() {
-			$(".foursquare-reviews").append("<p class='no-review-message'>Unable to retrieve fourSquare venue data.</p>");
-		});
-	};
-
-	var displayFoursquareReviews = function(reviews) {
-		if(typeof reviews !== 'undefined' && reviews.length > 0) {
-			// Sort the reviews by date (new -> old)
-			var sortedReviews = function() {
-				return reviews.sort(function(thisreview, nextreview) {
-					return thisreview.createdAt == nextreview.createdAt ? 0 : (thisreview.createdAt > nextreview.createdAt ? -1 : 1);
-				});
-			}
-			$(".foursquare-reviews").append("<ul></ul>");
-			var maxReviews = sortedReviews().length < 4 ? sortedReviews().length : 4;
-			for(var i = 0; i < maxReviews; i++) {
-				if(sortedReviews()[i].text) {
-					var text = sortedReviews()[i].text;
-					var time = sortedReviews()[i].createdAt;
-					$(".foursquare-reviews > ul").append("<li>"+text+" ("+formattedDateTime(time)+")</li>");
-				}
+var displayFoursquareReviews = function(reviews) {
+	$(".foursquare-reviews > p.load-message").remove();
+	if(typeof reviews !== 'undefined' && reviews.length > 0) {
+		// Sort the reviews by date (new -> old)
+		var sortedReviews = function() {
+			return reviews.sort(function(thisreview, nextreview) {
+				return thisreview.createdAt == nextreview.createdAt ? 0 : (thisreview.createdAt > nextreview.createdAt ? -1 : 1);
+			});
+		}
+		$(".foursquare-reviews").append("<ul></ul>");
+		var maxReviews = sortedReviews().length < 4 ? sortedReviews().length : 4;
+		for(var i = 0; i < maxReviews; i++) {
+			if(sortedReviews()[i].text) {
+				var text = sortedReviews()[i].text;
+				var time = sortedReviews()[i].createdAt;
+				$(".foursquare-reviews > ul").append("<li>"+text+" ("+formattedDateTime(time)+")</li>");
 			}
 		}
-		else {
-			$(".foursquare-reviews").append("<p class='no-review-message'>No reviews found.</p>");
-		}
-	};
+	}
+	else {
+		$(".foursquare-reviews").append("<p class='no-review-message'>No reviews found.</p>");
+	}
 };
 
 var getYahooWeather = function() {
@@ -341,22 +343,26 @@ var getYahooWeather = function() {
 
 	$.getJSON(url, data, function(result) {
 		console.log(result);
-		var channel = result.query.results.channel;
-		var description = channel.description;
-		var condition = channel.item.condition;
-		var image = "<img src='http://l.yimg.com/a/i/us/we/52/"+condition.code+".gif'>";
-		var date = condition.date;
-		var units = channel.units;
-		var currentConditions = condition.text + ", " + condition.temp + " " + units.temperature;
-		$(".weather-banner").append("<strong>"+description + "</strong><br>");
-		$(".weather-banner").append(date + "<br>");
-		$(".current-conditions").append(image);
-		$(".current-conditions").append("<span class='conditions'>"+"<strong>Current Conditions</strong><br>");
-		$(".current-conditions").append(currentConditions+"</span>");
+		displayYahooWeather(result);
 	}).error(function() {
 		// If Yahoo weather info not available just remove the div
 		$("#yahoo-weather").remove();
 	});
+};
+
+var displayYahooWeather = function(result) {
+	var channel = result.query.results.channel;
+	var description = channel.description;
+	var condition = channel.item.condition;
+	var image = "<img src='http://l.yimg.com/a/i/us/we/52/"+condition.code+".gif'>";
+	var date = condition.date;
+	var units = channel.units;
+	var currentConditions = condition.text + ", " + condition.temp + " " + units.temperature;
+	$(".weather-banner").append("<strong>"+description + "</strong><br>");
+	$(".weather-banner").append(date + "<br>");
+	$(".current-conditions").append(image);
+	$(".current-conditions").append("<span class='conditions'>"+"<strong>Current Conditions</strong><br>");
+	$(".current-conditions").append(currentConditions+"</span>");
 };
 
 // Return the appropriate Marker icon based on status ("active"/"inactive") and index
@@ -374,7 +380,7 @@ var getMarkerIcon = function(status, index) {
 			break;
 	}
 	return "img/src/gm-markers/" + color + "_Marker" + iconLabel[index]+".png";
-}
+};
 
 var formattedDateTime = function(UNIX_timestamp) {
 	var a = new Date(UNIX_timestamp * 1000);
