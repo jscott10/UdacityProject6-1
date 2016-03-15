@@ -1,7 +1,7 @@
 # fend-p5-nmp
-#Udacity FEND Project 5 - Neighborhood Map Project
+# Udacity FEND Project 5 - Neighborhood Map Project
 
-##Overview:
+## Overview:
 
 The project consists of a full window Google map centered on Binghamton University in New York, and a dropdown list of business/location types (Places). Selecting a location type from the list will present an ordered list of locations of the selected type and corresponding markers on the map. A text box is provided to allow the list to be filtered by substring.
 
