@@ -47,11 +47,11 @@ $(document).ready(function() {
 		self.placeType = ko.observable();
 
 		// found places filter
-		self.filter = ko.observable("");
+		self.locationFilter = ko.observable("");
 
 		// Filter the list of found places and sort by name
 		self.filteredPlaces = ko.computed(function() {
-			var filter = self.filter().toLowerCase();
+			var filter = self.locationFilter().toLowerCase();
 			var unsortedPlaces;
 			if (!filter) {
 				unsortedPlaces = self.foundPlaces();

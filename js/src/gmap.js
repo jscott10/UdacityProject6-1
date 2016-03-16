@@ -33,8 +33,8 @@ function initMap() {
 	map = new google.maps.Map(mapElement, mapOptions);
 
 	// Add traffic layer
-	// var trafficLayer = new google.maps.TrafficLayer();
-	// trafficLayer.setMap(map);
+	var trafficLayer = new google.maps.TrafficLayer();
+	trafficLayer.setMap(map);
 
 	// InfoWindow setup
 	infoWindow = new google.maps.InfoWindow({
@@ -43,10 +43,14 @@ function initMap() {
 
 	placesService = new google.maps.places.PlacesService(map);
 
-
+	// get and display the weather information
 	getYahooWeather();
 
+	// Retrieve saved settings
 	if(localStorage.getItem('placeType') !== null) {
+		if(localStorage.getItem('locationFilter') !== null) {
+			locationFilter(localStorage.getItem('locationFilter'));
+		}
 		placeType(localStorage.getItem('placeType'));
 		$("#place-type").selectmenu("refresh");
 		getPlaces();
@@ -56,6 +60,7 @@ function initMap() {
 
 // Remove visible markers and add markers based on filtered list
 var filterMarkers = function() {
+	localStorage.setItem("locationFilter", locationFilter());
 	resetMapMarkers();
 	addMarkers();
 };
@@ -84,7 +89,8 @@ var getPlaces = function() {
 };
 
 var resetFilter = function() {
-	filter("");
+	locationFilter("");
+	localStorage.setItem("locationFilter", locationFilter());
 };
 
 // build the observable array (foundPlaces) of found places

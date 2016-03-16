@@ -27,6 +27,8 @@ To view additional information about a location either click on the item in the 
 
 ### To build the project
 
+The project uses the following directory structure:
+
 ```
 html-source\
 css\
@@ -40,7 +42,7 @@ js\
  	js\dist\
 ```
 
-All code and images are minified and served from the `\dist\` folders. The css files is created using the Sass css preprocessor.
+All code and images are minified and served from the `\dist\` folders. The css file is created using the Sass css preprocessor.
 
 Grunt is used to automate the build process. To configure the Grunt environment you need the following packages:
 
@@ -52,3 +54,5 @@ grunt-contrib-sass
 grunt-contrib-htmlmin
 grunt-pagespeed
 ```
+
+Running the grunt-contrib-watch process will run imagemin, uglify, sass or htmlmin when a file is change.
