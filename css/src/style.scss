@@ -39,6 +39,7 @@ html, body {
 
 .clearfix {
 	clear: both;
+	overflow: hidden;
 }
 
 #yahoo-weather {
@@ -46,21 +47,28 @@ html, body {
 	font-size: 12px;
 	border: 1px solid gray;
     border-radius: 15px;
-    background: #ddf;
 	padding: .5em;
 	overflow: hidden;
 
 	.weather-banner {
+		padding: .5em;
+		margin: .2em;
 		width: 100%;
+		overflow: hidden;
 	}
 	.current-conditions {
 		width: 100%;
 		overflow: hidden;
 		img {
 			float: left;
+			margin-right: .5em;
 		}
-		.conditions {
-			vertical-align: middle;
+		.banner {
+			font-size: 14px;
+			font-weight: bold;
+		}
+		.text {
+			font-size: 16px;
 		}
 	}
 }
@@ -74,25 +82,6 @@ html, body {
 		margin: 2px;
 	}
 
-	.banner {
-
-		padding: 0;
-		margin: 0;
-
-		h1 {
-			font-size: 1.5em;
-			margin: 0 0 .3em 0;
-		}
-
-		h2 {
-		}
-
-		h3 {
-			margin-bottom: .5em;
-		}
-
-	}
-
 	li {
 		margin-bottom: 10px;
 	}
@@ -102,13 +91,24 @@ html, body {
 		padding: 0;
 	}
 
-	.image {
+	.place-image {
 		float: left;
 		margin-right: 15px;
 
 		img {
 			max-width: 100px;
 		}
+	}
+}
+
+.info-banner {
+	overflow: hidden;
+	padding: 0;
+	margin: 0;
+
+	h1 {
+		font-size: 2em;
+		margin: 0 0 .3em 0;
 	}
 }
 
@@ -135,16 +135,30 @@ html, body {
 }
 
 .filter-results {
-	display: inline-block;
+	/*display: inline-block;*/
 	/*margin: 10px;*/
+	/*overflow: hidden;*/
+}
+
+.results-banner {
+	font-size: 1em;
+	margin: 0 0 0.8em;
 }
 
 #filtered-list {
+	padding-left: 2em;
+	width: 90%;
 	list-style-type: upper-alpha;
-	font-size: .8em;
+	font-size: 14px;
 
 	li {
+		padding: 0.5em 0;
+		border-bottom: 1px solid #ddd;
 		cursor: pointer;
-		&:hover { color: red; };
+		&:hover {
+			color: red;
+			background-color: #ddf;
+		};
 	}
 }
+

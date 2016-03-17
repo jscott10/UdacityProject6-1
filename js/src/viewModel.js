@@ -76,7 +76,8 @@ $(document).ready(function() {
 					return "Please select a location type from the list!";
 					break;
 				case google.maps.places.PlacesServiceStatus.OK:
-					return "Found "+self.filteredPlaces().length+" Locations!";
+					var locationsText = self.filteredPlaces().length == 1 ? "Location" : "Locations";
+					return "Found "+self.filteredPlaces().length+" "+locationsText;
 					break;
 				case google.maps.places.PlacesServiceStatus.ZERO_RESULTS:
 					return "No Locations found!";

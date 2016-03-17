@@ -44,7 +44,7 @@ function initMap() {
 	placesService = new google.maps.places.PlacesService(map);
 
 	// get and display the weather information
-	getYahooWeather();
+	getAndDisplayYahooWeather();
 
 	// Retrieve saved settings
 	if(localStorage.getItem('placeType') !== null) {
@@ -145,17 +145,9 @@ var triggerInfoWindow = function(place_id) {
 	}
 };
 
-// Return the corresponding Marker for a placeID
-var getCurrentMarker = function(placeId) {
-	for(var index = 0; index < markerList.length; index++) {
-		if(placeId === markerList[index].getPlace().placeId ) {
-			return markerList[index];
-		}
-	}
-};
-
 // Make a Marker the currentMarker and highlight
 var setCurrentMarker = function(marker) {
+	$("#mypanel").panel("close");
 	// reset the color of any current marker and stop any animations
 	if(currentMarker) {
 		currentMarker.setIcon({url: getMarkerIcon("inactive", currentMarker.index)});
@@ -163,6 +155,15 @@ var setCurrentMarker = function(marker) {
 	}
 	currentMarker = marker;
 	highlightMarker(currentMarker);
+};
+
+// Return the corresponding Marker for a placeID
+var getCurrentMarker = function(placeId) {
+	for(var index = 0; index < markerList.length; index++) {
+		if(placeId === markerList[index].getPlace().placeId ) {
+			return markerList[index];
+		}
+	}
 };
 
 // Change the Marker color to the active color
@@ -183,13 +184,11 @@ var highlightMarker = function(marker) {
 
 // Open an infoWindow and set and display the contents based on the current marker
 var openInfoWindow = function(marker) {
-	infoWindow.open(map, marker);
 	$("#info-window").empty();
 	$("#info-window").append("<p class='load-message'>Loading...</p>");
 	placesService.getDetails({placeId: marker.getPlace().placeId}, function(placeDetails, status) {
-		$("#info-window > p.load-message").remove();
+		$("#info-window").empty();
 		if (status == google.maps.places.PlacesServiceStatus.OK) {
-			pd = placeDetails;
 			self.placeDetails = placeDetails;
 			displayPlaceInfo();
 		}
@@ -197,11 +196,11 @@ var openInfoWindow = function(marker) {
 			$("#info-window").append("<h3 class='no-review-message'>Could not load location info.</h3>");
 		}
 	});
+	infoWindow.open(map, marker);
 };
 
 
 // INFOWINDOW
-// broken because I broke it thank you very much!
 
 var displayPlaceInfo = function() {
 	displayPlaceBanner();
@@ -339,7 +338,7 @@ var displayFoursquareReviews = function(reviews) {
 	}
 };
 
-var getYahooWeather = function() {
+var getAndDisplayYahooWeather = function() {
 	var url = "https://query.yahooapis.com/v1/public/yql";
 	var data = {
 		q: "select * from weather.forecast where woeid in (select woeid from geo.places(1) where text = 'Binghamton NY')",
@@ -348,7 +347,6 @@ var getYahooWeather = function() {
 	}
 
 	$.getJSON(url, data, function(result) {
-		console.log(result);
 		displayYahooWeather(result);
 	}).error(function() {
 		// If Yahoo weather info not available just remove the div
@@ -365,10 +363,10 @@ var displayYahooWeather = function(result) {
 	var units = channel.units;
 	var currentConditions = condition.text + ", " + condition.temp + " " + units.temperature;
 	$(".weather-banner").append("<strong>"+description + "</strong><br>");
-	$(".weather-banner").append(date + "<br>");
+	$(".weather-banner").append(date);
 	$(".current-conditions").append(image);
-	$(".current-conditions").append("<span class='conditions'>"+"<strong>Current Conditions</strong><br>");
-	$(".current-conditions").append(currentConditions+"</span>");
+	$(".current-conditions").append("<span class='banner'>Current Conditions</span><br>");
+	$(".current-conditions").append("<span class='text'>"+currentConditions+"</span>");
 };
 
 // Return the appropriate Marker icon based on status ("active"/"inactive") and index

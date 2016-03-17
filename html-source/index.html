@@ -49,7 +49,7 @@
 
 				<!-- Filtered results -->
 				<div class="filter-results">
-					<p><strong data-bind="text: statusText"></strong></p>
+					<h3 class="results-banner" data-bind="text: statusText"></h3>
 					<ol id="filtered-list" data-bind="foreach: filteredPlaces">
 						<li data-bind="text: name, click: triggerInfoWindow(place_id)"></li>
 					</ol>
