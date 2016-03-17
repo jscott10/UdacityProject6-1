@@ -17,6 +17,12 @@ html, body {
 	padding: 0;
     position: absolute;
     left: 0px;
+
+    .google-map-error {
+    	width: 50%;
+    	margin: 20% auto 0;
+    	text-align: center;
+    }
 }
 
 #location-select {
@@ -86,30 +92,27 @@ html, body {
 		margin-bottom: 10px;
 	}
 
-	.address {
-		margin: 0;
+	.info-banner {
+		overflow: hidden;
 		padding: 0;
-	}
+		margin: 0;
 
-	.place-image {
-		float: left;
-		margin-right: 15px;
-
-		img {
+		.place-image {
+			float: left;
+			margin-right: 15px;
 			max-width: 100px;
 		}
-	}
-}
 
-.info-banner {
-	overflow: hidden;
-	padding: 0;
-	margin: 0;
+		.banner-details {
+			display: inline-block;
 
-	h1 {
-		font-size: 2em;
-		margin: 0 0 .3em 0;
+			h1 {
+				font-size: 2em;
+				margin: 0 0 .3em 0;
+			}
+		}
 	}
+
 }
 
 #ko-list {

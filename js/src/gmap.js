@@ -13,6 +13,7 @@ var error1;
 var error2;
 var pd;
 
+
 function initMap() {
 	//Enabling new cartography and themes
 	google.maps.visualRefresh = true;
@@ -27,7 +28,7 @@ function initMap() {
 	};
 
 	//Getting map DOM element
-	var mapElement = $('#map-div').get(0);
+	var mapElement = document.getElementById("map-div");
 
 	//Creating a map with DOM element which is just obtained
 	map = new google.maps.Map(mapElement, mapOptions);
@@ -43,41 +44,38 @@ function initMap() {
 
 	placesService = new google.maps.places.PlacesService(map);
 
+	initSystemState();
+
+};
+
+// Set up initial state
+var initSystemState = function() {
+	if(localStorage.getItem('placeType') !== null) {
+		placeType(localStorage.getItem('placeType'));
+		getPlaces();
+	}
+	// if(localStorage.getItem('locationFilter') !== null) {
+	// 	locationFilter(localStorage.getItem('locationFilter'));
+	// 	filterMarkers();
+	// }
+
+	$("#place-type").selectmenu("refresh");
+
 	// get and display the weather information
 	getAndDisplayYahooWeather();
 
-	// Retrieve saved settings
-	if(localStorage.getItem('placeType') !== null) {
-		if(localStorage.getItem('locationFilter') !== null) {
-			locationFilter(localStorage.getItem('locationFilter'));
-		}
-		placeType(localStorage.getItem('placeType'));
-		$("#place-type").selectmenu("refresh");
-		getPlaces();
-	}
-
-};
+}
 
 // Remove visible markers and add markers based on filtered list
 var filterMarkers = function() {
-	localStorage.setItem("locationFilter", locationFilter());
 	resetMapMarkers();
 	addMarkers();
-};
-
-// remove all markers and reset markerList
-var resetMapMarkers = function() {
-	for (var i = 0; i < markerList.length; i++) {
-		markerList[i].setMap(null);
-		markerList[i] = null;
-	}
-	markerList.length = 0;
 };
 
 // Remove visible markers, reset filter and get new list of Places
 var getPlaces = function() {
 	resetMapMarkers();
-	resetFilter();
+	locationFilter(); // Reset location filter
 	// Get the array of places
 	var request = {
 		location: binghamton,
@@ -86,11 +84,6 @@ var getPlaces = function() {
 	};
 	localStorage.setItem("placeType", placeType());
 	placesService.nearbySearch(request, setPlacesList);
-};
-
-var resetFilter = function() {
-	locationFilter("");
-	localStorage.setItem("locationFilter", locationFilter());
 };
 
 // build the observable array (foundPlaces) of found places
@@ -103,6 +96,15 @@ var setPlacesList = function (results, status) {
 		foundPlaces(results);
 		addMarkers();
 	}
+};
+
+// remove all markers and reset markerList
+var resetMapMarkers = function() {
+	for (var i = 0; i < markerList.length; i++) {
+		markerList[i].setMap(null);
+		markerList[i] = null;
+	}
+	markerList.length = 0;
 };
 
 /*
@@ -215,14 +217,15 @@ var displayPlaceBanner = function() {
 		var imageUrl = placeDetails.photos[0].getUrl({maxWidth: 100});
 		$(".info-banner").append("<img src='"+imageUrl+"' class='place-image'>");
 	}
+	$(".info-banner").append("<div class='banner-details'></div>");
 	if(typeof placeDetails.name !== 'undefined') {
-		$(".info-banner").append("<h1>"+placeDetails.name+"</h1>");
+		$(".banner-details").append("<h1>"+placeDetails.name+"</h1>");
 	}
 	if(typeof placeDetails.formatted_address !== 'undefined') {
-		$(".info-banner").append("<p>"+placeDetails.formatted_address+"</p>");
+		$(".banner-details").append("<p>"+placeDetails.formatted_address+"</p>");
 	}
 	if (typeof placeDetails.formatted_phone_number !== 'undefined') {
-		$(".info-banner").append("<p>"+placeDetails.formatted_phone_number+"</p>");
+		$(".banner-details").append("<p>"+placeDetails.formatted_phone_number+"</p>");
 	}
 };
 
@@ -301,16 +304,16 @@ var getAndDisplayFoursquareReviews = function() {
 				}
 			}).error(function(textStatus, errorThrown) {
 				$(".foursquare-reviews > p.load-message").remove();
-				$(".foursquare-reviews").append("<p class='no-review-message'>Unable to retrieve fourSquare reviews.</p>");
+				$(".foursquare-reviews").append("<p class='no-review-message'>Unable to retrieve Foursquare reviews.</p>");
 			});
 		}
 		else {
 			$(".foursquare-reviews > p.load-message").remove();
-			$(".foursquare-reviews").append("<p class='no-review-message'>fourSquare venue not found.</p>");
+			$(".foursquare-reviews").append("<p class='no-review-message'>Foursquare venue not found.</p>");
 		}
 	}).error(function() {
 		$(".foursquare-reviews > p.load-message").remove();
-		$(".foursquare-reviews").append("<p class='no-review-message'>Unable to retrieve fourSquare venue data.</p>");
+		$(".foursquare-reviews").append("<p class='no-review-message'>Unable to retrieve Foursquare venue data.</p>");
 	});
 };
 
@@ -369,6 +372,9 @@ var displayYahooWeather = function(result) {
 	$(".current-conditions").append("<span class='text'>"+currentConditions+"</span>");
 };
 
+
+
+
 // Return the appropriate Marker icon based on status ("active"/"inactive") and index
 // Marker source: http://www.benjaminkeen.com/google-maps-coloured-markers/
 var getMarkerIcon = function(status, index) {
@@ -383,7 +389,7 @@ var getMarkerIcon = function(status, index) {
 			color = "pink";
 			break;
 	}
-	return "img/src/gm-markers/" + color + "_Marker" + iconLabel[index]+".png";
+	return "img/dist/gm-markers/" + color + "_Marker" + iconLabel[index]+".png";
 };
 
 var formattedDateTime = function(UNIX_timestamp) {
@@ -394,4 +400,12 @@ var formattedDateTime = function(UNIX_timestamp) {
 	var date = a.getDate();
 	var time = date + ' ' + month + ' ' + year;
 	return time;
+};
+
+// Disable panel button and display error message if Google maps API is unavailable
+var googleMapsError = function() {
+	$("#location-button").remove();
+	$("#map-div").append("<div class='google-map-error'></div>");
+	$(".google-map-error").append("<h2>Error loading Google Map</h2>");
+	$(".google-map-error").append("<p>Please try again later</p>");
 };

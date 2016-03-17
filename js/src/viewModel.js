@@ -47,16 +47,17 @@ $(document).ready(function() {
 		self.placeType = ko.observable();
 
 		// found places filter
-		self.locationFilter = ko.observable("");
+		self.locationFilter = ko.observable();
 
 		// Filter the list of found places and sort by name
+		// This is the list that is displayed in the Locations Panel
 		self.filteredPlaces = ko.computed(function() {
-			var filter = self.locationFilter().toLowerCase();
 			var unsortedPlaces;
-			if (!filter) {
+			if(self.locationFilter() === undefined) {
 				unsortedPlaces = self.foundPlaces();
 			}
 			else {
+				var filter = self.locationFilter().toLowerCase();
 				unsortedPlaces = ko.utils.arrayFilter(self.foundPlaces(), function(place) {
 					return place.name.toLowerCase().indexOf(filter) !== -1;
 				});
@@ -67,26 +68,26 @@ $(document).ready(function() {
 		});
 
 		// Status returned by Google Maps API
-		self.searchStatus = ko.observable("");
+		self.searchStatus = ko.observable();
 
 		// Result messages from Google placesSearch
 		self.statusText = ko.computed(function() {
 			switch(self.searchStatus()) {
-				case "":
-					return "Please select a location type from the list!";
+				case undefined:
+					return "Please select a location type from the list";
 					break;
 				case google.maps.places.PlacesServiceStatus.OK:
-					var locationsText = self.filteredPlaces().length == 1 ? "Location" : "Locations";
+					var locationsText = self.filteredPlaces().length === 1 ? "Location" : "Locations";
 					return "Found "+self.filteredPlaces().length+" "+locationsText;
 					break;
 				case google.maps.places.PlacesServiceStatus.ZERO_RESULTS:
-					return "No Locations found!";
+					return "No Locations found";
 					break;
 				case google.maps.places.PlacesServiceStatus.UNKNOWN_ERROR:
-					return "Unknown Error. Please try again!";
+					return "An error has occurred. Please try again.";
 					break;
 				default:
-					return "Unspecified Error!";
+					return "Unspecified Error";
 			}
 		});
 
