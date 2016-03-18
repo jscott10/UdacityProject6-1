@@ -363,9 +363,6 @@ var displayYahooWeather = function(result) {
 	$(".current-conditions").append("<span class='text'>"+currentConditions+"</span>");
 };
 
-
-
-
 // Return the appropriate Marker icon based on status ("active"/"inactive") and index
 // Marker source: http://www.benjaminkeen.com/google-maps-coloured-markers/
 var getMarkerIcon = function(status, index) {
