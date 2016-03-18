@@ -1,4 +1,4 @@
-# Udacity FEND Project 5 - Neighborhood Map Project
+# Udacity FEND Project 6-1 - Neighborhood Map Project
 
 ## Overview
 
