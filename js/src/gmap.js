@@ -352,7 +352,7 @@ var displayYahooWeather = function(result) {
 	var channel = result.query.results.channel;
 	var description = channel.description;
 	var condition = channel.item.condition;
-	var image = "<img src='https://l.yimg.com/a/i/us/we/52/"+condition.code+".gif'>";
+	var image = "<img src='http://l.yimg.com/a/i/us/we/52/"+condition.code+".gif'>";
 	var date = condition.date;
 	var units = channel.units;
 	var currentConditions = condition.text + ", " + condition.temp + " " + units.temperature;
