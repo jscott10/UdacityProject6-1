@@ -176,10 +176,10 @@ var highlightMarker = function(marker) {
 
 // Open an infoWindow and set and display the contents based on the current marker
 var openInfoWindow = function(marker) {
-	$("#info-window").empty();
+	$("#info-window").detach();
 	$("#info-window").append("<p class='load-message'>Loading...</p>");
 	placesService.getDetails({placeId: marker.getPlace().placeId}, function(placeDetails, status) {
-		$("#info-window").empty();
+		$("#info-window").detach();
 		if (status == google.maps.places.PlacesServiceStatus.OK) {
 			self.placeDetails = placeDetails; // Make placeDetails available to display functions
 			displayPlaceInfo();
