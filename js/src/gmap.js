@@ -207,18 +207,18 @@ var displayPlaceInfo = function() {
 
 var displayPlaceBanner = function() {
 	$("#info-window").append("<div class='info-banner' class='clearfix'></div>");
-	if(typeof placeDetails.photos !== 'undefined') {
+	if(typeof placeDetails.photos !== undefined) {
 		var imageUrl = placeDetails.photos[0].getUrl({maxWidth: 100});
 		$(".info-banner").append("<img src='"+imageUrl+"' class='place-image'>");
 	}
 	$(".info-banner").append("<div class='banner-details'></div>");
-	if(typeof placeDetails.name !== 'undefined') {
+	if(typeof placeDetails.name !== undefined) {
 		$(".banner-details").append("<h1>"+placeDetails.name+"</h1>");
 	}
-	if(typeof placeDetails.formatted_address !== 'undefined') {
+	if(typeof placeDetails.formatted_address !== undefined) {
 		$(".banner-details").append("<p>"+placeDetails.formatted_address+"</p>");
 	}
-	if (typeof placeDetails.formatted_phone_number !== 'undefined') {
+	if (typeof placeDetails.formatted_phone_number !== undefined) {
 		$(".banner-details").append("<p>"+placeDetails.formatted_phone_number+"</p>");
 	}
 };
@@ -227,7 +227,7 @@ var displayGoogleReviews = function() {
 	var reviews = placeDetails.reviews;
 	$("#info-window").append("<div class='google-reviews'></div>");
 	$(".google-reviews").append("<h3>Google</h3>");
-	if(typeof reviews !== 'undefined' && reviews.length > 0) {
+	if(typeof reviews !== undefined && reviews.length > 0) {
 		// Sort the Google reviews by date (new -> old)
 		var sortedReviews = function() {
 			return reviews.sort(function(thisreview, nextreview) {
@@ -310,7 +310,7 @@ var getAndDisplayFoursquareReviews = function() {
 
 var displayFoursquareReviews = function(reviews) {
 	$(".foursquare-reviews > p.load-message").remove();
-	if(typeof reviews !== 'undefined' && reviews.length > 0) {
+	if(typeof reviews !== undefined && reviews.length > 0) {
 		// Sort the reviews by date (new -> old)
 		var sortedReviews = function() {
 			return reviews.sort(function(thisreview, nextreview) {
