@@ -6,6 +6,7 @@ $(document).ready(function() {
 
 		var self = this;
 
+		// Google Place Types and associated display text
 		self.placeTypes = [
 			{type: "airport", name: "Airports"},
 			{type: "aquarium", name: "Aquariums"},
@@ -75,17 +76,13 @@ $(document).ready(function() {
 			switch(self.searchStatus()) {
 				case undefined:
 					return "Please select a location type from the list";
-					break;
 				case google.maps.places.PlacesServiceStatus.OK:
 					var locationsText = self.filteredPlaces().length === 1 ? "Location" : "Locations";
 					return "Found "+self.filteredPlaces().length+" "+locationsText;
-					break;
 				case google.maps.places.PlacesServiceStatus.ZERO_RESULTS:
 					return "No Locations found";
-					break;
 				case google.maps.places.PlacesServiceStatus.UNKNOWN_ERROR:
 					return "An error has occurred. Please try again.";
-					break;
 				default:
 					return "Unspecified Error";
 			}

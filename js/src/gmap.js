@@ -9,16 +9,9 @@ var placeDetails;
 
 var binghamton = {lat: 42.088848, lng: -75.969491};
 
-var error1;
-var error2;
-var pd;
+var initMap = function() {
 
-
-function initMap() {
-	//Enabling new cartography and themes
 	google.maps.visualRefresh = true;
-
-	contentNode = document.getElementById("info-window");
 
 	//Setting starting options of map
 	var mapOptions = {
@@ -39,7 +32,7 @@ function initMap() {
 
 	// InfoWindow setup
 	infoWindow = new google.maps.InfoWindow({
-		content: contentNode
+		content: document.getElementById("info-window")
 	});
 
 	placesService = new google.maps.places.PlacesService(map);
@@ -54,18 +47,15 @@ var initSystemState = function() {
 		placeType(localStorage.getItem('placeType'));
 		getPlaces();
 	}
-	// if(localStorage.getItem('locationFilter') !== null) {
-	// 	locationFilter(localStorage.getItem('locationFilter'));
-	// 	filterMarkers();
-	// }
 
 	$("#place-type").selectmenu("refresh");
 
 	// get and display the weather information
 	getAndDisplayYahooWeather();
 
-}
+};
 
+// Called when text is changed in filter text box
 // Remove visible markers and add markers based on filtered list
 var filterMarkers = function() {
 	resetMapMarkers();
@@ -191,7 +181,7 @@ var openInfoWindow = function(marker) {
 	placesService.getDetails({placeId: marker.getPlace().placeId}, function(placeDetails, status) {
 		$("#info-window").empty();
 		if (status == google.maps.places.PlacesServiceStatus.OK) {
-			self.placeDetails = placeDetails;
+			self.placeDetails = placeDetails; // Make placeDetails available to display functions
 			displayPlaceInfo();
 		}
 		else {
@@ -202,7 +192,11 @@ var openInfoWindow = function(marker) {
 };
 
 
-// INFOWINDOW
+/*
+ *
+ *	API calls for Foursquare and Yahoo! weather and display function for infoWindow
+ *
+ */
 
 var displayPlaceInfo = function() {
 	displayPlaceBanner();
@@ -230,9 +224,7 @@ var displayPlaceBanner = function() {
 };
 
 var displayGoogleReviews = function() {
-
 	var reviews = placeDetails.reviews;
-
 	$("#info-window").append("<div class='google-reviews'></div>");
 	$(".google-reviews").append("<h3>Google</h3>");
 	if(typeof reviews !== 'undefined' && reviews.length > 0) {
@@ -241,7 +233,7 @@ var displayGoogleReviews = function() {
 			return reviews.sort(function(thisreview, nextreview) {
 				return thisreview.time == nextreview.time ? 0 : (thisreview.time > nextreview.time ? -1 : 1);
 			});
-		}
+		};
 		$(".google-reviews").append("<ul></ul>");
 		var maxReviews = sortedReviews().length < 4 ? sortedReviews().length : 4;
 		for(var i = 0; i < maxReviews; i++) {
@@ -279,7 +271,7 @@ var getAndDisplayFoursquareReviews = function() {
 
 	$.extend(data, auth);
 
-	var jqXHR = $.getJSON(url, data, function(result) {
+	$.getJSON(url, data, function(result) {
 		if(result.response.venues.length > 0) {
 			var closestVenue = result.response.venues[0];
 
@@ -292,8 +284,7 @@ var getAndDisplayFoursquareReviews = function() {
 
 			$.extend(venueData, auth);
 
-			var jqXHR = $.getJSON(url, venueData, function(result) {
-				error2 = jqXHR;
+			$.getJSON(url, venueData, function(result) {
 				if(result.response.venue.tips.groups.length > 0) {
 					var reviews = result.response.venue.tips.groups[0].items;
 					displayFoursquareReviews(reviews);
@@ -325,7 +316,7 @@ var displayFoursquareReviews = function(reviews) {
 			return reviews.sort(function(thisreview, nextreview) {
 				return thisreview.createdAt == nextreview.createdAt ? 0 : (thisreview.createdAt > nextreview.createdAt ? -1 : 1);
 			});
-		}
+		};
 		$(".foursquare-reviews").append("<ul></ul>");
 		var maxReviews = sortedReviews().length < 4 ? sortedReviews().length : 4;
 		for(var i = 0; i < maxReviews; i++) {
@@ -347,7 +338,7 @@ var getAndDisplayYahooWeather = function() {
 		q: "select * from weather.forecast where woeid in (select woeid from geo.places(1) where text = 'Binghamton NY')",
 		format: "json",
 		env: "store://datatables.org:alltableswithkeys"
-	}
+	};
 
 	$.getJSON(url, data, function(result) {
 		displayYahooWeather(result);
@@ -387,7 +378,6 @@ var getMarkerIcon = function(status, index) {
 		case "inactive":
 		default:
 			color = "pink";
-			break;
 	}
 	return "img/dist/gm-markers/" + color + "_Marker" + iconLabel[index]+".png";
 };

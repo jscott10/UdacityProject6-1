@@ -15,14 +15,14 @@ html, body {
 	width: 100%;
 	height: 100%;
 	padding: 0;
-    position: absolute;
-    left: 0px;
+	position: absolute;
+	left: 0px;
 
-    .google-map-error {
-    	width: 50%;
-    	margin: 20% auto 0;
-    	text-align: center;
-    }
+	.google-map-error {
+		width: 50%;
+		margin: 20% auto 0;
+		text-align: center;
+	}
 }
 
 #location-select {
@@ -52,7 +52,7 @@ html, body {
 
 	font-size: 12px;
 	border: 1px solid gray;
-    border-radius: 15px;
+	border-radius: 15px;
 	padding: .5em;
 	overflow: hidden;
 
