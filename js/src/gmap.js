@@ -176,10 +176,10 @@ var highlightMarker = function(marker) {
 
 // Open an infoWindow and set and display the contents based on the current marker
 var openInfoWindow = function(marker) {
-	$("#info-window").detach();
+	$("#info-window").empty();
 	$("#info-window").append("<p class='load-message'>Loading...</p>");
 	placesService.getDetails({placeId: marker.getPlace().placeId}, function(placeDetails, status) {
-		$("#info-window").detach();
+		$("#info-window").empty();
 		if (status == google.maps.places.PlacesServiceStatus.OK) {
 			self.placeDetails = placeDetails; // Make placeDetails available to display functions
 			displayPlaceInfo();
@@ -187,8 +187,8 @@ var openInfoWindow = function(marker) {
 		else {
 			$("#info-window").append("<h3 class='no-review-message'>Could not load location info.</h3>");
 		}
-		infoWindow.open(map, marker);
 	});
+	infoWindow.open(map, marker);
 };
 
 
