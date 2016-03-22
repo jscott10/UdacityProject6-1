@@ -41,6 +41,14 @@ var initMap = function() {
 
 };
 
+// Disable panel button and display error message if Google maps API is unavailable
+function googleMapError() {
+	$("#location-button").remove();
+	$("#map-div").append("<div class='google-map-error'></div>");
+	$(".google-map-error").append("<h2>Error loading Google Map</h2>");
+	$(".google-map-error").append("<p>Please try again later</p>");
+};
+
 // Set up initial state
 var initSystemState = function() {
 	if(localStorage.getItem('placeType') !== null) {
@@ -363,9 +371,6 @@ var displayYahooWeather = function(result) {
 	$(".current-conditions").append("<span class='text'>"+currentConditions+"</span>");
 };
 
-
-
-
 // Return the appropriate Marker icon based on status ("active"/"inactive") and index
 // Marker source: http://www.benjaminkeen.com/google-maps-coloured-markers/
 var getMarkerIcon = function(status, index) {
@@ -392,10 +397,3 @@ var formattedDateTime = function(UNIX_timestamp) {
 	return time;
 };
 
-// Disable panel button and display error message if Google maps API is unavailable
-var googleMapsError = function() {
-	$("#location-button").remove();
-	$("#map-div").append("<div class='google-map-error'></div>");
-	$(".google-map-error").append("<h2>Error loading Google Map</h2>");
-	$(".google-map-error").append("<p>Please try again later</p>");
-};

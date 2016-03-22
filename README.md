@@ -4,7 +4,7 @@
 
 This project provides the user with the locations and information about businesses close to Binghamton University in New York, USA.
 
-The project can be accessed at `https://jscott10.github.io/fend-p5-nmp/`
+The project can be accessed at `https://jscott10.github.io/UdacityProject6-1/`
 
 ## Usage
 
