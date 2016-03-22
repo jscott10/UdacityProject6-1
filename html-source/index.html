@@ -9,14 +9,6 @@
 		<link rel="stylesheet" href="https://code.jquery.com/mobile/1.4.5/jquery.mobile-1.4.5.min.css">
 		<link rel="stylesheet" href="css/dist/style.min.css">
 
-		<!-- jquery 2.1.4 / jquery.ui 1.11.4 -->
-		<script src="https://code.jquery.com/jquery-2.1.4.min.js"></script>
-		<script src="https://code.jquery.com/mobile/1.4.5/jquery.mobile-1.4.5.min.js"></script>
-		<!-- knockout 3.4.0 -->
-		<script src="https://cdnjs.cloudflare.com/ajax/libs/knockout/3.4.0/knockout-min.js"></script>
-  		<!-- // <script src="js/knockout-3.4.0.js"></script> -->
-  		<!-- // <script src="js/knockout-3.4.0.debug.js"></script> -->
-
 	</head>
 	<body>
 
@@ -58,11 +50,18 @@
 		<!-- The infoWindow node -->
 		<div id="info-window"></div>
 
+
+		<!-- jquery / jquery.mobile -->
+		<script src="https://code.jquery.com/jquery-2.1.4.min.js"></script>
+		<script src="https://code.jquery.com/mobile/1.4.5/jquery.mobile-1.4.5.min.js"></script>
+		<!-- knockout 3.4.0 -->
+		<script src="https://cdnjs.cloudflare.com/ajax/libs/knockout/3.4.0/knockout-min.js"></script>
+
 		<script src="js/dist/gmap.js"></script>
 		<script src="js/dist/viewModel.js"></script>
 
 		<!-- Include Google Maps JS API -->
-		<script async defer src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDMg1kTwjD-mumXsTK9rSBOzccK8haPJCM&callback=initMap&libraries=places" onerror="googleMapsError()"></script>
+		<script async defer src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDMg1kTwjD-mumXsTK9rSBOzccK8haPJCM&callback=initMap&libraries=places" onerror="googleMapError()"></script>
 
 	</body>
 </html>
