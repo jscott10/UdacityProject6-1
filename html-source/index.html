@@ -17,18 +17,6 @@
   		<!-- // <script src="js/knockout-3.4.0.js"></script> -->
   		<!-- // <script src="js/knockout-3.4.0.debug.js"></script> -->
 
-		<!-- Include Google Maps JS API -->
-		<script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDMg1kTwjD-mumXsTK9rSBOzccK8haPJCM&libraries=places"></script>
-
-		<script src="js/dist/gmap.js"></script>
-		<script src="js/dist/viewModel.js"></script>
-
-		<!-- Initialize the map if the Google API loaded successfully -->
-		<script>
-			$( document ).ready( function() {
-				typeof google === "object" && typeof google.maps === "object" ? initMap() : googleMapsError();
-			});
-		</script>
 	</head>
 	<body>
 
@@ -69,6 +57,12 @@
 
 		<!-- The infoWindow node -->
 		<div id="info-window"></div>
+
+		<script src="js/dist/gmap.js"></script>
+		<script src="js/dist/viewModel.js"></script>
+
+		<!-- Include Google Maps JS API -->
+		<script async defer src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDMg1kTwjD-mumXsTK9rSBOzccK8haPJCM&callback=initMap&libraries=places" onerror="googleMapsError()"></script>
 
 	</body>
 </html>
