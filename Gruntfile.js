@@ -100,7 +100,7 @@ grunt.initConfig({
 		prod_mob: {
 			options: {
 				// url: "http://59838d9b.ngrok.io/fend-p5-nmp/",
-				url: "http://jscott10.github.io/fend-p5-nmp/",
+				url: "http://jscott10.github.io/UdacityProject6-1/",
 				locale: "en_GB",
 				strategy: "mobile",
 				threshold: 50
@@ -109,7 +109,7 @@ grunt.initConfig({
 		prod_desk: {
 			options: {
 				// url: "http://59838d9b.ngrok.io/fend-p5-nmp/",
-				url: "http://jscott10.github.io/fend-p5-nmp/",
+				url: "http://jscott10.github.io/UdacityProject6-1/",
 				locale: "en_GB",
 				strategy: "desktop",
 				threshold: 50

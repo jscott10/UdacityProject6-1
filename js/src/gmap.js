@@ -1,5 +1,7 @@
 // gmap.js
 
+'use strict';
+
 var map;
 var placesService;
 var markerList = [];

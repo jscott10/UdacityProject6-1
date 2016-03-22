@@ -1,5 +1,7 @@
 // viewModel.js
 
+// 'use strict';
+
 $(document).ready(function() {
 
 	var viewModel = function() {
