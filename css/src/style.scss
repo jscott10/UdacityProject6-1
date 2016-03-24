@@ -26,58 +26,8 @@ body {
 	}
 }
 
-#location-select {
-	margin: .3em;
-	padding-left: 6em;
-	label {
-		font-size: 1em;
-		font-weight: bold;
-		margin-right: 0;
-	}
-}
-
 #mypanel {
 	height: 100%;
-}
-
-.container {
-	display: flex;
-}
-
-.clearfix {
-	clear: both;
-	overflow: hidden;
-}
-
-#yahoo-weather {
-
-	font-size: 12px;
-	border: 1px solid gray;
-	border-radius: 15px;
-	padding: .5em;
-	overflow: hidden;
-
-	.weather-banner {
-		padding: .5em;
-		margin: .2em;
-		width: 100%;
-		overflow: hidden;
-	}
-	.current-conditions {
-		width: 100%;
-		overflow: hidden;
-		img {
-			float: left;
-			margin-right: .5em;
-		}
-		.banner {
-			font-size: 14px;
-			font-weight: bold;
-		}
-		.text {
-			font-size: 16px;
-		}
-	}
 }
 
 #info-window {
@@ -116,8 +66,44 @@ body {
 
 }
 
-#ko-list {
-	margin: 40px auto;
+.container {
+	display: flex;
+}
+
+.clearfix {
+	clear: both;
+	overflow: hidden;
+}
+
+.yahoo-weather {
+
+	font-size: 12px;
+	border: 1px solid gray;
+	border-radius: 15px;
+	padding: .5em;
+	overflow: hidden;
+
+	.weather-banner {
+		padding: .5em;
+		margin: .2em;
+		width: 100%;
+		overflow: hidden;
+	}
+	.current-conditions {
+		width: 100%;
+		overflow: hidden;
+		img {
+			float: left;
+			margin-right: .5em;
+		}
+		.banner {
+			font-size: 14px;
+			font-weight: bold;
+		}
+		.text {
+			font-size: 16px;
+		}
+	}
 }
 
 .place-selector {
@@ -125,7 +111,7 @@ body {
 	padding: 10px;
 }
 
-#place-type {
+.place-type {
 	color: black;
 	margin-left: 10px;
 }
@@ -149,7 +135,7 @@ body {
 	margin: 0 0 0.8em;
 }
 
-#filtered-list {
+.filtered-list {
 	padding-left: 2em;
 	width: 90%;
 	list-style-type: upper-alpha;

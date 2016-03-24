@@ -45,7 +45,7 @@ var initMap = function() {
 
 // Disable panel button and display error message if Google maps API is unavailable
 function googleMapError() {
-	$("#location-button").remove();
+	$(".location-button").remove();
 	$("#map-div").append("<div class='google-map-error'></div>");
 	$(".google-map-error").append("<h2>Error loading Google Map</h2>");
 	$(".google-map-error").append("<p>Please try again later</p>");

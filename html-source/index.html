@@ -15,18 +15,18 @@
 		<!-- Banner -->
 		<div data-role="page" id="map-page">
 			<div id="page-banner" data-role="header" data-position="fixed" data-fullscreen="true">
-				<a id="location-button" href="#mypanel" data-role="button" data-icon="arrow-r" data-iconpos="right">Locations</a>
+				<a class="location-button" href="#mypanel" data-role="button" data-icon="arrow-r" data-iconpos="right">Locations</a>
 				<h1>What you can find near Binghamton University...</h1>
 			</div>
 
 			<!-- panel -->
 			<div data-role="panel" data-display="overlay" id="mypanel">
-				<div id="yahoo-weather">
+				<div class="yahoo-weather">
 					<div class="weather-banner"></div>
 					<div class="current-conditions"></div>
 				</div>
 				<!-- Select Place type -->
-				<select id="place-type" data-bind="options: placeTypes, optionsCaption: 'Type of Business', optionsValue: 'type', optionsText: 'name', value: placeType, event: {change: getPlaces}"></select>
+				<select class="place-type" data-bind="options: placeTypes, optionsCaption: 'Type of Business', optionsValue: 'type', optionsText: 'name', value: placeType, event: {change: getPlaces}"></select>
 
 				<!-- Filter -->
 				<div class="ui-field-contain">
@@ -37,7 +37,7 @@
 				<!-- Filtered results -->
 				<div class="filter-results">
 					<h3 class="results-banner" data-bind="text: statusText"></h3>
-					<ol id="filtered-list" data-bind="foreach: filteredPlaces">
+					<ol class="filtered-list" data-bind="foreach: filteredPlaces">
 						<li data-bind="text: name, click: triggerInfoWindow(place_id)"></li>
 					</ol>
 				</div>
@@ -50,7 +50,6 @@
 		<!-- The infoWindow node -->
 		<div id="info-window"></div>
 
-
 		<!-- jquery / jquery.mobile -->
 		<script src="https://code.jquery.com/jquery-2.1.4.min.js"></script>
 		<script src="https://code.jquery.com/mobile/1.4.5/jquery.mobile-1.4.5.min.js"></script>
@@ -61,7 +60,7 @@
 		<script src="js/dist/viewModel.js"></script>
 
 		<!-- Include Google Maps JS API -->
-		<script async defer src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDMg1kTwjD-mumXsTK9rSBOzccK8haPJCM&callback=initMap&libraries=places" onerror="googleMapError()"></script>
+		<script async src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDMg1kTwjD-mumXsTK9rSBOzccK8haPJCM&callback=initMap&libraries=places" onerror="googleMapError()"></script>
 
 	</body>
 </html>
