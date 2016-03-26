@@ -272,8 +272,8 @@ var getAndDisplayFoursquareReviews = function() {
 		client_secret: "QLLAGNKK2QOLH054PMAPYU1PUQQ4G3YNCOU52WBCH3HDKOQJ"
 	};
 	var data = {
-		ll: this.placeDetails.geometry.location.lat()+", "+this.placeDetails.geometry.location.lng(),
-		query: this.placeDetails.name,
+		ll: placeDetails.geometry.location.lat()+", "+placeDetails.geometry.location.lng(),
+		query: placeDetails.name,
 		intent: "match",
 		v: "20160101",
 		m: "foursquare"
