@@ -90,6 +90,36 @@ $(document).ready(function() {
 			}
 		});
 
+		self.panelVisible = ko.observable(true);
+
+		// Set the current marker when an item on the filtered list is clicked
+		self.triggerInfoWindow = function(place_id) {
+			if(markerList.length >= self.filteredPlaces().length) {
+				setCurrentMarker(getCurrentMarker(place_id));
+			}
+		};
+
+		// Remove visible markers, reset filter and get new list of Places
+		self.getPlaces = function() {
+			resetMapMarkers();
+			self.locationFilter(); // Reset location filter
+			// Get the array of places
+			var request = {
+				location: binghamton,
+				radius: '2000',
+				types: [self.placeType()]
+			};
+			localStorage.setItem("placeType", self.placeType());
+			placesService.nearbySearch(request, setPlacesList);
+		};
+
+		// Called when text is changed in filter text box
+		// Remove visible markers and add markers based on filtered list
+		self.filterMarkers = function() {
+			resetMapMarkers();
+			addMarkers();
+		};
+
 	};
 
 	// Activates knockout.js
