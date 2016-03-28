@@ -1,6 +1,6 @@
 // viewModel.js
 
-// 'use strict';
+ // 'use strict';
 
 $(document).ready(function() {
 
@@ -95,6 +95,7 @@ $(document).ready(function() {
 		// Set the current marker when an item on the filtered list is clicked
 		self.triggerInfoWindow = function(place_id) {
 			if(markerList.length >= self.filteredPlaces().length) {
+				$("#mypanel").panel("close");
 				setCurrentMarker(getCurrentMarker(place_id));
 			}
 		};

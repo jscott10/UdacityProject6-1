@@ -121,13 +121,13 @@ var addMarker = function(place, index) {
 
 // Make a Marker the currentMarker and highlight
 var setCurrentMarker = function(marker) {
-	$("#mypanel").panel("close");
 	// reset the color of any current marker and stop any animations
 	if(currentMarker) {
 		currentMarker.setIcon({url: getMarkerIcon("inactive", currentMarker.index)});
 		currentMarker.setAnimation(null);
 	}
 	currentMarker = marker;
+	map.setCenter(currentMarker.getPosition());
 	highlightMarker(currentMarker);
 };
 
@@ -326,7 +326,7 @@ var getAndDisplayYahooWeather = function() {
 		displayYahooWeather(result);
 	}).fail(function() {
 		// If Yahoo weather info not available just remove the div
-		$("#yahoo-weather").remove();
+		$(".yahoo-weather").remove();
 	});
 };
 

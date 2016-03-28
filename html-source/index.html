@@ -26,7 +26,7 @@
 					<div class="current-conditions"></div>
 				</div>
 				<!-- Select Place type -->
-				<select class="place-type" data-bind="options: placeTypes, optionsCaption: 'Type of Business', optionsValue: 'type', optionsText: 'name', value: placeType, event: {change: getPlaces}"></select>
+				<select id="place-type" data-bind="options: placeTypes, optionsCaption: 'Type of Business', optionsValue: 'type', optionsText: 'name', value: placeType, event: {change: getPlaces}"></select>
 
 				<!-- Filter -->
 				<div class="ui-field-contain">
@@ -59,11 +59,11 @@
 		<script src="js/knockout-3.4.0.debug.js"></script>
 		<!-- <script src="https://cdnjs.cloudflare.com/ajax/libs/knockout/3.4.0/knockout-min.js"></script> -->
 
-<!-- 		<script src="js/dist/gmap.js"></script>
+ 		<script src="js/dist/gmap.js"></script>
 		<script src="js/dist/viewModel.js"></script>
- -->		<script src="js/src/gmap.js"></script>
+<!--		<script src="js/src/gmap.js"></script>
 		<script src="js/src/viewModel.js"></script>
-
+ -->
 		<!-- Include Google Maps JS API -->
 		<script async src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDMg1kTwjD-mumXsTK9rSBOzccK8haPJCM&callback=initMap&libraries=places" onerror="googleMapError()"></script>
 
