@@ -31,6 +31,7 @@ body {
 }
 
 #info-window {
+	width: 96%;
 	max-width: 500px;
 	max-height: 400px;
 	padding: 10px;
@@ -77,7 +78,7 @@ body {
 
 .yahoo-weather {
 
-	font-size: 12px;
+	font-size: 11px;
 	border: 1px solid gray;
 	border-radius: 15px;
 	padding: .5em;

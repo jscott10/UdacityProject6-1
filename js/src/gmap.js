@@ -44,7 +44,7 @@ var initMap = function() {
 };
 
 // Disable panel button and display error message if Google maps API is unavailable
-function googleMapError() {
+var googleMapError = function() {
 	$(".location-button").remove();
 	$("#map-div").append("<div class='google-map-error'></div>");
 	$(".google-map-error").append("<h2>Error loading Google Map</h2>");
@@ -63,27 +63,6 @@ var initSystemState = function() {
 	// get and display the weather information
 	getAndDisplayYahooWeather();
 
-};
-
-// Called when text is changed in filter text box
-// Remove visible markers and add markers based on filtered list
-var filterMarkers = function() {
-	resetMapMarkers();
-	addMarkers();
-};
-
-// Remove visible markers, reset filter and get new list of Places
-var getPlaces = function() {
-	resetMapMarkers();
-	locationFilter(); // Reset location filter
-	// Get the array of places
-	var request = {
-		location: binghamton,
-		radius: '2000',
-		types: [placeType()]
-	};
-	localStorage.setItem("placeType", placeType());
-	placesService.nearbySearch(request, setPlacesList);
 };
 
 // build the observable array (foundPlaces) of found places
@@ -140,22 +119,15 @@ var addMarker = function(place, index) {
 	});
 };
 
-// Set the current marker when an item on the filtered list is clicked
-var triggerInfoWindow = function(place_id) {
-	if(markerList.length >= filteredPlaces().length) {
-		setCurrentMarker(getCurrentMarker(place_id));
-	}
-};
-
 // Make a Marker the currentMarker and highlight
 var setCurrentMarker = function(marker) {
-	$("#mypanel").panel("close");
 	// reset the color of any current marker and stop any animations
 	if(currentMarker) {
 		currentMarker.setIcon({url: getMarkerIcon("inactive", currentMarker.index)});
 		currentMarker.setAnimation(null);
 	}
 	currentMarker = marker;
+	map.setCenter(currentMarker.getPosition());
 	highlightMarker(currentMarker);
 };
 
@@ -303,7 +275,7 @@ var getAndDisplayFoursquareReviews = function() {
 					$(".foursquare-reviews > p.load-message").remove();
 					$(".foursquare-reviews").append("<p class='no-review-message'>No reviews found.</p>");
 				}
-			}).error(function(textStatus, errorThrown) {
+			}).fail(function(textStatus, errorThrown) {
 				$(".foursquare-reviews > p.load-message").remove();
 				$(".foursquare-reviews").append("<p class='no-review-message'>Unable to retrieve Foursquare reviews.</p>");
 			});
@@ -312,7 +284,7 @@ var getAndDisplayFoursquareReviews = function() {
 			$(".foursquare-reviews > p.load-message").remove();
 			$(".foursquare-reviews").append("<p class='no-review-message'>Foursquare venue not found.</p>");
 		}
-	}).error(function() {
+	}).fail(function() {
 		$(".foursquare-reviews > p.load-message").remove();
 		$(".foursquare-reviews").append("<p class='no-review-message'>Unable to retrieve Foursquare venue data.</p>");
 	});
@@ -352,9 +324,9 @@ var getAndDisplayYahooWeather = function() {
 
 	$.getJSON(url, data, function(result) {
 		displayYahooWeather(result);
-	}).error(function() {
+	}).fail(function() {
 		// If Yahoo weather info not available just remove the div
-		$("#yahoo-weather").remove();
+		$(".yahoo-weather").remove();
 	});
 };
 
