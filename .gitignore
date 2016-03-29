@@ -4,6 +4,9 @@ node_modules
 # Sass
 **/.sass-cache
 
+# Local Libraries
+js/knockout*
+
 # icon folder
 icons/
 
