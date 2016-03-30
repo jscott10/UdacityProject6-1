@@ -13,6 +13,9 @@ var binghamton = {lat: 42.088848, lng: -75.969491};
 
 var initMap = function() {
 
+	// Activates knockout.js
+	ko.applyBindings(viewModel);
+
 	google.maps.visualRefresh = true;
 
 	//Setting starting options of map

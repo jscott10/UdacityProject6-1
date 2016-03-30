@@ -4,6 +4,9 @@ node_modules
 # Sass
 **/.sass-cache
 
+# Sublime
+*.sublime-project
+
 # Local Libraries
 js/knockout*
 
