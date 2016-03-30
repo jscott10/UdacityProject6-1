@@ -117,6 +117,94 @@ var viewModel = function() {
 		addMarkers();
 	};
 
+	self.googlePlaceDetails = ko.observable();
+
+	self.infoWindowContent = ko.computed(function() {
+		var content = "";
+		if(self.googlePlaceDetails() !== undefined) {
+			if(self.googlePlaceDetails() === "Loading") {
+				content = "<p class='load-message'>Loading...</p>";
+			}
+			else if(self.googlePlaceDetails() === "Error") {
+				content = "<h3 class='no-review-message'>Could not load location info.</h3>";
+			}
+			else {
+				var placeDetails = self.googlePlaceDetails();
+				content += self.infoWindowBannerHTML(placeDetails);
+				content += "<h2>Reviews</h2>";
+				content += self.infoWindowGoogleReviews(placeDetails.reviews);
+			}
+		}
+		return content;
+	});
+
+	// Build the banner HTML
+	self.infoWindowBannerHTML = function(placeDetails) {
+		var htmlBanner = "<div class='info-banner' class='clearfix'>";
+
+		if(placeDetails.photos !== undefined) {
+			var imageUrl = placeDetails.photos[0].getUrl({maxWidth: 100});
+			htmlBanner += "<img src='"+imageUrl+"' class='place-image'>";
+		}
+		if(placeDetails.name !== undefined) {
+			htmlBanner += "<h1>"+placeDetails.name+"</h1>";
+		}
+		if(placeDetails.formatted_address !== undefined) {
+			htmlBanner += "<p>"+placeDetails.formatted_address+"</p>";
+		}
+		if(placeDetails.formatted_phone_number !== undefined) {
+			htmlBanner += "<p>"+placeDetails.formatted_phone_number+"</p>";
+		}
+
+		htmlBanner += "</div>";
+
+		return htmlBanner;
+
+	};
+
+	self.infoWindowGoogleReviews = function(reviews) {
+		var htmlReviews = "<div class='google-reviews'>";
+		htmlReviews += "<h3>Google</h3>";
+		if(reviews !== undefined && reviews.length > 0) {
+			// Sort the Google reviews by date (new -> old)
+			var sortedReviews = function() {
+				return reviews.sort(function(thisreview, nextreview) {
+					return thisreview.time == nextreview.time ? 0 : (thisreview.time > nextreview.time ? -1 : 1);
+				});
+			};
+			htmlReviews += "<ul>";
+			var maxReviews = sortedReviews().length < 4 ? sortedReviews().length : 4;
+			for(var i = 0; i < maxReviews; i++) {
+				if(sortedReviews()[i].text) {
+					var text = sortedReviews()[i].text;
+					var time = sortedReviews()[i].time;
+					htmlReviews += "<li>"+text+" ("+formattedDateTime(time)+")</li>";
+				}
+			}
+		}
+		else {
+			htmlReviews += "<p class='no-review-message'>No reviews found.</p>";
+		}
+		htmlReviews += "</div>";
+
+		return htmlReviews;
+	};
+
+	self.infoWindowContent.subscribe(function(newValue) {
+		infoWindow.open(map, currentMarker);
+	});
+
+	self.googlePlaceContent = ko.computed(function() {
+		switch(self.googlePlaceDetails()) {
+			case undefined:
+				return "<p class='load-message'>Loading...</p>";
+			case "Error":
+				return "<h3 class='no-review-message'>Could not load location info.</h3>";
+			default:
+				return;
+		}
+	});
+
 	self.yahooWeatherResult = ko.observable();
 
 	self.yahooWeatherContent = ko.computed(function() {

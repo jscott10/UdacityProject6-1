@@ -64,7 +64,7 @@ var initSystemState = function() {
 	$("#place-type").selectmenu("refresh");
 
 	// get and display the weather information
-	getAndDisplayYahooWeather();
+	getYahooWeather();
 
 };
 
@@ -161,16 +161,19 @@ var highlightMarker = function(marker) {
 
 // Open an infoWindow and set and display the contents based on the current marker
 var openInfoWindow = function(marker) {
-	$("#info-window").empty();
-	$("#info-window").append("<p class='load-message'>Loading...</p>");
+	// $("#info-window").empty();
+	// $("#info-window").append("<p class='load-message'>Loading...</p>");
+	googlePlaceDetails("Loading");
 	placesService.getDetails({placeId: marker.getPlace().placeId}, function(placeDetails, status) {
-		$("#info-window").empty();
+		// $("#info-window").empty();
 		if (status == google.maps.places.PlacesServiceStatus.OK) {
-			self.placeDetails = placeDetails; // Make placeDetails available to display functions
-			displayPlaceInfo();
+			googlePlaceDetails(placeDetails);
+			// self.placeDetails = placeDetails; // Make placeDetails available to display functions
+			// displayPlaceInfo();
 		}
 		else {
-			$("#info-window").append("<h3 class='no-review-message'>Could not load location info.</h3>");
+			googlePlaceDetails("Error");
+			// $("#info-window").append("<h3 class='no-review-message'>Could not load location info.</h3>");
 		}
 	});
 	infoWindow.open(map, marker);
@@ -184,55 +187,55 @@ var openInfoWindow = function(marker) {
  */
 
 var displayPlaceInfo = function() {
-	displayPlaceBanner();
-	$("#info-window").append("<h2>Reviews</h2>");
-	displayGoogleReviews();
+	// displayPlaceBanner();
+	// $("#info-window").append("<h2>Reviews</h2>");
+	// displayGoogleReviews();
 	getAndDisplayFoursquareReviews();
 };
 
-var displayPlaceBanner = function() {
-	$("#info-window").append("<div class='info-banner' class='clearfix'></div>");
-	if(typeof placeDetails.photos !== 'undefined') {
-		var imageUrl = placeDetails.photos[0].getUrl({maxWidth: 100});
-		$(".info-banner").append("<img src='"+imageUrl+"' class='place-image'>");
-	}
-	$(".info-banner").append("<div class='banner-details'></div>");
-	if(typeof placeDetails.name !== 'undefined') {
-		$(".banner-details").append("<h1>"+placeDetails.name+"</h1>");
-	}
-	if(typeof placeDetails.formatted_address !== 'undefined') {
-		$(".banner-details").append("<p>"+placeDetails.formatted_address+"</p>");
-	}
-	if (typeof placeDetails.formatted_phone_number !== 'undefined') {
-		$(".banner-details").append("<p>"+placeDetails.formatted_phone_number+"</p>");
-	}
-};
+// var displayPlaceBanner = function() {
+// 	$("#info-window").append("<div class='info-banner' class='clearfix'></div>");
+// 	if(typeof placeDetails.photos !== 'undefined') {
+// 		var imageUrl = placeDetails.photos[0].getUrl({maxWidth: 100});
+// 		$(".info-banner").append("<img src='"+imageUrl+"' class='place-image'>");
+// 	}
+// 	$(".info-banner").append("<div class='banner-details'></div>");
+// 	if(typeof placeDetails.name !== 'undefined') {
+// 		$(".banner-details").append("<h1>"+placeDetails.name+"</h1>");
+// 	}
+// 	if(typeof placeDetails.formatted_address !== 'undefined') {
+// 		$(".banner-details").append("<p>"+placeDetails.formatted_address+"</p>");
+// 	}
+// 	if (typeof placeDetails.formatted_phone_number !== 'undefined') {
+// 		$(".banner-details").append("<p>"+placeDetails.formatted_phone_number+"</p>");
+// 	}
+// };
 
-var displayGoogleReviews = function() {
-	var reviews = placeDetails.reviews;
-	$("#info-window").append("<div class='google-reviews'></div>");
-	$(".google-reviews").append("<h3>Google</h3>");
-	if(typeof reviews !== 'undefined' && reviews.length > 0) {
-		// Sort the Google reviews by date (new -> old)
-		var sortedReviews = function() {
-			return reviews.sort(function(thisreview, nextreview) {
-				return thisreview.time == nextreview.time ? 0 : (thisreview.time > nextreview.time ? -1 : 1);
-			});
-		};
-		$(".google-reviews").append("<ul></ul>");
-		var maxReviews = sortedReviews().length < 4 ? sortedReviews().length : 4;
-		for(var i = 0; i < maxReviews; i++) {
-			if(sortedReviews()[i].text) {
-				var text = sortedReviews()[i].text;
-				var time = sortedReviews()[i].time;
-				$(".google-reviews > ul").append("<li>"+text+" ("+formattedDateTime(time)+")</li>");
-			}
-		}
-	}
-	else {
-		$(".google-reviews").append("<p class='no-review-message'>No reviews found.</p>");
-	}
-};
+// var displayGoogleReviews = function() {
+// 	var reviews = placeDetails.reviews;
+// 	$("#info-window").append("<div class='google-reviews'></div>");
+// 	$(".google-reviews").append("<h3>Google</h3>");
+// 	if(typeof reviews !== 'undefined' && reviews.length > 0) {
+// 		// Sort the Google reviews by date (new -> old)
+// 		var sortedReviews = function() {
+// 			return reviews.sort(function(thisreview, nextreview) {
+// 				return thisreview.time == nextreview.time ? 0 : (thisreview.time > nextreview.time ? -1 : 1);
+// 			});
+// 		};
+// 		$(".google-reviews").append("<ul></ul>");
+// 		var maxReviews = sortedReviews().length < 4 ? sortedReviews().length : 4;
+// 		for(var i = 0; i < maxReviews; i++) {
+// 			if(sortedReviews()[i].text) {
+// 				var text = sortedReviews()[i].text;
+// 				var time = sortedReviews()[i].time;
+// 				$(".google-reviews > ul").append("<li>"+text+" ("+formattedDateTime(time)+")</li>");
+// 			}
+// 		}
+// 	}
+// 	else {
+// 		$(".google-reviews").append("<p class='no-review-message'>No reviews found.</p>");
+// 	}
+// };
 
 // fourSquare venue
 var getAndDisplayFoursquareReviews = function() {
@@ -317,7 +320,7 @@ var displayFoursquareReviews = function(reviews) {
 	}
 };
 
-var getAndDisplayYahooWeather = function() {
+var getYahooWeather = function() {
 	var url = "https://query.yahooapis.com/v1/public/yql";
 	var data = {
 		q: "select * from weather.forecast where woeid in (select woeid from geo.places(1) where text = 'Binghamton NY')",
@@ -326,6 +329,7 @@ var getAndDisplayYahooWeather = function() {
 	};
 
 	$.getJSON(url, data, function(result) {
+		// If found, place the result in the ko.observable
 		yahooWeatherResult(result);
 	}).fail(function() {
 		// If Yahoo weather info not available just remove the div
