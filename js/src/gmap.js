@@ -326,26 +326,11 @@ var getAndDisplayYahooWeather = function() {
 	};
 
 	$.getJSON(url, data, function(result) {
-		displayYahooWeather(result);
+		yahooWeatherResult(result);
 	}).fail(function() {
 		// If Yahoo weather info not available just remove the div
 		$(".yahoo-weather").remove();
 	});
-};
-
-var displayYahooWeather = function(result) {
-	var channel = result.query.results.channel;
-	var description = channel.description;
-	var condition = channel.item.condition;
-	var image = "<img src='http://l.yimg.com/a/i/us/we/52/"+condition.code+".gif'>";
-	var date = condition.date;
-	var units = channel.units;
-	var currentConditions = condition.text + ", " + condition.temp + " " + units.temperature;
-	$(".weather-banner").append("<strong>"+description + "</strong><br>");
-	$(".weather-banner").append(date);
-	$(".current-conditions").append(image);
-	$(".current-conditions").append("<span class='banner'>Current Conditions</span><br>");
-	$(".current-conditions").append("<span class='text'>"+currentConditions+"</span>");
 };
 
 // Return the appropriate Marker icon based on status ("active"/"inactive") and index

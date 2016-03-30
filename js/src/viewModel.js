@@ -117,6 +117,29 @@ var viewModel = function() {
 		addMarkers();
 	};
 
+	self.yahooWeatherResult = ko.observable();
+
+	self.yahooWeatherContent = ko.computed(function() {
+		if(self.yahooWeatherResult() !== undefined) {
+			var channel = self.yahooWeatherResult().query.results.channel;
+			var description = channel.description;
+			var condition = channel.item.condition;
+			var date = condition.date;
+			var units = channel.units;
+			var currentConditions = condition.text + ", " + condition.temp + " " + units.temperature;
+
+			var htmlDescription = "<strong>"+description + "</strong><br>";
+			var htmlImage = "<img src='http://l.yimg.com/a/i/us/we/52/"+condition.code+".gif'>";
+			var htmlCurrentConditionsBanner = "<span class='banner'>Current Conditions</span><br>";
+			var htmlCurrentConditions = "<span class='text'>"+currentConditions+"</span>";
+
+			var htmlWeatherBannerDiv = "<div class='weather-banner'>" + htmlDescription + date + "</div>";
+			var htmlCurrentConditionsDiv = "<div class='current-conditions'>" + htmlImage + htmlCurrentConditionsBanner + htmlCurrentConditions + "</div>";
+
+			return htmlWeatherBannerDiv + htmlCurrentConditionsDiv;
+		}
+	});
+
 };
 
 
