@@ -4,7 +4,7 @@
 
 This project provides the user with the locations and information about businesses close to Binghamton University in New York, USA.
 
-The project can be accessed at `https://jscott10.github.io/UdacityProject6-1/`
+The project can be accessed at `https://jscott10.github.io/UdacityProject6-1/dist/`
 
 ## Usage
 
@@ -33,18 +33,18 @@ The project uses the following directory structure:
 
 ```
 html-source\
-css\
-    css\src\
-    css\dist\
-img\
-    img\src\
-    img\dist\
-js\
- 	js\src\
- 	js\dist\
+src\
+    css\
+    img\
+    js\
+
+dist\
+    css\
+    img\
+    js\
 ```
 
-All code and images are minified and served from the `\dist\` folders. The css file is created using the Sass css preprocessor.
+All code and images are minified and served from the `\dist\` folder. The css file is created using the Sass css preprocessor.
 
 Grunt is used to automate the build process. To configure the Grunt environment you need the following packages:
 
