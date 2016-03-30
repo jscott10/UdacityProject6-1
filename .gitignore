@@ -8,7 +8,7 @@ node_modules
 *.sublime-project
 
 # Local Libraries
-js/knockout*
+dist/js/knockout*
 
 # icon folder
 icons/

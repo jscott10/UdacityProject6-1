@@ -346,7 +346,7 @@ var getMarkerIcon = function(status, index) {
 		default:
 			color = "pink";
 	}
-	return "img/dist/gm-markers/" + color + "_Marker" + iconLabel[index]+".png";
+	return "img/gm-markers/" + color + "_Marker" + iconLabel[index]+".png";
 };
 
 var formattedDateTime = function(UNIX_timestamp) {

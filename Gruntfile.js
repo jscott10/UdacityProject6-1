@@ -8,19 +8,19 @@ grunt.initConfig({
 
 	watch: {
 		html: {
-			files: ['html-source/*.html'],
+			files: ['src/*.html'],
 			tasks: ['htmlmin']
 		},
 		uglify: {
-			files: ['js/src/*.js'],
+			files: ['src/js/*.js'],
 			tasks: ['uglify']
 		},
 		css: {
-			files: ['css/src/*.scss'],
+			files: ['src/css/*.scss'],
 			tasks: ['sass']
 		},
 		imagemin: {
-			files: ['img/src/*.*'],
+			files: ['src/img/*.*'],
 			tasks: ['imagemin']
 		}
 	},
@@ -40,9 +40,9 @@ grunt.initConfig({
 		dynamic: {                         // Another target
 			files: [{
 				expand: true,                  // Enable dynamic expansion
-				cwd: 'img/src/',                   // Src matches are relative to this path
+				cwd: 'src/img/',                   // Src matches are relative to this path
 				src: ['**/*.{png,jpg,gif}'],   // Actual patterns to match
-				dest: 'img/dist/'                  // Destination path prefix
+				dest: 'dist/img/'                  // Destination path prefix
 			}]
 		}
 	},
@@ -53,9 +53,9 @@ grunt.initConfig({
 		my_target: {
 			files: [{
 				expand: true,
-				cwd: 'js/src',
+				cwd: 'src/js',
 				src: '**/*.js',
-				dest: 'js/dist'
+				dest: 'dist/js'
 			}]
 		}
 	},
@@ -66,9 +66,9 @@ grunt.initConfig({
 			},
 			files: [{
 				expand: true,
-				cwd: 'css/src',
+				cwd: 'src/css',
 				src: ['*.scss'],
-				dest: 'css/dist',
+				dest: 'dist/css',
 				ext: '.min.css'
 			}]
 		}
@@ -80,7 +80,7 @@ grunt.initConfig({
 				collapseWhitespace: true
 			},
 			files: {                                   // Dictionary of files
-				'index.html': 'html-source/index.html',     // 'destination': 'source'
+				'dist/index.html': 'src/index.html',     // 'destination': 'source'
 				// 'dist/contact.html': 'src/contact.html'
 			}
 		}
