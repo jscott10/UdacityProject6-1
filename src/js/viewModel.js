@@ -119,112 +119,137 @@ var viewModel = function() {
 
 	self.googlePlaceDetails = ko.observable();
 
+	// Force infoWindowContent to update even if googlePlaceDetails is updated with the same value
+	self.googlePlaceDetails.extend({ notify: 'always' });
+
 	self.infoWindowContent = ko.computed(function() {
 		var content = "";
 		if(self.googlePlaceDetails() !== undefined) {
-			if(self.googlePlaceDetails() === "Loading") {
-				content = "<p class='load-message'>Loading...</p>";
-			}
-			else if(self.googlePlaceDetails() === "Error") {
+			if(self.googlePlaceDetails() === null) {
 				content = "<h3 class='no-review-message'>Could not load location info.</h3>";
 			}
 			else {
-				var placeDetails = self.googlePlaceDetails();
-				content += self.infoWindowBannerHTML(placeDetails);
+				content += self.infoWindowBannerHTML();
 				content += "<h2>Reviews</h2>";
-				content += self.infoWindowGoogleReviews(placeDetails.reviews);
+				content += self.infoWindowGoogleReviews();
 			}
 		}
 		return content;
 	});
 
+	/*
+	 infoWindowContent notifies subscribers if updated with same value
+	 Forces infoWindow.open(map, marker) to fire with the currently clicked marker
+		even if infoWindowContent hasn't changed (ex: if placesService.getDetails() fails and
+		repeatedly returns null).
+	*/
+	self.infoWindowContent.extend({ notify: 'always' });
+
+	// self.foursquareContent = ko.computed(function() {
+	// 	if(self.googlePlaceDetails() !== undefined) {
+	// });
+
 	// Build the banner HTML
-	self.infoWindowBannerHTML = function(placeDetails) {
-		var htmlBanner = "<div class='info-banner' class='clearfix'>";
+	self.infoWindowBannerHTML = ko.computed(function() {
+		if(self.googlePlaceDetails() !== undefined) {
+			var placeDetails = self.googlePlaceDetails();
+			var htmlBanner = "<div class='info-banner' class='clearfix'>";
 
-		if(placeDetails.photos !== undefined) {
-			var imageUrl = placeDetails.photos[0].getUrl({maxWidth: 100});
-			htmlBanner += "<img src='"+imageUrl+"' class='place-image'>";
+			if(placeDetails.photos !== undefined) {
+				var imageUrl = placeDetails.photos[0].getUrl({maxWidth: 100});
+				htmlBanner += "<img src='"+imageUrl+"' class='place-image'>";
+			}
+			if(placeDetails.name !== undefined) {
+				htmlBanner += "<h1>"+placeDetails.name+"</h1>";
+			}
+			if(placeDetails.formatted_address !== undefined) {
+				htmlBanner += "<p>"+placeDetails.formatted_address+"</p>";
+			}
+			if(placeDetails.formatted_phone_number !== undefined) {
+				htmlBanner += "<p>"+placeDetails.formatted_phone_number+"</p>";
+			}
+
+			htmlBanner += "</div>";
+
+			return htmlBanner;
+
 		}
-		if(placeDetails.name !== undefined) {
-			htmlBanner += "<h1>"+placeDetails.name+"</h1>";
-		}
-		if(placeDetails.formatted_address !== undefined) {
-			htmlBanner += "<p>"+placeDetails.formatted_address+"</p>";
-		}
-		if(placeDetails.formatted_phone_number !== undefined) {
-			htmlBanner += "<p>"+placeDetails.formatted_phone_number+"</p>";
-		}
+	});
 
-		htmlBanner += "</div>";
-
-		return htmlBanner;
-
-	};
-
-	self.infoWindowGoogleReviews = function(reviews) {
-		var htmlReviews = "<div class='google-reviews'>";
-		htmlReviews += "<h3>Google</h3>";
-		if(reviews !== undefined && reviews.length > 0) {
-			// Sort the Google reviews by date (new -> old)
-			var sortedReviews = function() {
-				return reviews.sort(function(thisreview, nextreview) {
-					return thisreview.time == nextreview.time ? 0 : (thisreview.time > nextreview.time ? -1 : 1);
-				});
-			};
-			htmlReviews += "<ul>";
-			var maxReviews = sortedReviews().length < 4 ? sortedReviews().length : 4;
-			for(var i = 0; i < maxReviews; i++) {
-				if(sortedReviews()[i].text) {
-					var text = sortedReviews()[i].text;
-					var time = sortedReviews()[i].time;
-					htmlReviews += "<li>"+text+" ("+formattedDateTime(time)+")</li>";
+	self.infoWindowGoogleReviews = ko.computed(function() {
+		if(self.googlePlaceDetails() !== undefined) {
+			var reviews = self.googlePlaceDetails().reviews;
+			var htmlReviews = "<div class='google-reviews'>";
+			htmlReviews += "<h3>Google</h3>";
+			if(reviews !== undefined && reviews.length > 0) {
+				// Sort the Google reviews by date (new -> old)
+				var sortedReviews = function() {
+					return reviews.sort(function(thisreview, nextreview) {
+						return thisreview.time == nextreview.time ? 0 : (thisreview.time > nextreview.time ? -1 : 1);
+					});
+				};
+				htmlReviews += "<ul>";
+				var maxReviews = sortedReviews().length < 4 ? sortedReviews().length : 4;
+				for(var i = 0; i < maxReviews; i++) {
+					if(sortedReviews()[i].text) {
+						var text = sortedReviews()[i].text;
+						var time = sortedReviews()[i].time;
+						htmlReviews += "<li>"+text+" ("+formattedDateTime(time)+")</li>";
+					}
 				}
 			}
-		}
-		else {
-			htmlReviews += "<p class='no-review-message'>No reviews found.</p>";
-		}
-		htmlReviews += "</div>";
+			else {
+				htmlReviews += "<p class='no-review-message'>No reviews found.</p>";
+			}
+			htmlReviews += "</div>";
 
-		return htmlReviews;
-	};
+			return htmlReviews;
+		}
+	});
+
+	// self.infoWindowFoursquareReviews = function(reviews) {
+	// 	var htmlReviews = "<div class='foursquare-reviews'>";
+	// 	htmlReviews += "<h3>Foursquare</h3>";
+
+
+	// 	htmlReviews += "</div>";
+
+	// 	return htmlReviews;
+	// };
+
+
+
+
 
 	self.infoWindowContent.subscribe(function(newValue) {
 		infoWindow.open(map, currentMarker);
-	});
-
-	self.googlePlaceContent = ko.computed(function() {
-		switch(self.googlePlaceDetails()) {
-			case undefined:
-				return "<p class='load-message'>Loading...</p>";
-			case "Error":
-				return "<h3 class='no-review-message'>Could not load location info.</h3>";
-			default:
-				return;
-		}
 	});
 
 	self.yahooWeatherResult = ko.observable();
 
 	self.yahooWeatherContent = ko.computed(function() {
 		if(self.yahooWeatherResult() !== undefined) {
-			var channel = self.yahooWeatherResult().query.results.channel;
-			var description = channel.description;
-			var condition = channel.item.condition;
-			var date = condition.date;
-			var units = channel.units;
-			var currentConditions = condition.text + ", " + condition.temp + " " + units.temperature;
+			if(self.yahooWeatherResult().query.results === null) {
+				return "<div class='weather-banner'>Weather data not available</div>";
+			}
+			else {
+				var channel = self.yahooWeatherResult().query.results.channel;
+				var description = channel.description;
+				var condition = channel.item.condition;
+				var date = condition.date;
+				var units = channel.units;
+				var currentConditions = condition.text + ", " + condition.temp + " " + units.temperature;
 
-			var htmlDescription = "<strong>"+description + "</strong><br>";
-			var htmlImage = "<img src='http://l.yimg.com/a/i/us/we/52/"+condition.code+".gif'>";
-			var htmlCurrentConditionsBanner = "<span class='banner'>Current Conditions</span><br>";
-			var htmlCurrentConditions = "<span class='text'>"+currentConditions+"</span>";
+				var htmlDescription = "<strong>"+description + "</strong><br>";
+				var htmlImage = "<img src='http://l.yimg.com/a/i/us/we/52/"+condition.code+".gif'>";
+				var htmlCurrentConditionsBanner = "<span class='banner'>Current Conditions</span><br>";
+				var htmlCurrentConditions = "<span class='text'>"+currentConditions+"</span>";
 
-			var htmlWeatherBannerDiv = "<div class='weather-banner'>" + htmlDescription + date + "</div>";
-			var htmlCurrentConditionsDiv = "<div class='current-conditions'>" + htmlImage + htmlCurrentConditionsBanner + htmlCurrentConditions + "</div>";
+				var htmlWeatherBannerDiv = "<div class='weather-banner'>" + htmlDescription + date + "</div>";
+				var htmlCurrentConditionsDiv = "<div class='current-conditions'>" + htmlImage + htmlCurrentConditionsBanner + htmlCurrentConditions + "</div>";
 
-			return htmlWeatherBannerDiv + htmlCurrentConditionsDiv;
+				return htmlWeatherBannerDiv + htmlCurrentConditionsDiv;
+			}
 		}
 	});
 

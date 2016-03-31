@@ -7,7 +7,7 @@ var placesService;
 var markerList = [];
 var currentMarker;
 var infoWindow;
-var placeDetails;
+// var placeDetails;
 
 var binghamton = {lat: 42.088848, lng: -75.969491};
 
@@ -163,20 +163,22 @@ var highlightMarker = function(marker) {
 var openInfoWindow = function(marker) {
 	// $("#info-window").empty();
 	// $("#info-window").append("<p class='load-message'>Loading...</p>");
-	googlePlaceDetails("Loading");
+	// googlePlaceDetails("Loading");
+	// placesService.getDetails({placeId: "dddd"}, function(placeDetails, status) {
 	placesService.getDetails({placeId: marker.getPlace().placeId}, function(placeDetails, status) {
 		// $("#info-window").empty();
-		if (status == google.maps.places.PlacesServiceStatus.OK) {
+		// if (status == google.maps.places.PlacesServiceStatus.OK) {
 			googlePlaceDetails(placeDetails);
 			// self.placeDetails = placeDetails; // Make placeDetails available to display functions
 			// displayPlaceInfo();
-		}
-		else {
-			googlePlaceDetails("Error");
+		// }
+		// else {
+			// googlePlaceDetails(placeDetails);
+			// googlePlaceDetails("Error");
 			// $("#info-window").append("<h3 class='no-review-message'>Could not load location info.</h3>");
-		}
+		// }
 	});
-	infoWindow.open(map, marker);
+	// infoWindow.open(map, marker);
 };
 
 
@@ -242,6 +244,9 @@ var getAndDisplayFoursquareReviews = function() {
 	$("#info-window").append("<div class='foursquare-reviews'></div>");
 	$(".foursquare-reviews").append("<h3>FourSquare</h3>");
 	$(".foursquare-reviews").append("<p class='load-message'>Loading...</p>");
+
+	// API query data comes from Google placeDetails (ko.observable)
+	var placeDetails = googlePlaceDetails();
 
 	// API call to get the venue ID
 	var url = "https://api.foursquare.com/v2/venues/search";
