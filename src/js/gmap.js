@@ -180,6 +180,7 @@ var getYahooWeather = function() {
 
 	var xx = $.getJSON(url, data, function(result) {
 		// If found, place the result in the ko.observable
+		console.log(xx);
 		yahooWeatherResult(result);
 	}).fail(function() {
 		// If Yahoo weather info not available just remove the div

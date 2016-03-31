@@ -115,65 +115,43 @@ var viewModel = function() {
 		addMarkers();
 	};
 
+
+
+
+
 	self.googlePlaceDetails = ko.observable();
 
 	// Force infoWindowContent to update even if googlePlaceDetails is updated with the same value
 	self.googlePlaceDetails.extend({ notify: 'always' });
 
-	self.infoWindowContent = ko.computed(function() {
-		var content = "";
+
+
+	self.infoWindowGoogleContent = ko.computed(function() {
 		if(self.googlePlaceDetails() !== undefined) {
 			if(self.googlePlaceDetails() === null) {
 				content = "<h3 class='no-review-message'>Could not load location info.</h3>";
 			}
 			else {
-				content += self.infoWindowBannerHTML();
-				content += "<h2>Reviews</h2>";
-				content += self.infoWindowGoogleReviews();
-				content += self.infoWindowFoursquareReviews();
-			}
-		}
-		return content;
-	});
+				var placeDetails = self.googlePlaceDetails();
+				var htmlBanner = "<div class='info-banner' class='clearfix'>";
 
-	/*
-	 infoWindowContent notifies subscribers if updated with same value
-	 Forces infoWindow.open(map, marker) to fire with the currently clicked marker
-		even if infoWindowContent hasn't changed (ex: if placesService.getDetails() fails and
-		repeatedly returns null).
-	*/
-	self.infoWindowContent.extend({ notify: 'always' });
+				if(placeDetails.photos !== undefined) {
+					var imageUrl = placeDetails.photos[0].getUrl({maxWidth: 100});
+					htmlBanner += "<img src='"+imageUrl+"' class='place-image'>";
+				}
+				if(placeDetails.name !== undefined) {
+					htmlBanner += "<h1>"+placeDetails.name+"</h1>";
+				}
+				if(placeDetails.formatted_address !== undefined) {
+					htmlBanner += "<p>"+placeDetails.formatted_address+"</p>";
+				}
+				if(placeDetails.formatted_phone_number !== undefined) {
+					htmlBanner += "<p>"+placeDetails.formatted_phone_number+"</p>";
+				}
 
-
-	// Build the banner HTML
-	self.infoWindowBannerHTML = ko.computed(function() {
-		if(self.googlePlaceDetails() !== undefined) {
-			var placeDetails = self.googlePlaceDetails();
-			var htmlBanner = "<div class='info-banner' class='clearfix'>";
-
-			if(placeDetails.photos !== undefined) {
-				var imageUrl = placeDetails.photos[0].getUrl({maxWidth: 100});
-				htmlBanner += "<img src='"+imageUrl+"' class='place-image'>";
-			}
-			if(placeDetails.name !== undefined) {
-				htmlBanner += "<h1>"+placeDetails.name+"</h1>";
-			}
-			if(placeDetails.formatted_address !== undefined) {
-				htmlBanner += "<p>"+placeDetails.formatted_address+"</p>";
-			}
-			if(placeDetails.formatted_phone_number !== undefined) {
-				htmlBanner += "<p>"+placeDetails.formatted_phone_number+"</p>";
+				htmlBanner += "</div>";
 			}
 
-			htmlBanner += "</div>";
-
-			return htmlBanner;
-
-		}
-	});
-
-	self.infoWindowGoogleReviews = ko.computed(function() {
-		if(self.googlePlaceDetails() !== undefined) {
 			var reviews = self.googlePlaceDetails().reviews;
 			var htmlReviews = "<div class='google-reviews'>";
 			htmlReviews += "<h3>Google</h3>";
@@ -197,16 +175,114 @@ var viewModel = function() {
 			else {
 				htmlReviews += "<p class='no-review-message'>No reviews found.</p>";
 			}
+
 			htmlReviews += "</div>";
 
-			return htmlReviews;
+			return htmlBanner + htmlReviews;
 		}
 	});
 
+	/*
+	 infoWindowContent notifies subscribers if updated with same value
+	 Forces infoWindow.open(map, marker) to fire with the currently clicked marker
+		even if infoWindowContent hasn't changed (ex: if placesService.getDetails() fails and
+		repeatedly returns null).
+	*/
+	// self.infoWindowContent.extend({ notify: 'always' });
+
+
+
+	// Build the banner HTML
+	// self.infoWindowBannerHTML = ko.computed(function() {
+	// 	if(self.googlePlaceDetails() !== undefined) {
+
+	// 		var placeDetails = self.googlePlaceDetails();
+	// 		var htmlBanner = "<div class='info-banner' class='clearfix'>";
+
+	// 		if(placeDetails.photos !== undefined) {
+	// 			var imageUrl = placeDetails.photos[0].getUrl({maxWidth: 100});
+	// 			htmlBanner += "<img src='"+imageUrl+"' class='place-image'>";
+	// 		}
+	// 		if(placeDetails.name !== undefined) {
+	// 			htmlBanner += "<h1>"+placeDetails.name+"</h1>";
+	// 		}
+	// 		if(placeDetails.formatted_address !== undefined) {
+	// 			htmlBanner += "<p>"+placeDetails.formatted_address+"</p>";
+	// 		}
+	// 		if(placeDetails.formatted_phone_number !== undefined) {
+	// 			htmlBanner += "<p>"+placeDetails.formatted_phone_number+"</p>";
+	// 		}
+
+	// 		htmlBanner += "</div>";
+
+	// 		var reviews = self.googlePlaceDetails().reviews;
+	// 		var htmlReviews = "<div class='google-reviews'>";
+	// 		htmlReviews += "<h3>Google</h3>";
+	// 		if(reviews !== undefined && reviews.length > 0) {
+	// 			// Sort the Google reviews by date (new -> old)
+	// 			var sortedReviews = function() {
+	// 				return reviews.sort(function(thisreview, nextreview) {
+	// 					return thisreview.time == nextreview.time ? 0 : (thisreview.time > nextreview.time ? -1 : 1);
+	// 				});
+	// 			};
+	// 			htmlReviews += "<ul>";
+	// 			var maxReviews = sortedReviews().length < 4 ? sortedReviews().length : 4;
+	// 			for(var i = 0; i < maxReviews; i++) {
+	// 				if(sortedReviews()[i].text) {
+	// 					var text = sortedReviews()[i].text;
+	// 					var time = sortedReviews()[i].time;
+	// 					htmlReviews += "<li>"+text+" ("+formattedDateTime(time)+")</li>";
+	// 				}
+	// 			}
+	// 		}
+	// 		else {
+	// 			htmlReviews += "<p class='no-review-message'>No reviews found.</p>";
+	// 		}
+	// 		htmlReviews += "</div>";
+
+	// 		return htmlBanner + htmlReviews;
+
+	// 	}
+	// });
+
+	// self.infoWindowGoogleReviews = ko.computed(function() {
+	// 	if(self.googlePlaceDetails() !== undefined) {
+	// 		var reviews = self.googlePlaceDetails().reviews;
+	// 		var htmlReviews = "<div class='google-reviews'>";
+	// 		htmlReviews += "<h3>Google</h3>";
+	// 		if(reviews !== undefined && reviews.length > 0) {
+	// 			// Sort the Google reviews by date (new -> old)
+	// 			var sortedReviews = function() {
+	// 				return reviews.sort(function(thisreview, nextreview) {
+	// 					return thisreview.time == nextreview.time ? 0 : (thisreview.time > nextreview.time ? -1 : 1);
+	// 				});
+	// 			};
+	// 			htmlReviews += "<ul>";
+	// 			var maxReviews = sortedReviews().length < 4 ? sortedReviews().length : 4;
+	// 			for(var i = 0; i < maxReviews; i++) {
+	// 				if(sortedReviews()[i].text) {
+	// 					var text = sortedReviews()[i].text;
+	// 					var time = sortedReviews()[i].time;
+	// 					htmlReviews += "<li>"+text+" ("+formattedDateTime(time)+")</li>";
+	// 				}
+	// 			}
+	// 		}
+	// 		else {
+	// 			htmlReviews += "<p class='no-review-message'>No reviews found.</p>";
+	// 		}
+	// 		htmlReviews += "</div>";
+
+	// 		return htmlReviews;
+	// 	}
+	// });
+
+	self.foursquareReviewHTML = ko.observable();
+
 	self.infoWindowFoursquareReviews = ko.computed(function() {
 		if(self.googlePlaceDetails() !== undefined) {
-			var htmlReviews = "<div class='foursquare-reviews'>";
-			htmlReviews += "<h3>Foursquare</h3>";
+			var htmlReviews = "<h3>Foursquare</h3>";
+			htmlReviews += "<p class='no-review-message'>Loading...</p></div>";
+			self.foursquareReviewHTML(htmlReviews);
 
 			// API call to get the venue ID
 			var url = "https://api.foursquare.com/v2/venues/search";
@@ -225,6 +301,7 @@ var viewModel = function() {
 			$.extend(data, auth);
 
 			$.getJSON(url, data, function(result) {
+				htmlReviews = "<h3>Foursquare</h3>";
 				if(result.response.venues.length > 0) {
 					var closestVenue = result.response.venues[0];
 
@@ -238,10 +315,7 @@ var viewModel = function() {
 					$.extend(venueData, auth);
 
 					$.getJSON(url, venueData, function(result) {
-						var htmlReviews = "<div class='foursquare-reviews'>";
-						htmlReviews += "<h3>Foursquare</h3>";
 
-						console.log(result);
 						if(result.response.venue.tips.groups.length > 0) {
 							var reviews = result.response.venue.tips.groups[0].items;
 							if(typeof reviews !== 'undefined' && reviews.length > 0) {
@@ -253,7 +327,7 @@ var viewModel = function() {
 								};
 								htmlReviews += "<ul>";
 								var maxReviews = sortedReviews().length < 4 ? sortedReviews().length : 4;
-								for(var i = 0; i < maxReviews; i++) {
+								for(var i = 0; i < maxReviews; i++) {	// Success!
 									if(sortedReviews()[i].text) {
 										var text = sortedReviews()[i].text;
 										var time = sortedReviews()[i].createdAt;
@@ -261,31 +335,35 @@ var viewModel = function() {
 									}
 								}
 								htmlReviews += "</ul></div>";
-								console.log(htmlReviews);
-								return htmlReviews;
+								self.foursquareReviewHTML(htmlReviews);
 							}
-							else {
-								return htmlReviews += "<p class='no-review-message'>No reviews found.</p></div>";
+							else {	// No reviews found
+								htmlReviews += "<p class='no-review-message'>No reviews found.</p></div>";
+								self.foursquareReviewHTML(htmlReviews);
 							}
 						}
-						else {
-							return htmlReviews += "<p class='no-review-message'>No reviews found.</p></div>";
+						else {	// No groups found (so no reviews)
+							htmlReviews += "<p class='no-review-message'>No reviews found.</p></div>";
+							self.foursquareReviewHTML(htmlReviews);
 						}
-					}).fail(function() {
-						return htmlReviews += "<p class='no-review-message'>Unable to retrieve Foursquare reviews.</p></div>";
+					}).fail(function() {	// Search for venue details failed
+						htmlReviews += "<p class='no-review-message'>Unable to retrieve Foursquare reviews.</p></div>";
+						self.foursquareReviewHTML(htmlReviews);
 					});
 				}
-				else {
-					return htmlReviews += "<p class='no-review-message'>Foursquare venue not found.</p></div>";
+				else {	// Venue not found
+					htmlReviews += "<p class='no-review-message'>Foursquare venue not found.</p></div>";
+					self.foursquareReviewHTML(htmlReviews);
 				}
-			}).fail(function() {
-				return htmlReviews += "<p class='no-review-message'>Unable to retrieve Foursquare venue data.</p></div>";
+			}).fail(function() {	// Venue search failed.
+				htmlReviews += "<p class='no-review-message'>Unable to retrieve Foursquare venue data.</p></div>";
+				self.foursquareReviewHTML(htmlReviews);
 			});
 		}
 	});
 
 
-	self.infoWindowContent.subscribe(function(newValue) {
+	self.googlePlaceDetails.subscribe(function(newValue) {
 		infoWindow.open(map, currentMarker);
 	});
 

@@ -48,7 +48,10 @@
 		</div>
 
 		<!-- The infoWindow node -->
-		<div id="info-window" data-bind="html: infoWindowContent"></div>
+		<div id="info-window">
+			<div class="google-data" data-bind="html: infoWindowGoogleContent"></div>
+			<div class="foursquare-data" data-bind="html: foursquareReviewHTML"></div>
+		</div>
 
 		<!-- jquery / jquery.mobile -->
 		<script src="https://code.jquery.com/jquery-2.1.4.min.js"></script>
