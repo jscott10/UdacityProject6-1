@@ -86,8 +86,6 @@ var viewModel = function() {
 		}
 	});
 
-	self.panelVisible = ko.observable(true);
-
 	// Set the current marker when an item on the filtered list is clicked
 	self.triggerInfoWindow = function(place_id) {
 		if(markerList.length >= self.filteredPlaces().length) {
