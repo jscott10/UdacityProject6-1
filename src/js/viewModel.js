@@ -132,6 +132,7 @@ var viewModel = function() {
 				content += self.infoWindowBannerHTML();
 				content += "<h2>Reviews</h2>";
 				content += self.infoWindowGoogleReviews();
+				content += self.infoWindowFoursquareReviews();
 			}
 		}
 		return content;

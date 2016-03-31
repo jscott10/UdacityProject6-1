@@ -330,10 +330,12 @@ var getYahooWeather = function() {
 	var data = {
 		q: "select * from weather.forecast where woeid in (select woeid from geo.places(1) where text = 'Binghamton NY')",
 		format: "json",
+		oauth_consumer_key: "dj0yJmk9aGlYN1JGdHc2S3RQJmQ9WVdrOVRWaHNaVXhZTmpJbWNHbzlNQS0tJnM9Y29uc3VtZXJzZWNyZXQmeD1hMQ--",
 		env: "store://datatables.org:alltableswithkeys"
 	};
 
-	$.getJSON(url, data, function(result) {
+	var xx = $.getJSON(url, data, function(result) {
+		console.log(xx);
 		// If found, place the result in the ko.observable
 		yahooWeatherResult(result);
 	}).fail(function() {
