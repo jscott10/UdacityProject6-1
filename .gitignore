@@ -6,6 +6,7 @@ node_modules
 
 # Sublime
 *.sublime-project
+*.sublime-workspace
 
 # Local Libraries
 dist/js/knockout*
