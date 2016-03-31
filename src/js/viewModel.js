@@ -146,9 +146,6 @@ var viewModel = function() {
 	*/
 	self.infoWindowContent.extend({ notify: 'always' });
 
-	// self.foursquareContent = ko.computed(function() {
-	// 	if(self.googlePlaceDetails() !== undefined) {
-	// });
 
 	// Build the banner HTML
 	self.infoWindowBannerHTML = ko.computed(function() {
@@ -208,18 +205,86 @@ var viewModel = function() {
 		}
 	});
 
-	// self.infoWindowFoursquareReviews = function(reviews) {
-	// 	var htmlReviews = "<div class='foursquare-reviews'>";
-	// 	htmlReviews += "<h3>Foursquare</h3>";
+	self.infoWindowFoursquareReviews = ko.computed(function() {
+		if(self.googlePlaceDetails() !== undefined) {
+			var htmlReviews = "<div class='foursquare-reviews'>";
+			htmlReviews += "<h3>Foursquare</h3>";
 
+			// API call to get the venue ID
+			var url = "https://api.foursquare.com/v2/venues/search";
+			var auth = {
+				client_id: "LKOCAAQC2EHG2YHBHPKMX2TAIHXEOXL3U2GQSCHN5542VYJE",
+				client_secret: "QLLAGNKK2QOLH054PMAPYU1PUQQ4G3YNCOU52WBCH3HDKOQJ"
+			};
+			var data = {
+				ll: self.googlePlaceDetails().geometry.location.lat()+", "+self.googlePlaceDetails().geometry.location.lng(),
+				query: self.googlePlaceDetails().name,
+				intent: "match",
+				v: "20160101",
+				m: "foursquare"
+			};
 
-	// 	htmlReviews += "</div>";
+			$.extend(data, auth);
 
-	// 	return htmlReviews;
-	// };
+			$.getJSON(url, data, function(result) {
+				if(result.response.venues.length > 0) {
+					var closestVenue = result.response.venues[0];
 
+					// API call to get venue details
+					var url = "https://api.foursquare.com/v2/venues/"+closestVenue.id;
+					var venueData = {
+						v: "20160101",
+						m: "foursquare"
+					};
 
+					$.extend(venueData, auth);
 
+					$.getJSON(url, venueData, function(result) {
+						var htmlReviews = "<div class='foursquare-reviews'>";
+						htmlReviews += "<h3>Foursquare</h3>";
+
+						console.log(result);
+						if(result.response.venue.tips.groups.length > 0) {
+							var reviews = result.response.venue.tips.groups[0].items;
+							if(typeof reviews !== 'undefined' && reviews.length > 0) {
+								// Sort the reviews by date (new -> old)
+								var sortedReviews = function() {
+									return reviews.sort(function(thisreview, nextreview) {
+										return thisreview.createdAt == nextreview.createdAt ? 0 : (thisreview.createdAt > nextreview.createdAt ? -1 : 1);
+									});
+								};
+								htmlReviews += "<ul>";
+								var maxReviews = sortedReviews().length < 4 ? sortedReviews().length : 4;
+								for(var i = 0; i < maxReviews; i++) {
+									if(sortedReviews()[i].text) {
+										var text = sortedReviews()[i].text;
+										var time = sortedReviews()[i].createdAt;
+										htmlReviews += "<li>"+text+" ("+formattedDateTime(time)+")</li>";
+									}
+								}
+								htmlReviews += "</ul></div>";
+								console.log(htmlReviews);
+								return htmlReviews;
+							}
+							else {
+								return htmlReviews += "<p class='no-review-message'>No reviews found.</p></div>";
+							}
+						}
+						else {
+							return htmlReviews += "<p class='no-review-message'>No reviews found.</p></div>";
+						}
+					}).fail(function() {
+						return htmlReviews += "<p class='no-review-message'>Unable to retrieve Foursquare reviews.</p></div>";
+					});
+				}
+				else {
+					return htmlReviews += "<p class='no-review-message'>Foursquare venue not found.</p></div>";
+				}
+			}).fail(function() {
+				return htmlReviews += "<p class='no-review-message'>Unable to retrieve Foursquare venue data.</p></div>";
+			});
+		}
+	});
 
 
 	self.infoWindowContent.subscribe(function(newValue) {
