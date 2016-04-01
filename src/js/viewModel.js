@@ -73,6 +73,7 @@ var viewModel = function() {
 	self.statusText = ko.computed(function() {
 		switch(self.searchStatus()) {
 			case undefined:
+			case "no selection":
 				return "Please select a location type from the list";
 			case google.maps.places.PlacesServiceStatus.OK:
 				var locationsText = self.filteredPlaces().length === 1 ? "Location" : "Locations";
@@ -102,7 +103,7 @@ var viewModel = function() {
 		var request = {
 			location: binghamton,
 			radius: '2000',
-			types: [self.placeType()]
+			types: null
 		};
 		localStorage.setItem("placeType", self.placeType());
 		placesService.nearbySearch(request, setPlacesList);
@@ -115,26 +116,28 @@ var viewModel = function() {
 		addMarkers();
 	};
 
-
-
-
-
+	// Holds the results of placesService.getDetails()
+	// Updating triggers openWindow()
 	self.googlePlaceDetails = ko.observable();
 
 	// Force infoWindowContent to update even if googlePlaceDetails is updated with the same value
+	// Ensures that the infoWindow moves to the correct marker even if getDetails() returns null
 	self.googlePlaceDetails.extend({ notify: 'always' });
 
+	// Open the infoWindow every time googlePlaceDetails changes
+	self.googlePlaceDetails.subscribe(function(newValue) {
+		infoWindow.open(map, currentMarker);
+	});
 
-
+	// Format the Google content (banner info and Google reviews)
 	self.infoWindowGoogleContent = ko.computed(function() {
 		if(self.googlePlaceDetails() !== undefined) {
-			if(self.googlePlaceDetails() === null) {
-				content = "<h3 class='no-review-message'>Could not load location info.</h3>";
+			var placeDetails = self.googlePlaceDetails();
+			var htmlBanner = "<div class='info-banner clearfix'>";
+			if(placeDetails === null) {	// placesService.getDetails() failed
+				htmlBanner += "<h3 class='no-review-message'>Could not load location info.</h3>";
 			}
-			else {
-				var placeDetails = self.googlePlaceDetails();
-				var htmlBanner = "<div class='info-banner' class='clearfix'>";
-
+			else {	// Build the banner and Google review HTML from the returned placeDetails
 				if(placeDetails.photos !== undefined) {
 					var imageUrl = placeDetails.photos[0].getUrl({maxWidth: 100});
 					htmlBanner += "<img src='"+imageUrl+"' class='place-image'>";
@@ -143,16 +146,18 @@ var viewModel = function() {
 					htmlBanner += "<h1>"+placeDetails.name+"</h1>";
 				}
 				if(placeDetails.formatted_address !== undefined) {
-					htmlBanner += "<p>"+placeDetails.formatted_address+"</p>";
+					htmlBanner += "<p>"+placeDetails.formatted_address;
 				}
 				if(placeDetails.formatted_phone_number !== undefined) {
-					htmlBanner += "<p>"+placeDetails.formatted_phone_number+"</p>";
+					htmlBanner += "<br>"+placeDetails.formatted_phone_number+"</p>";
 				}
-
-				htmlBanner += "</div>";
+				else {
+					htmlBanner += "</p>";
+				}
 			}
+			htmlBanner += "</div>";
 
-			var reviews = self.googlePlaceDetails().reviews;
+			var reviews = placeDetails.reviews;
 			var htmlReviews = "<div class='google-reviews'>";
 			htmlReviews += "<h3>Google</h3>";
 			if(reviews !== undefined && reviews.length > 0) {
@@ -182,102 +187,10 @@ var viewModel = function() {
 		}
 	});
 
-	/*
-	 infoWindowContent notifies subscribers if updated with same value
-	 Forces infoWindow.open(map, marker) to fire with the currently clicked marker
-		even if infoWindowContent hasn't changed (ex: if placesService.getDetails() fails and
-		repeatedly returns null).
-	*/
-	// self.infoWindowContent.extend({ notify: 'always' });
-
-
-
-	// Build the banner HTML
-	// self.infoWindowBannerHTML = ko.computed(function() {
-	// 	if(self.googlePlaceDetails() !== undefined) {
-
-	// 		var placeDetails = self.googlePlaceDetails();
-	// 		var htmlBanner = "<div class='info-banner' class='clearfix'>";
-
-	// 		if(placeDetails.photos !== undefined) {
-	// 			var imageUrl = placeDetails.photos[0].getUrl({maxWidth: 100});
-	// 			htmlBanner += "<img src='"+imageUrl+"' class='place-image'>";
-	// 		}
-	// 		if(placeDetails.name !== undefined) {
-	// 			htmlBanner += "<h1>"+placeDetails.name+"</h1>";
-	// 		}
-	// 		if(placeDetails.formatted_address !== undefined) {
-	// 			htmlBanner += "<p>"+placeDetails.formatted_address+"</p>";
-	// 		}
-	// 		if(placeDetails.formatted_phone_number !== undefined) {
-	// 			htmlBanner += "<p>"+placeDetails.formatted_phone_number+"</p>";
-	// 		}
-
-	// 		htmlBanner += "</div>";
-
-	// 		var reviews = self.googlePlaceDetails().reviews;
-	// 		var htmlReviews = "<div class='google-reviews'>";
-	// 		htmlReviews += "<h3>Google</h3>";
-	// 		if(reviews !== undefined && reviews.length > 0) {
-	// 			// Sort the Google reviews by date (new -> old)
-	// 			var sortedReviews = function() {
-	// 				return reviews.sort(function(thisreview, nextreview) {
-	// 					return thisreview.time == nextreview.time ? 0 : (thisreview.time > nextreview.time ? -1 : 1);
-	// 				});
-	// 			};
-	// 			htmlReviews += "<ul>";
-	// 			var maxReviews = sortedReviews().length < 4 ? sortedReviews().length : 4;
-	// 			for(var i = 0; i < maxReviews; i++) {
-	// 				if(sortedReviews()[i].text) {
-	// 					var text = sortedReviews()[i].text;
-	// 					var time = sortedReviews()[i].time;
-	// 					htmlReviews += "<li>"+text+" ("+formattedDateTime(time)+")</li>";
-	// 				}
-	// 			}
-	// 		}
-	// 		else {
-	// 			htmlReviews += "<p class='no-review-message'>No reviews found.</p>";
-	// 		}
-	// 		htmlReviews += "</div>";
-
-	// 		return htmlBanner + htmlReviews;
-
-	// 	}
-	// });
-
-	// self.infoWindowGoogleReviews = ko.computed(function() {
-	// 	if(self.googlePlaceDetails() !== undefined) {
-	// 		var reviews = self.googlePlaceDetails().reviews;
-	// 		var htmlReviews = "<div class='google-reviews'>";
-	// 		htmlReviews += "<h3>Google</h3>";
-	// 		if(reviews !== undefined && reviews.length > 0) {
-	// 			// Sort the Google reviews by date (new -> old)
-	// 			var sortedReviews = function() {
-	// 				return reviews.sort(function(thisreview, nextreview) {
-	// 					return thisreview.time == nextreview.time ? 0 : (thisreview.time > nextreview.time ? -1 : 1);
-	// 				});
-	// 			};
-	// 			htmlReviews += "<ul>";
-	// 			var maxReviews = sortedReviews().length < 4 ? sortedReviews().length : 4;
-	// 			for(var i = 0; i < maxReviews; i++) {
-	// 				if(sortedReviews()[i].text) {
-	// 					var text = sortedReviews()[i].text;
-	// 					var time = sortedReviews()[i].time;
-	// 					htmlReviews += "<li>"+text+" ("+formattedDateTime(time)+")</li>";
-	// 				}
-	// 			}
-	// 		}
-	// 		else {
-	// 			htmlReviews += "<p class='no-review-message'>No reviews found.</p>";
-	// 		}
-	// 		htmlReviews += "</div>";
-
-	// 		return htmlReviews;
-	// 	}
-	// });
-
+	// Holds the formatted Foursquare review HTML
 	self.foursquareReviewHTML = ko.observable();
 
+	// Call the Foursquare API request and format the result
 	self.infoWindowFoursquareReviews = ko.computed(function() {
 		if(self.googlePlaceDetails() !== undefined) {
 			var htmlReviews = "<h3>Foursquare</h3>";
@@ -362,17 +275,14 @@ var viewModel = function() {
 		}
 	});
 
-
-	self.googlePlaceDetails.subscribe(function(newValue) {
-		infoWindow.open(map, currentMarker);
-	});
-
+	// Holds the results of the Yahoo! weather request
 	self.yahooWeatherResult = ko.observable();
 
+	// Formatted content
 	self.yahooWeatherContent = ko.computed(function() {
 		if(self.yahooWeatherResult() !== undefined) {
 			if(self.yahooWeatherResult().query.results === null) {
-				return "<div class='weather-banner'>Weather data not available</div>";
+				return "<div class='weather-banner-error'>Weather data not available</div>";
 			}
 			else {
 				var channel = self.yahooWeatherResult().query.results.channel;
@@ -394,7 +304,6 @@ var viewModel = function() {
 			}
 		}
 	});
-
 };
 
 

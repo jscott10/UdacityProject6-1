@@ -7,7 +7,6 @@ var placesService;
 var markerList = [];
 var currentMarker;
 var infoWindow;
-// var placeDetails;
 
 var binghamton = {lat: 42.088848, lng: -75.969491};
 
@@ -89,10 +88,8 @@ var resetMapMarkers = function() {
 	markerList.length = 0;
 };
 
-/*
- * Add a map marker for each FILTERED place
- * filteredPlaces is a computed observable dependent upon foundPlaces
- */
+// Add a map marker for each FILTERED place
+// filteredPlaces is a computed observable dependent upon foundPlaces
 var addMarkers = function() {
 	for (var i = 0; i < filteredPlaces().length; i++) {
 		addMarker(filteredPlaces()[i], i);
@@ -111,10 +108,8 @@ var addMarker = function(place, index) {
 		map: map
 	});
 
-	/*
-	 * Need an addressable list of Markers (markerList) for resetMapMarkers()
-	 * marker.index is used to reference the correct marker icon
-	*/
+	// Need an addressable list of Markers (markerList) for resetMapMarkers()
+	// marker.index is used to reference the correct marker icon
 	marker.index = markerList.push(marker) - 1;
 
 	marker.addListener('click', function() {
@@ -168,7 +163,6 @@ var openInfoWindow = function(marker) {
 };
 
 
-
 var getYahooWeather = function() {
 	var url = "https://query.yahooapis.com/v1/public/yql";
 	var data = {
@@ -178,9 +172,8 @@ var getYahooWeather = function() {
 		env: "store://datatables.org:alltableswithkeys"
 	};
 
-	var xx = $.getJSON(url, data, function(result) {
+	$.getJSON(url, data, function(result) {
 		// If found, place the result in the ko.observable
-		console.log(xx);
 		yahooWeatherResult(result);
 	}).fail(function() {
 		// If Yahoo weather info not available just remove the div

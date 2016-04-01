@@ -43,36 +43,43 @@ body {
 		margin-bottom: 10px;
 	}
 
-	.info-banner {
-		overflow: hidden;
-		padding: 0;
-		margin: 0;
-
-		.place-image {
-			float: left;
-			margin-right: 15px;
-			max-width: 100px;
-		}
-
-		.banner-details {
-			display: inline-block;
-
+	.google-data {
+		.info-banner {
 			h1 {
 				font-size: 2em;
 				margin: 0 0 .3em 0;
 			}
+			p {
+				overflow: hidden;
+			}
+			.place-image {
+				float: left;
+				margin-right: 15px;
+				max-width: 100px;
+			}
+		}
+		.google-reviews {
+			overflow: hidden;
+			padding: 0;
+			margin: 0;
 		}
 	}
 
+	.foursquare-reviews {
+		overflow: hidden;
+		padding: 0;
+		margin: 0;
+	}
 }
 
 .container {
 	display: flex;
 }
 
-.clearfix {
-	clear: both;
-	overflow: hidden;
+.clearfix:after {
+    content:" ";
+    display:table;
+    clear:both;
 }
 
 .yahoo-weather {
@@ -87,6 +94,15 @@ body {
 		padding: .5em;
 		margin: .2em;
 		width: 100%;
+		overflow: hidden;
+	}
+	.weather-banner-error {
+		font-size: 13px;
+		font-weight: bold;
+		padding: .5em;
+		margin: .2em;
+		width: 100%;
+		text-align: center;
 		overflow: hidden;
 	}
 	.current-conditions {

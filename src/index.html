@@ -26,6 +26,7 @@
 				<div class="yahoo-weather" data-bind="html: yahooWeatherContent"></div>
 
 				<!-- Select Place type -->
+				<p>Select a type of business</p>
 				<select id="place-type" data-bind="options: placeTypes, optionsCaption: 'Type of Business', optionsValue: 'type', optionsText: 'name', value: placeType, event: {change: getPlaces}"></select>
 
 				<!-- Filter -->
@@ -50,7 +51,7 @@
 		<!-- The infoWindow node -->
 		<div id="info-window">
 			<div class="google-data" data-bind="html: infoWindowGoogleContent"></div>
-			<div class="foursquare-data" data-bind="html: foursquareReviewHTML"></div>
+			<div class="foursquare-reviews" data-bind="html: foursquareReviewHTML"></div>
 		</div>
 
 		<!-- jquery / jquery.mobile -->
