@@ -31,7 +31,6 @@ body {
 }
 
 #info-window {
-	width: 96%;
 	max-width: 500px;
 	max-height: 400px;
 	padding: 10px;
@@ -44,40 +43,49 @@ body {
 		margin-bottom: 10px;
 	}
 
-	.info-banner {
-		overflow: hidden;
-		padding: 0;
-		margin: 0;
-
-		.place-image {
-			float: left;
-			margin-right: 15px;
-			max-width: 100px;
-		}
-
-		.banner-details {
-			display: inline-block;
-
+	.google-data {
+		.info-banner {
 			h1 {
 				font-size: 2em;
 				margin: 0 0 .3em 0;
 			}
+
+			p {
+				overflow: hidden;
+			}
+
+			.place-image {
+				float: left;
+				margin-right: 15px;
+				max-width: 100px;
+			}
+		}
+
+		.google-reviews {
+			overflow: hidden;
+			padding: 0;
+			margin: 0;
 		}
 	}
 
+	.foursquare-reviews {
+		overflow: hidden;
+		padding: 0;
+		margin: 0;
+	}
 }
 
 .container {
 	display: flex;
 }
 
-.clearfix {
-	clear: both;
-	overflow: hidden;
+.clearfix:after {
+    content:" ";
+    display:table;
+    clear:both;
 }
 
 .yahoo-weather {
-
 	font-size: 11px;
 	border: 1px solid gray;
 	border-radius: 15px;
@@ -87,22 +95,31 @@ body {
 	.weather-banner {
 		padding: .5em;
 		margin: .2em;
-		width: 100%;
 		overflow: hidden;
 	}
-	.current-conditions {
-		width: 100%;
+
+	.weather-banner-error {
+		font-size: 13px;
+		font-weight: bold;
+		padding: .5em;
+		margin: .2em;
+		text-align: center;
 		overflow: hidden;
+	}
+
+	.current-conditions {
+		overflow: hidden;
+
 		img {
 			float: left;
 			margin-right: .5em;
 		}
 		.banner {
-			font-size: 14px;
+			font-size: 1.2em;
 			font-weight: bold;
 		}
 		.text {
-			font-size: 16px;
+			font-size: 1.3em;
 		}
 	}
 }
@@ -110,6 +127,12 @@ body {
 .place-selector {
 	margin: 20px;
 	padding: 10px;
+}
+
+.place-select-label {
+	font-size: 0.8em;
+	font-weight: bold;
+	text-align: center;
 }
 
 .place-type {
@@ -125,15 +148,15 @@ body {
 	box-shadow: 5px 5px 15px #888;
 }
 
-.filter-results {
-	/*display: inline-block;*/
-	/*margin: 10px;*/
-	/*overflow: hidden;*/
-}
-
 .results-banner {
-	font-size: 1em;
-	margin: 0 0 0.8em;
+	border: 0 none;
+	border-radius: 15px;
+	background-color: #f99;
+	padding: .5em;
+	font-size: 0.8em;
+	font-weight: bold;
+	margin: 0.4em 0;
+	text-align: center;
 }
 
 .filtered-list {
