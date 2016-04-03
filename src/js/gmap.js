@@ -67,21 +67,9 @@ var initSystemState = function() {
 
 };
 
-// build the observable array (foundPlaces) of found places
-var setPlacesList = function (results, status) {
-	searchStatus(status); // ko.observable for Status Display
-	if(foundPlaces().length > 0) {
-		foundPlaces.removeAll();
-	}
-	if (status == google.maps.places.PlacesServiceStatus.OK) {
-		foundPlaces(results);
-		addMarkers();
-	}
-};
-
 // remove all markers and reset markerList
 var resetMapMarkers = function() {
-	for (var i = 0; i < markerList.length; i++) {
+	for (var i = 0, len = markerList.length; i < len; i++) {
 		markerList[i].setMap(null);
 		markerList[i] = null;
 	}
@@ -91,7 +79,7 @@ var resetMapMarkers = function() {
 // Add a map marker for each FILTERED place
 // filteredPlaces is a computed observable dependent upon foundPlaces
 var addMarkers = function() {
-	for (var i = 0; i < filteredPlaces().length; i++) {
+	for (var i = 0, len = filteredPlaces().length; i < len; i++) {
 		addMarker(filteredPlaces()[i], i);
 	}
 };
@@ -131,7 +119,7 @@ var setCurrentMarker = function(marker) {
 
 // Return the corresponding Marker for a placeID
 var getCurrentMarker = function(placeId) {
-	for(var index = 0; index < markerList.length; index++) {
+	for(var index = 0, len = markerList.length; index < len; index++) {
 		if(placeId === markerList[index].getPlace().placeId ) {
 			return markerList[index];
 		}
@@ -176,7 +164,7 @@ var getYahooWeather = function() {
 		// If found, place the result in the ko.observable
 		yahooWeatherResult(result);
 	}).fail(function() {
-		// If Yahoo weather info not available just remove the div
+		// If API call fails just remove the div
 		$(".yahoo-weather").remove();
 	});
 };

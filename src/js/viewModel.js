@@ -45,6 +45,11 @@ var viewModel = function() {
 	// the selected place Type
 	self.placeType = ko.observable();
 
+	// set the local storage
+	self.placeType.subscribe(function(newValue) {
+		localStorage.setItem("placeType", self.placeType());
+	});
+
 	// found places filter
 	self.locationFilter = ko.observable();
 
@@ -73,8 +78,7 @@ var viewModel = function() {
 	self.statusText = ko.computed(function() {
 		switch(self.searchStatus()) {
 			case undefined:
-			case "no selection":
-				return "Please select a location type from the list";
+				return "Search Results";
 			case google.maps.places.PlacesServiceStatus.OK:
 				var locationsText = self.filteredPlaces().length === 1 ? "Location" : "Locations";
 				return "Found "+self.filteredPlaces().length+" "+locationsText;
@@ -98,15 +102,28 @@ var viewModel = function() {
 	// Remove visible markers, reset filter and get new list of Places
 	self.getPlaces = function() {
 		resetMapMarkers();
-		self.locationFilter(); // Reset location filter
-		// Get the array of places
-		var request = {
-			location: binghamton,
-			radius: '2000',
-			types: null
-		};
-		localStorage.setItem("placeType", self.placeType());
-		placesService.nearbySearch(request, setPlacesList);
+		self.locationFilter(""); // Reset location filter
+		if(self.foundPlaces().length > 0) {
+			foundPlaces.removeAll();
+		}
+		if(self.placeType() === undefined) {
+			self.searchStatus(undefined);
+		}
+		else {
+			// Get the array of places
+			var request = {
+				location: binghamton,
+				radius: '2000',
+				types: [self.placeType()]
+			};
+			placesService.nearbySearch(request, function(results, status) {
+				self.searchStatus(status); // ko.observable for Status Display
+				if (status == google.maps.places.PlacesServiceStatus.OK) {
+					self.foundPlaces(results);
+					addMarkers();
+				}
+			});
+		}
 	};
 
 	// Called when text is changed in filter text box
@@ -280,28 +297,29 @@ var viewModel = function() {
 
 	// Formatted content
 	self.yahooWeatherContent = ko.computed(function() {
-		if(self.yahooWeatherResult() !== undefined) {
-			if(self.yahooWeatherResult().query.results === null) {
+		if(self.yahooWeatherResult() === undefined) {
+			return "<div class='weather-banner-error'>Loading....</div>";
+		}
+		else if(self.yahooWeatherResult().query.results === null) {
 				return "<div class='weather-banner-error'>Weather data not available</div>";
-			}
-			else {
-				var channel = self.yahooWeatherResult().query.results.channel;
-				var description = channel.description;
-				var condition = channel.item.condition;
-				var date = condition.date;
-				var units = channel.units;
-				var currentConditions = condition.text + ", " + condition.temp + " " + units.temperature;
+		}
+		else {
+			var channel = self.yahooWeatherResult().query.results.channel;
+			var description = channel.description;
+			var condition = channel.item.condition;
+			var date = condition.date;
+			var units = channel.units;
+			var currentConditions = condition.text + ", " + condition.temp + " " + units.temperature;
 
-				var htmlDescription = "<strong>"+description + "</strong><br>";
-				var htmlImage = "<img src='http://l.yimg.com/a/i/us/we/52/"+condition.code+".gif'>";
-				var htmlCurrentConditionsBanner = "<span class='banner'>Current Conditions</span><br>";
-				var htmlCurrentConditions = "<span class='text'>"+currentConditions+"</span>";
+			var htmlDescription = "<strong>"+description + "</strong><br>";
+			var htmlImage = "<img src='http://l.yimg.com/a/i/us/we/52/"+condition.code+".gif'>";
+			var htmlCurrentConditionsBanner = "<span class='banner'>Current Conditions</span><br>";
+			var htmlCurrentConditions = "<span class='text'>"+currentConditions+"</span>";
 
-				var htmlWeatherBannerDiv = "<div class='weather-banner'>" + htmlDescription + date + "</div>";
-				var htmlCurrentConditionsDiv = "<div class='current-conditions'>" + htmlImage + htmlCurrentConditionsBanner + htmlCurrentConditions + "</div>";
+			var htmlWeatherBannerDiv = "<div class='weather-banner'>" + htmlDescription + date + "</div>";
+			var htmlCurrentConditionsDiv = "<div class='current-conditions'>" + htmlImage + htmlCurrentConditionsBanner + htmlCurrentConditions + "</div>";
 
-				return htmlWeatherBannerDiv + htmlCurrentConditionsDiv;
-			}
+			return htmlWeatherBannerDiv + htmlCurrentConditionsDiv;
 		}
 	});
 };
